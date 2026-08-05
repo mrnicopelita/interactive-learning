@@ -1,85 +1,75 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 
-const IMAGES = [
-  { name: 'Monitor', src: '/images/monitor.svg' },
-  { name: 'CPU', src: '/images/cpu.svg' },
+const GAMES = [
+  {
+    id: 'cpu-monitor',
+    title: 'CPU & Monitor',
+    tagline: 'Look at the picture, then tap to see another one!',
+    images: ['/images/cpu.svg', '/images/monitor.svg'],
+    Component: CpuMonitorGame,
+  },
 ]
 
-function pickRandom(excludeName) {
-  const options = IMAGES.filter((image) => image.name !== excludeName)
-  return options[Math.floor(Math.random() * options.length)]
-}
-
-const TRANSITION_MS = 550
-
-function App() {
-  const [current, setCurrent] = useState(() => pickRandom())
-  const [previous, setPrevious] = useState(null)
-  const timerRef = useRef(null)
-
-  const switchImage = useCallback(() => {
-    setPrevious(current)
-    setCurrent(pickRandom(current.name))
-
-    clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      setPrevious(null)
-    }, TRANSITION_MS)
-  }, [current])
-
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.code === 'Space') {
-        event.preventDefault()
-        switchImage()
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      clearTimeout(timerRef.current)
-    }
-  }, [switchImage])
-
+function Catalog({ onPlay }) {
   return (
-    <div
-      className="relative flex h-screen w-screen cursor-pointer flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200"
-      onClick={switchImage}
-    >
-      <header className="z-10 flex w-full items-center justify-between gap-4 bg-white/85 px-5 py-4 shadow-md backdrop-blur-sm sm:px-10">
-        <div className="flex items-center gap-2 text-4xl font-extrabold text-sky-700 sm:text-5xl">
-          <span aria-hidden="true" className="text-6xl sm:text-7xl">←</span>
-          <span>Monitor</span>
-        </div>
-
-        <p className="hidden text-sm font-bold tracking-wide text-slate-500 uppercase md:block">
-          Tap the screen or press Space!
-        </p>
-
-        <div className="flex items-center gap-2 text-4xl font-extrabold text-emerald-700 sm:text-5xl">
-          <span>CPU</span>
-          <span aria-hidden="true" className="text-6xl sm:text-7xl">→</span>
-        </div>
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
+      <header className="z-10 flex w-full items-center justify-center bg-white/85 px-5 py-4 text-center shadow-md backdrop-blur-sm">
+        <h1 className="text-4xl font-extrabold text-slate-700 sm:text-5xl">
+          Interactive <span className="text-sky-600">Learning</span>
+        </h1>
       </header>
 
-      <main className="relative flex flex-1 items-center justify-center overflow-hidden">
-        {previous && (
-          <img
-            key={`old-${previous.name}`}
-            src={previous.src}
-            alt={previous.name}
-            className="animate-fade-out absolute inset-0 m-auto h-[62vh] w-auto max-w-none select-none object-contain sm:h-[68vh]"
-          />
-        )}
-        <img
-          key={current.name}
-          src={current.src}
-          alt={current.name}
-          className="animate-pop-in relative h-[62vh] w-auto max-w-none select-none object-contain drop-shadow-2xl sm:h-[68vh]"
-        />
+      <main className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-6">
+        <p className="text-xl font-bold text-slate-600 sm:text-2xl">
+          Pick a game to play!
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-6">
+          {GAMES.map((game) => (
+            <div key={game.id} className="animate-pop-in">
+              <button
+                type="button"
+                onClick={() => onPlay(game.id)}
+                className="group flex min-w-72 flex-col items-center gap-5 rounded-3xl bg-white/95 px-10 py-8 shadow-lg transition hover:scale-105 hover:shadow-xl"
+              >
+                <div className="flex items-center gap-4">
+                  {game.images.map((src) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt=""
+                      className="h-28 w-28 object-contain drop-shadow-md transition group-hover:scale-105 sm:h-32 sm:w-32"
+                    />
+                  ))}
+                </div>
+                <div className="text-center">
+                  <h2 className="text-3xl font-extrabold text-slate-700">
+                    {game.title}
+                  </h2>
+                  <p className="mt-2 text-sm font-semibold text-slate-500">
+                    {game.tagline}
+                  </p>
+                </div>
+              </button>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   )
+}
+
+function App() {
+  const [activeGameId, setActiveGameId] = useState(null)
+  const activeGame = GAMES.find((game) => game.id === activeGameId)
+
+  if (activeGame) {
+    const GameComponent = activeGame.Component
+    return <GameComponent onExit={() => setActiveGameId(null)} />
+  }
+
+  return <Catalog onPlay={(gameId) => setActiveGameId(gameId)} />
 }
 
 export default App
