@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Computer monitor">
+  <defs>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7bd5ff"/>
+      <stop offset="0.6" stop-color="#a5e0ff"/>
+      <stop offset="1" stop-color="#d8f1ff"/>
+    </linearGradient>
+    <linearGradient id="bezel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b6472"/>
+      <stop offset="1" stop-color="#3a4150"/>
+    </linearGradient>
+    <clipPath id="screenClip">
+      <rect x="112" y="82" width="376" height="276" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <ellipse cx="300" cy="565" rx="210" ry="22" fill="#000000" opacity="0.1"/>
+
+  <ellipse cx="300" cy="540" rx="120" ry="22" fill="#5b6472"/>
+  <rect x="240" y="525" width="120" height="22" rx="11" fill="#717b8c"/>
+
+  <rect x="280" y="360" width="40" height="170" rx="10" fill="#5b6472"/>
+
+  <rect x="90" y="60" width="420" height="320" rx="34" fill="url(#bezel)"/>
+
+  <rect x="112" y="82" width="376" height="276" rx="18" fill="url(#screen)"/>
+
+  <g clip-path="url(#screenClip)">
+    <circle cx="240" cy="150" r="40" fill="#ffd93d"/>
+    <circle cx="240" cy="150" r="56" fill="#ffd93d" opacity="0.3"/>
+
+    <ellipse cx="170" cy="210" rx="46" ry="16" fill="#ffffff"/>
+    <ellipse cx="430" cy="120" rx="50" ry="16" fill="#ffffff"/>
+    <ellipse cx="150" cy="200" rx="26" ry="10" fill="#ffffff" opacity="0.8"/>
+
+    <path d="M300 265 m-120 0 a120 120 0 0 1 240 0" stroke="#ff6b9d" stroke-width="11" fill="none" opacity="0.9"/>
+    <path d="M300 265 m-100 0 a100 100 0 0 1 200 0" stroke="#ffd93d" stroke-width="11" fill="none" opacity="0.9"/>
+    <path d="M300 265 m-80 0 a80 80 0 0 1 160 0" stroke="#4dc9ff" stroke-width="11" fill="none" opacity="0.9"/>
+
+    <ellipse cx="150" cy="330" rx="210" ry="130" fill="#6fdc8f"/>
+    <ellipse cx="380" cy="355" rx="230" ry="140" fill="#4ac276"/>
+    <ellipse cx="560" cy="330" rx="170" ry="120" fill="#3fb068"/>
+
+    <path d="M420 205 q8 -10 16 0 M444 192 q8 -10 16 0" stroke="#4a5568" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <rect x="112" y="82" width="376" height="276" rx="18" fill="#ffffff" opacity="0.06"/>
+  <path d="M150 100 L260 100 L120 358 L120 220 Z" fill="#ffffff" opacity="0.08"/>
+
+  <circle cx="300" cy="70" r="7" fill="#2b313d"/>
+  <circle cx="300" cy="369" r="5" fill="#2fd26b"/>
+</svg>
