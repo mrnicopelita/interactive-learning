@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Computer keyboard">
+  <defs>
+    <linearGradient id="kbBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe29a"/>
+      <stop offset="1" stop-color="#ffb84d"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="560" rx="255" ry="26" fill="#000000" opacity="0.1"/>
+
+  <rect x="55" y="160" width="490" height="300" rx="30" fill="url(#kbBody)" stroke="#e89b2e" stroke-width="7"/>
+  <rect x="55" y="160" width="490" height="110" rx="30" fill="#ffffff" opacity="0.16"/>
+
+  <g font-family="Arial, sans-serif" font-weight="bold" fill="#b56b12">
+    <g fill="#ffadad">
+      <rect x="80" y="185" width="44" height="46" rx="10"/>
+      <text x="102" y="215" text-anchor="middle" font-size="22">1</text>
+      <rect x="132" y="185" width="44" height="46" rx="10"/>
+      <text x="154" y="215" text-anchor="middle" font-size="22">2</text>
+      <rect x="184" y="185" width="44" height="46" rx="10"/>
+      <text x="206" y="215" text-anchor="middle" font-size="22">3</text>
+      <rect x="236" y="185" width="44" height="46" rx="10"/>
+      <text x="258" y="215" text-anchor="middle" font-size="22">4</text>
+      <rect x="288" y="185" width="44" height="46" rx="10"/>
+      <text x="310" y="215" text-anchor="middle" font-size="22">5</text>
+      <rect x="340" y="185" width="44" height="46" rx="10"/>
+      <text x="362" y="215" text-anchor="middle" font-size="22">6</text>
+      <rect x="392" y="185" width="44" height="46" rx="10"/>
+      <text x="414" y="215" text-anchor="middle" font-size="22">7</text>
+      <rect x="444" y="185" width="44" height="46" rx="10"/>
+      <text x="466" y="215" text-anchor="middle" font-size="22">8</text>
+    </g>
+
+    <g fill="#fffdf5">
+      <rect x="80" y="246" width="44" height="46" rx="10"/>
+      <text x="102" y="276" text-anchor="middle" font-size="22">Q</text>
+      <rect x="132" y="246" width="44" height="46" rx="10"/>
+      <text x="154" y="276" text-anchor="middle" font-size="22">W</text>
+      <rect x="184" y="246" width="44" height="46" rx="10"/>
+      <text x="206" y="276" text-anchor="middle" font-size="22">E</text>
+      <rect x="236" y="246" width="44" height="46" rx="10"/>
+      <text x="258" y="276" text-anchor="middle" font-size="22">R</text>
+      <rect x="288" y="246" width="44" height="46" rx="10"/>
+      <text x="310" y="276" text-anchor="middle" font-size="22">T</text>
+      <rect x="340" y="246" width="44" height="46" rx="10"/>
+      <text x="362" y="276" text-anchor="middle" font-size="22">Y</text>
+      <rect x="392" y="246" width="44" height="46" rx="10"/>
+      <text x="414" y="276" text-anchor="middle" font-size="22">U</text>
+      <rect x="444" y="246" width="44" height="46" rx="10"/>
+      <text x="466" y="276" text-anchor="middle" font-size="22">I</text>
+    </g>
+
+    <g fill="#fff3d6">
+      <rect x="80" y="307" width="44" height="46" rx="10"/>
+      <text x="102" y="337" text-anchor="middle" font-size="22">A</text>
+      <rect x="132" y="307" width="44" height="46" rx="10"/>
+      <text x="154" y="337" text-anchor="middle" font-size="22">S</text>
+      <rect x="184" y="307" width="44" height="46" rx="10"/>
+      <text x="206" y="337" text-anchor="middle" font-size="22">D</text>
+      <rect x="236" y="307" width="44" height="46" rx="10"/>
+      <text x="258" y="337" text-anchor="middle" font-size="22">F</text>
+      <rect x="288" y="307" width="44" height="46" rx="10"/>
+      <text x="310" y="337" text-anchor="middle" font-size="22">G</text>
+      <rect x="340" y="307" width="44" height="46" rx="10"/>
+      <text x="362" y="337" text-anchor="middle" font-size="22">H</text>
+      <rect x="392" y="307" width="44" height="46" rx="10"/>
+      <text x="414" y="337" text-anchor="middle" font-size="22">J</text>
+      <rect x="444" y="307" width="44" height="46" rx="10"/>
+      <text x="466" y="337" text-anchor="middle" font-size="22">K</text>
+    </g>
+
+    <g>
+      <rect x="80" y="368" width="250" height="46" rx="10" fill="#ffd166"/>
+      <rect x="350" y="368" width="70" height="46" rx="10" fill="#a0c4ff"/>
+      <text x="385" y="396" text-anchor="middle" font-size="16">Shift</text>
+      <rect x="440" y="368" width="68" height="46" rx="10" fill="#9bf6ff"/>
+      <text x="474" y="396" text-anchor="middle" font-size="16">Enter</text>
+    </g>
+  </g>
+</svg>
