@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
+import BerKomGame from './games/BerKomGame.jsx'
 
 const GAMES = [
   {
@@ -8,6 +9,13 @@ const GAMES = [
     tagline: 'Look at the picture, then tap to see another one!',
     images: ['/images/cpu.svg', '/images/monitor.svg'],
     Component: CpuMonitorGame,
+  },
+  {
+    id: 'berkom',
+    title: 'BerKom',
+    tagline: 'Drag the computer parts into the right order!',
+    images: ['/images/keyboard.svg', '/images/mouse.svg'],
+    Component: BerKomGame,
   },
 ]
 
