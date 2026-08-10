@@ -4,9 +4,9 @@ import { EXAM } from '../exams/examData.js'
 import { formatTime, gradeExam } from '../exams/examEngine.js'
 
 const MESSAGE_BY_SCORE = [
-  'Keep practicing — you can do it!',
-  'Good work! A little more practice and you will nail it!',
-  'Amazing job! You did great!',
+  (name) => `Keep practicing, ${name} — you can do it!`,
+  (name) => `Good work, ${name}! A little more practice and you will nail it!`,
+  (name) => `Amazing job, ${name}! You did great!`,
 ]
 
 const CONFETTI_COLORS = ['#fbbf24', '#38bdf8', '#34d399', '#fb7185', '#a78bfa', '#f59e0b']
@@ -59,8 +59,78 @@ function SparkleBurst() {
   )
 }
 
+function NameEntry({ onStart, onExit }) {
+  const [name, setName] = useState('')
+  const trimmed = name.trim()
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    if (trimmed) onStart(trimmed)
+  }
+
+  return (
+    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
+      <div className="z-10 flex w-full shrink-0 items-center justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+        <button
+          type="button"
+          onClick={onExit}
+          className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-lg font-extrabold text-sky-700 shadow-lg transition hover:scale-105 sm:px-6 sm:py-3 sm:text-2xl"
+        >
+          <span aria-hidden="true" className="text-xl sm:text-3xl">←</span>
+          Games
+        </button>
+        <div className="w-20 sm:w-32" aria-hidden="true" />
+      </div>
+
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6">
+        <form
+          onSubmit={handleSubmit}
+          className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10"
+        >
+          <img
+            src="/images/quiz.svg"
+            alt=""
+            className="h-20 w-20 select-none object-contain drop-shadow-md sm:h-24 sm:w-24"
+          />
+          <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
+            {EXAM.title}
+          </h1>
+          <p className="text-sm font-bold text-slate-500 sm:text-base">
+            {EXAM.description}
+          </p>
+
+          <label className="flex w-full flex-col gap-2 text-left">
+            <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase">
+              Your name
+            </span>
+            <input
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Type your name…"
+              autoComplete="off"
+              autoFocus
+              className="w-full rounded-2xl border-2 border-sky-200 bg-sky-50 px-4 py-3 text-center text-xl font-extrabold text-slate-700 outline-none placeholder:font-semibold placeholder:text-slate-400 focus:border-sky-500 sm:text-2xl"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={!trimmed}
+            className="w-full rounded-full bg-emerald-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
+          >
+            Start Quiz
+            <span aria-hidden="true"> 🚀</span>
+          </button>
+        </form>
+      </main>
+    </div>
+  )
+}
+
 function ExamRunner({ onExit }) {
-  const [status, setStatus] = useState('running')
+  const [status, setStatus] = useState('entry')
+  const [studentName, setStudentName] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [flagged, setFlagged] = useState([])
@@ -143,6 +213,11 @@ function ExamRunner({ onExit }) {
     )
   }
 
+  function startExam(name) {
+    setStudentName(name)
+    setStatus('running')
+  }
+
   function restart() {
     setStatus('running')
     setCurrentIndex(0)
@@ -152,8 +227,19 @@ function ExamRunner({ onExit }) {
     setResult(null)
   }
 
+  if (status === 'entry') {
+    return <NameEntry onStart={startExam} onExit={onExit} />
+  }
+
   if (status === 'submitted') {
-    return <ResultSummary result={result} onRestart={restart} onExit={onExit} />
+    return (
+      <ResultSummary
+        result={result}
+        studentName={studentName}
+        onRestart={restart}
+        onExit={onExit}
+      />
+    )
   }
 
   const currentAnswer = answers[question.id]
@@ -183,6 +269,9 @@ function ExamRunner({ onExit }) {
       </div>
 
       <div className="z-10 flex w-full shrink-0 flex-col items-center gap-1.5 px-4 pt-3 sm:px-6">
+        <p className="text-xs font-extrabold tracking-wide text-slate-500 uppercase sm:text-sm">
+          Hi, {studentName}! Good luck! <span aria-hidden="true">⭐</span>
+        </p>
         <div className="flex w-full max-w-3xl items-center justify-between text-sm font-bold text-slate-600 sm:text-base">
           <span>
             {completedCount} of {EXAM.questions.length} completed
@@ -369,7 +458,7 @@ function ExamRunner({ onExit }) {
   )
 }
 
-function ResultSummary({ result, onRestart, onExit }) {
+function ResultSummary({ result, studentName, onRestart, onExit }) {
   const messageIndex =
     result.percentage >= 80 ? 2 : result.percentage >= 50 ? 1 : 0
 
@@ -420,7 +509,7 @@ function ResultSummary({ result, onRestart, onExit }) {
             </span>
           </p>
           <p className="text-xl font-extrabold text-sky-700 sm:text-2xl">
-            {MESSAGE_BY_SCORE[messageIndex]}
+            {MESSAGE_BY_SCORE[messageIndex](studentName)}
           </p>
           <p className="text-sm font-bold text-slate-500 sm:text-base">
             Time taken: {formatTime(result.timeTakenSeconds)} · Score:{' '}
