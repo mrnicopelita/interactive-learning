@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import confetti from 'canvas-confetti'
 import { EXAM } from '../exams/examData.js'
 import { formatTime, gradeExam } from '../exams/examEngine.js'
+import { supabase } from '../lib/supabase.js'
 
 const MESSAGE_BY_SCORE = [
   (name) => `Keep practicing, ${name} — you can do it!`,
@@ -136,6 +137,7 @@ function ExamRunner({ onExit }) {
   const [flagged, setFlagged] = useState([])
   const [timeLeft, setTimeLeft] = useState(EXAM.durationSeconds)
   const [result, setResult] = useState(null)
+  const [saveStatus, setSaveStatus] = useState(null)
 
   const question = EXAM.questions[currentIndex]
   const isFlagged = flagged.includes(question.id)
@@ -151,17 +153,31 @@ function ExamRunner({ onExit }) {
 
   const progress = Math.round((completedCount / EXAM.questions.length) * 100)
 
-  const submitExam = useCallback(() => {
+  const submitExam = useCallback(async () => {
     if (status !== 'running') return
-    setResult(
-      gradeExam(EXAM, {
-        answers,
-        flaggedQuestionIds: flagged,
-        timeTakenSeconds: EXAM.durationSeconds - timeLeft,
-      }),
-    )
+    const graded = gradeExam(EXAM, {
+      answers,
+      flaggedQuestionIds: flagged,
+      timeTakenSeconds: EXAM.durationSeconds - timeLeft,
+    })
+    setResult(graded)
     setStatus('submitted')
-  }, [status, answers, flagged, timeLeft])
+
+    if (supabase) {
+      setSaveStatus('saving')
+      const { error } = await supabase.from('exam_results').insert({
+        student_name: studentName,
+        exam_id: EXAM.id,
+        score: graded.score,
+        total: graded.total,
+        percentage: graded.percentage,
+        time_taken_seconds: graded.timeTakenSeconds,
+        answers,
+        flagged_question_ids: flagged,
+      })
+      setSaveStatus(error ? 'error' : 'saved')
+    }
+  }, [status, answers, flagged, timeLeft, studentName])
 
   useEffect(() => {
     if (status !== 'running') return undefined
@@ -225,6 +241,7 @@ function ExamRunner({ onExit }) {
     setFlagged([])
     setTimeLeft(EXAM.durationSeconds)
     setResult(null)
+    setSaveStatus(null)
   }
 
   if (status === 'entry') {
@@ -236,6 +253,7 @@ function ExamRunner({ onExit }) {
       <ResultSummary
         result={result}
         studentName={studentName}
+        saveStatus={saveStatus}
         onRestart={restart}
         onExit={onExit}
       />
@@ -458,7 +476,7 @@ function ExamRunner({ onExit }) {
   )
 }
 
-function ResultSummary({ result, studentName, onRestart, onExit }) {
+function ResultSummary({ result, studentName, saveStatus, onRestart, onExit }) {
   const messageIndex =
     result.percentage >= 80 ? 2 : result.percentage >= 50 ? 1 : 0
 
@@ -515,6 +533,21 @@ function ResultSummary({ result, studentName, onRestart, onExit }) {
             Time taken: {formatTime(result.timeTakenSeconds)} · Score:{' '}
             {result.percentage}%
           </p>
+          {saveStatus === 'saving' && (
+            <p className="animate-pulse text-sm font-extrabold text-sky-600 sm:text-base">
+              Saving your result…
+            </p>
+          )}
+          {saveStatus === 'saved' && (
+            <p className="text-sm font-extrabold text-emerald-600 sm:text-base">
+              ✓ Your result has been saved!
+            </p>
+          )}
+          {saveStatus === 'error' && (
+            <p className="text-sm font-extrabold text-rose-600 sm:text-base">
+              ✗ Couldn't save your result. Check the connection and try again.
+            </p>
+          )}
         </div>
 
         <div className="flex w-full max-w-3xl flex-col gap-2 sm:gap-3">
