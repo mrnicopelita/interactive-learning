@@ -26,3 +26,14 @@ create policy "Anyone can read exam results"
   on public.exam_results
   for select
   using (true);
+
+create policy "Anyone can update exam results"
+  on public.exam_results
+  for update
+  using (true)
+  with check (true);
+
+create policy "Anyone can delete exam results"
+  on public.exam_results
+  for delete
+  using (true);

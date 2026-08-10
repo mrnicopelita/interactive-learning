@@ -110,8 +110,176 @@ function DashboardGate({ onUnlock, onExit }) {
   )
 }
 
+function EditModal({ row, onSave, onCancel }) {
+  const [draft, setDraft] = useState({
+    student_name: row.student_name,
+    exam_id: row.exam_id,
+    score: String(row.score),
+    total: String(row.total),
+    percentage: String(row.percentage),
+    time_taken_seconds: String(row.time_taken_seconds),
+  })
+  const [busy, setBusy] = useState(false)
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    const score = Number(draft.score)
+    const total = Number(draft.total)
+    const percentage = Number(draft.percentage)
+    const timeTaken = Number(draft.time_taken_seconds)
+    if (!draft.student_name.trim() || !draft.exam_id) return
+    if (
+      !Number.isFinite(score) ||
+      !Number.isFinite(total) ||
+      !Number.isFinite(percentage) ||
+      !Number.isFinite(timeTaken)
+    ) {
+      return
+    }
+    setBusy(true)
+    onSave({
+      student_name: draft.student_name.trim(),
+      exam_id: draft.exam_id,
+      score,
+      total,
+      percentage,
+      time_taken_seconds: timeTaken,
+    })
+      .catch(() => {})
+      .finally(() => setBusy(false))
+  }
+
+  const fieldClass =
+    'w-full rounded-2xl border-2 border-sky-200 bg-sky-50 px-4 py-2 text-base font-bold text-slate-700 outline-none placeholder:font-semibold placeholder:text-slate-400 focus:border-sky-500'
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="animate-pop-in flex max-h-[90dvh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+      >
+        <h2 className="text-xl font-extrabold text-slate-700 sm:text-2xl">
+          Edit submission
+        </h2>
+
+        <label className="flex flex-col gap-1.5 text-left">
+          <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+            Student name
+          </span>
+          <input
+            type="text"
+            value={draft.student_name}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, student_name: event.target.value }))
+            }
+            className={fieldClass}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-left">
+          <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+            Exam
+          </span>
+          <select
+            value={draft.exam_id}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, exam_id: event.target.value }))
+            }
+            className={fieldClass}
+          >
+            {Object.entries(EXAM_NAMES).map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="flex flex-col gap-1.5 text-left">
+            <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+              Score
+            </span>
+            <input
+              type="number"
+              value={draft.score}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, score: event.target.value }))
+              }
+              className={fieldClass}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-left">
+            <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+              Total
+            </span>
+            <input
+              type="number"
+              value={draft.total}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, total: event.target.value }))
+              }
+              className={fieldClass}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-left">
+            <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+              Percentage
+            </span>
+            <input
+              type="number"
+              value={draft.percentage}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, percentage: event.target.value }))
+              }
+              className={fieldClass}
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-left">
+            <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+              Time (seconds)
+            </span>
+            <input
+              type="number"
+              value={draft.time_taken_seconds}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, time_taken_seconds: event.target.value }))
+              }
+              className={fieldClass}
+            />
+          </label>
+        </div>
+
+        <div className="mt-2 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="rounded-full bg-white px-5 py-2.5 text-base font-extrabold text-slate-600 shadow transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={busy}
+            className="rounded-full bg-emerald-500 px-5 py-2.5 text-base font-extrabold text-white shadow transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40"
+          >
+            {busy ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function DashboardView({ onExit }) {
   const [state, setState] = useState({ status: 'loading' })
+  const [editingRow, setEditingRow] = useState(null)
+  const [notice, setNotice] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -137,6 +305,40 @@ function DashboardView({ onExit }) {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (!notice) return undefined
+    const timer = setTimeout(() => setNotice(null), 4000)
+    return () => clearTimeout(timer)
+  }, [notice])
+
+  async function handleDelete(row) {
+    if (!window.confirm(`Delete ${row.student_name}'s submission?`)) return
+    const { error } = await supabase.from('exam_results').delete().eq('id', row.id)
+    if (error) {
+      setNotice({ kind: 'error', text: `Couldn't delete: ${error.message}` })
+      return
+    }
+    setState((prev) => ({ ...prev, rows: prev.rows.filter((r) => r.id !== row.id) }))
+    setNotice({ kind: 'success', text: 'Submission deleted.' })
+  }
+
+  async function handleEditSave(payload) {
+    const { error } = await supabase
+      .from('exam_results')
+      .update(payload)
+      .eq('id', editingRow.id)
+    if (error) {
+      setNotice({ kind: 'error', text: `Couldn't save: ${error.message}` })
+      return
+    }
+    setState((prev) => ({
+      ...prev,
+      rows: prev.rows.map((r) => (r.id === editingRow.id ? { ...r, ...payload } : r)),
+    }))
+    setEditingRow(null)
+    setNotice({ kind: 'success', text: 'Submission updated.' })
+  }
 
   const metrics = useMemo(() => {
     if (state.status !== 'ready') return null
@@ -275,13 +477,22 @@ function DashboardView({ onExit }) {
               <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
                 Recent submissions
               </h2>
+              {notice && (
+                <div
+                  className={`animate-pop-in rounded-2xl px-5 py-3 text-center text-base font-extrabold shadow ${
+                    notice.kind === 'error' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                  }`}
+                >
+                  {notice.text}
+                </div>
+              )}
               <div className="w-full overflow-x-auto rounded-3xl bg-white/95 shadow-lg">
                 {metrics.recent.length === 0 ? (
                   <p className="px-6 py-5 text-center text-base font-bold text-slate-500">
                     No results yet.
                   </p>
                 ) : (
-                  <table className="w-full min-w-[40rem] text-left text-sm sm:text-base">
+                  <table className="w-full min-w-[46rem] text-left text-sm sm:text-base">
                     <thead>
                       <tr className="border-b-2 border-sky-100 text-xs font-extrabold tracking-wide text-slate-500 uppercase">
                         <th className="px-5 py-3">Student</th>
@@ -290,6 +501,7 @@ function DashboardView({ onExit }) {
                         <th className="px-5 py-3">%</th>
                         <th className="px-5 py-3">Time</th>
                         <th className="px-5 py-3">Date</th>
+                        <th className="px-5 py-3">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -310,6 +522,24 @@ function DashboardView({ onExit }) {
                           <td className="px-5 py-3 whitespace-nowrap">
                             {new Date(row.created_at).toLocaleString()}
                           </td>
+                          <td className="px-5 py-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingRow(row)}
+                                className="rounded-full bg-sky-500 px-3 py-1.5 text-xs font-extrabold text-white shadow transition hover:scale-105 sm:text-sm"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(row)}
+                                className="rounded-full bg-rose-500 px-3 py-1.5 text-xs font-extrabold text-white shadow transition hover:scale-105 sm:text-sm"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -320,6 +550,14 @@ function DashboardView({ onExit }) {
           </>
         )}
       </main>
+
+      {editingRow && (
+        <EditModal
+          row={editingRow}
+          onSave={handleEditSave}
+          onCancel={() => setEditingRow(null)}
+        />
+      )}
     </div>
   )
 }
