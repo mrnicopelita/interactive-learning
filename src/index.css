@@ -88,3 +88,33 @@ body {
 .animate-shake {
   animation: shake 0.45s ease-in-out both;
 }
+
+@keyframes sparkle {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.6) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(90deg);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 0.6s ease-out forwards;
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4rem) scale(1.15);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 0.9s ease-out forwards;
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Quiz clipboard with checkmarks">
+  <defs>
+    <linearGradient id="quizBoard" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#bae6fd"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="300" cy="556" rx="225" ry="26" fill="#000000" opacity="0.1"/>
+  <rect x="60" y="520" width="480" height="30" rx="15" fill="#ffffff" opacity="0.75"/>
+  <rect x="170" y="110" width="260" height="400" rx="26" fill="url(#quizBoard)" stroke="#38bdf8" stroke-width="8"/>
+  <rect x="230" y="80" width="140" height="60" rx="14" fill="#0ea5e9"/>
+  <rect x="255" y="97" width="90" height="8" rx="4" fill="#7dd3fc"/>
+  <g stroke="#0284c7" stroke-width="18" stroke-linecap="round" fill="none">
+    <path d="M220 240 l45 45 l90 -90"/>
+    <path d="M220 340 l45 45 l90 -90"/>
+    <path d="M220 440 l45 45 l90 -90"/>
+  </g>
+</svg>
