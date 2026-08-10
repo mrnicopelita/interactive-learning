@@ -77,7 +77,9 @@ function Catalog({ onPlay }) {
 }
 
 function App() {
-  const [activeGameId, setActiveGameId] = useState(null)
+  const [activeGameId, setActiveGameId] = useState(
+    () => window.location.hash.replace('#', '') || null,
+  )
   const activeGame = GAMES.find((game) => game.id === activeGameId)
 
   if (activeGame) {

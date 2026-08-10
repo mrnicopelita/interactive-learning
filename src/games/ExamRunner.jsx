@@ -81,6 +81,18 @@ function ExamRunner({ onExit }) {
 
   const progress = Math.round((completedCount / EXAM.questions.length) * 100)
 
+  const submitExam = useCallback(() => {
+    if (status !== 'running') return
+    setResult(
+      gradeExam(EXAM, {
+        answers,
+        flaggedQuestionIds: flagged,
+        timeTakenSeconds: EXAM.durationSeconds - timeLeft,
+      }),
+    )
+    setStatus('submitted')
+  }, [status, answers, flagged, timeLeft])
+
   useEffect(() => {
     if (status !== 'running') return undefined
     const timer = setInterval(() => {
@@ -130,18 +142,6 @@ function ExamRunner({ onExit }) {
         : [...prev, question.id],
     )
   }
-
-  const submitExam = useCallback(() => {
-    if (status !== 'running') return
-    setResult(
-      gradeExam(EXAM, {
-        answers,
-        flaggedQuestionIds: flagged,
-        timeTakenSeconds: EXAM.durationSeconds - timeLeft,
-      }),
-    )
-    setStatus('submitted')
-  }, [status, answers, flagged, timeLeft])
 
   function restart() {
     setStatus('running')
