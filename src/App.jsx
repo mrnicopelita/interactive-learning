@@ -2,6 +2,8 @@ import { useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
+import { EXAM } from './exams/examData.js'
+import { EXAM_6 } from './exams/exam6Data.js'
 
 const GAMES = [
   {
@@ -20,10 +22,17 @@ const GAMES = [
   },
   {
     id: 'exam',
-    title: 'Exam',
+    title: 'Exam G1-G2-G3',
     tagline: 'Answer questions and test what you know!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: ExamRunner,
+    Component: (props) => <ExamRunner exam={EXAM} {...props} />,
+  },
+  {
+    id: 'exam-6',
+    title: 'Exam Grade 6',
+    tagline: 'Tough questions for grade 6 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_6} {...props} />,
   },
 ]
 

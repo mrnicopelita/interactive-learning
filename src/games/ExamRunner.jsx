@@ -4,6 +4,11 @@ import { EXAM } from '../exams/examData.js'
 import { formatTime, gradeExam } from '../exams/examEngine.js'
 import { supabase } from '../lib/supabase.js'
 
+const isQuestionAnswered = (q, answers) => {
+  const answer = answers[q.id]
+  return answer !== undefined && answer !== null && answer !== ''
+}
+
 const MESSAGE_BY_SCORE = [
   (name) => `Keep practicing, ${name} — you can do it!`,
   (name) => `Good work, ${name}! A little more practice and you will nail it!`,
@@ -60,7 +65,7 @@ function SparkleBurst() {
   )
 }
 
-function NameEntry({ onStart, onExit }) {
+function NameEntry({ exam, onStart, onExit }) {
   const [name, setName] = useState('')
   const trimmed = name.trim()
 
@@ -94,10 +99,10 @@ function NameEntry({ onStart, onExit }) {
             className="h-20 w-20 select-none object-contain drop-shadow-md sm:h-24 sm:w-24"
           />
           <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
-            {EXAM.title}
+            {exam.title}
           </h1>
           <p className="text-sm font-bold text-slate-500 sm:text-base">
-            {EXAM.description}
+            {exam.description}
           </p>
 
           <label className="flex w-full flex-col gap-2 text-left">
@@ -129,36 +134,32 @@ function NameEntry({ onStart, onExit }) {
   )
 }
 
-function ExamRunner({ onExit }) {
+function ExamRunner({ exam = EXAM, onExit }) {
   const [status, setStatus] = useState('entry')
   const [studentName, setStudentName] = useState('')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState({})
   const [flagged, setFlagged] = useState([])
-  const [timeLeft, setTimeLeft] = useState(EXAM.durationSeconds)
+  const [timeLeft, setTimeLeft] = useState(exam.durationSeconds)
   const [result, setResult] = useState(null)
   const [saveStatus, setSaveStatus] = useState(null)
 
-  const question = EXAM.questions[currentIndex]
+  const question = exam.questions[currentIndex]
   const isFlagged = flagged.includes(question.id)
 
   const completedCount = useMemo(
-    () =>
-      EXAM.questions.filter((q) => {
-        const answer = answers[q.id]
-        return answer !== undefined && answer !== null && answer !== ''
-      }).length,
-    [answers],
+    () => exam.questions.filter((q) => isQuestionAnswered(q, answers)).length,
+    [answers, exam],
   )
 
-  const progress = Math.round((completedCount / EXAM.questions.length) * 100)
+  const progress = Math.round((completedCount / exam.questions.length) * 100)
 
   const submitExam = useCallback(async () => {
     if (status !== 'running') return
-    const graded = gradeExam(EXAM, {
+    const graded = gradeExam(exam, {
       answers,
       flaggedQuestionIds: flagged,
-      timeTakenSeconds: EXAM.durationSeconds - timeLeft,
+      timeTakenSeconds: exam.durationSeconds - timeLeft,
     })
     setResult(graded)
     setStatus('submitted')
@@ -167,7 +168,7 @@ function ExamRunner({ onExit }) {
       setSaveStatus('saving')
       const { error } = await supabase.from('exam_results').insert({
         student_name: studentName,
-        exam_id: EXAM.id,
+        exam_id: exam.id,
         score: graded.score,
         total: graded.total,
         percentage: graded.percentage,
@@ -177,7 +178,7 @@ function ExamRunner({ onExit }) {
       })
       setSaveStatus(error ? 'error' : 'saved')
     }
-  }, [status, answers, flagged, timeLeft, studentName])
+  }, [status, answers, flagged, timeLeft, studentName, exam])
 
   useEffect(() => {
     if (status !== 'running') return undefined
@@ -203,12 +204,12 @@ function ExamRunner({ onExit }) {
       }
       if (event.code === 'ArrowRight') {
         event.preventDefault()
-        setCurrentIndex((index) => Math.min(EXAM.questions.length - 1, index + 1))
+        setCurrentIndex((index) => Math.min(exam.questions.length - 1, index + 1))
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [status])
+  }, [status, exam])
 
   function selectOption(optionIndex) {
     if (status !== 'running') return
@@ -239,13 +240,13 @@ function ExamRunner({ onExit }) {
     setCurrentIndex(0)
     setAnswers({})
     setFlagged([])
-    setTimeLeft(EXAM.durationSeconds)
+    setTimeLeft(exam.durationSeconds)
     setResult(null)
     setSaveStatus(null)
   }
 
   if (status === 'entry') {
-    return <NameEntry onStart={startExam} onExit={onExit} />
+    return <NameEntry exam={exam} onStart={startExam} onExit={onExit} />
   }
 
   if (status === 'submitted') {
@@ -292,7 +293,7 @@ function ExamRunner({ onExit }) {
         </p>
         <div className="flex w-full max-w-3xl items-center justify-between text-sm font-bold text-slate-600 sm:text-base">
           <span>
-            {completedCount} of {EXAM.questions.length} completed
+            {completedCount} of {exam.questions.length} completed
           </span>
           <span>{progress}%</span>
         </div>
@@ -306,7 +307,7 @@ function ExamRunner({ onExit }) {
 
       <div className="z-10 flex w-full shrink-0 justify-center px-4 py-3 sm:px-6">
         <div className="flex max-w-full gap-2 overflow-x-auto">
-          {EXAM.questions.map((q, index) => (
+          {exam.questions.map((q, index) => (
             <button
               key={q.id}
               type="button"
@@ -449,7 +450,7 @@ function ExamRunner({ onExit }) {
             {isFlagged ? 'Flagged' : 'Flag'}
           </button>
 
-          {currentIndex === EXAM.questions.length - 1 ? (
+          {currentIndex === exam.questions.length - 1 ? (
             <button
               type="button"
               onClick={submitExam}
@@ -462,7 +463,7 @@ function ExamRunner({ onExit }) {
             <button
               type="button"
               onClick={() =>
-                setCurrentIndex((index) => Math.min(EXAM.questions.length - 1, index + 1))
+                setCurrentIndex((index) => Math.min(exam.questions.length - 1, index + 1))
               }
               className="flex items-center gap-1 rounded-full bg-sky-600 px-4 py-3 text-lg font-extrabold text-white shadow-lg transition hover:scale-105 sm:px-6 sm:text-xl"
             >
