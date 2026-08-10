@@ -2,6 +2,7 @@ import { useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
+import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 
@@ -81,22 +82,36 @@ function Catalog({ onPlay }) {
           ))}
         </div>
       </main>
+
+      <footer className="z-10 flex w-full shrink-0 items-center justify-center pb-4 sm:pb-5">
+        <button
+          type="button"
+          onClick={() => onPlay('dashboard')}
+          className="rounded-full bg-white/60 px-4 py-2 text-xs font-extrabold text-slate-500 shadow transition hover:scale-105 hover:bg-white/95 hover:text-sky-700 sm:px-5 sm:text-sm"
+        >
+          <span aria-hidden="true">🔑</span> Admin Dashboard
+        </button>
+      </footer>
     </div>
   )
 }
 
 function App() {
-  const [activeGameId, setActiveGameId] = useState(
+  const [activeView, setActiveView] = useState(
     () => window.location.hash.replace('#', '') || null,
   )
-  const activeGame = GAMES.find((game) => game.id === activeGameId)
 
-  if (activeGame) {
-    const GameComponent = activeGame.Component
-    return <GameComponent onExit={() => setActiveGameId(null)} />
+  if (activeView === 'dashboard') {
+    return <Dashboard onExit={() => setActiveView(null)} />
   }
 
-  return <Catalog onPlay={(gameId) => setActiveGameId(gameId)} />
+  const activeGame = GAMES.find((game) => game.id === activeView)
+  if (activeGame) {
+    const GameComponent = activeGame.Component
+    return <GameComponent onExit={() => setActiveView(null)} />
+  }
+
+  return <Catalog onPlay={(gameId) => setActiveView(gameId)} />
 }
 
 export default App

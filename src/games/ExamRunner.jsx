@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import confetti from 'canvas-confetti'
 import { EXAM } from '../exams/examData.js'
 import { formatTime, gradeExam } from '../exams/examEngine.js'
 import { supabase } from '../lib/supabase.js'
@@ -9,13 +8,7 @@ const isQuestionAnswered = (q, answers) => {
   return answer !== undefined && answer !== null && answer !== ''
 }
 
-const MESSAGE_BY_SCORE = [
-  (name) => `Keep practicing, ${name} — you can do it!`,
-  (name) => `Good work, ${name}! A little more practice and you will nail it!`,
-  (name) => `Amazing job, ${name}! You did great!`,
-]
-
-const CONFETTI_COLORS = ['#fbbf24', '#38bdf8', '#34d399', '#fb7185', '#a78bfa', '#f59e0b']
+const SPARKLE_COLORS = ['#fbbf24', '#38bdf8', '#34d399', '#fb7185', '#a78bfa', '#f59e0b']
 
 function SparkleBurst() {
   const [particles, setParticles] = useState(null)
@@ -28,7 +21,7 @@ function SparkleBurst() {
         id: i,
         dx: Math.cos(angle) * distance,
         dy: Math.sin(angle) * distance,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        color: SPARKLE_COLORS[i % SPARKLE_COLORS.length],
         size: 12 + Math.random() * 10,
         delay: Math.random() * 90,
       }
@@ -141,7 +134,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
   const [answers, setAnswers] = useState({})
   const [flagged, setFlagged] = useState([])
   const [timeLeft, setTimeLeft] = useState(exam.durationSeconds)
-  const [result, setResult] = useState(null)
   const [saveStatus, setSaveStatus] = useState(null)
 
   const question = exam.questions[currentIndex]
@@ -161,7 +153,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
       flaggedQuestionIds: flagged,
       timeTakenSeconds: exam.durationSeconds - timeLeft,
     })
-    setResult(graded)
     setStatus('submitted')
 
     if (supabase) {
@@ -241,7 +232,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
     setAnswers({})
     setFlagged([])
     setTimeLeft(exam.durationSeconds)
-    setResult(null)
     setSaveStatus(null)
   }
 
@@ -251,8 +241,8 @@ function ExamRunner({ exam = EXAM, onExit }) {
 
   if (status === 'submitted') {
     return (
-      <ResultSummary
-        result={result}
+      <ThankYou
+        exam={exam}
         studentName={studentName}
         saveStatus={saveStatus}
         onRestart={restart}
@@ -477,28 +467,7 @@ function ExamRunner({ exam = EXAM, onExit }) {
   )
 }
 
-function ResultSummary({ result, studentName, saveStatus, onRestart, onExit }) {
-  const messageIndex =
-    result.percentage >= 80 ? 2 : result.percentage >= 50 ? 1 : 0
-
-  useEffect(() => {
-    confetti({ particleCount: 130, spread: 80, origin: { y: 0.6 }, colors: CONFETTI_COLORS })
-    const timers = [300, 650, 1000].map((delay) =>
-      setTimeout(
-        () =>
-          confetti({
-            particleCount: 60,
-            spread: 100,
-            startVelocity: 45,
-            origin: { x: 0.15 + Math.random() * 0.7, y: 0.5 },
-            colors: CONFETTI_COLORS,
-          }),
-        delay,
-      ),
-    )
-    return () => timers.forEach((timer) => clearTimeout(timer))
-  }, [])
-
+function ThankYou({ exam, studentName, saveStatus, onRestart, onExit }) {
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
       <div className="z-10 flex w-full shrink-0 items-center justify-between gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
@@ -511,88 +480,37 @@ function ResultSummary({ result, studentName, saveStatus, onRestart, onExit }) {
           Games
         </button>
         <h1 className="text-[clamp(2rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
-          Exam
+          {exam.title}
         </h1>
         <div className="w-20 sm:w-32" aria-hidden="true" />
       </div>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
-        <div className="animate-pop-in flex w-full max-w-3xl flex-col items-center gap-2 rounded-3xl bg-white/95 px-6 py-6 text-center shadow-lg sm:py-8">
-          <span className="text-4xl sm:text-5xl" aria-hidden="true">
-            <span className="animate-bounce inline-block">🏆</span>
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-4 py-6 sm:px-6">
+        <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-3 rounded-3xl bg-white/95 px-6 py-10 text-center shadow-lg sm:py-14">
+          <span className="text-4xl sm:text-6xl" aria-hidden="true">
+            <span className="animate-bounce inline-block">🙏</span>
           </span>
-          <p className="text-[clamp(3rem,10vw,5rem)] font-extrabold leading-none text-slate-700">
-            {result.score}
-            <span className="text-[clamp(1.5rem,4vw,2.5rem)] text-slate-400">
-              /{result.total}
-            </span>
-          </p>
+          <h2 className="text-[clamp(2rem,6vw,3.5rem)] font-extrabold leading-none text-slate-700">
+            Thank You
+          </h2>
           <p className="text-xl font-extrabold text-sky-700 sm:text-2xl">
-            {MESSAGE_BY_SCORE[messageIndex](studentName)}
-          </p>
-          <p className="text-sm font-bold text-slate-500 sm:text-base">
-            Time taken: {formatTime(result.timeTakenSeconds)} · Score:{' '}
-            {result.percentage}%
+            Terima kasih, {studentName}! Kamu telah menyelesaikan {exam.title}.
           </p>
           {saveStatus === 'saving' && (
             <p className="animate-pulse text-sm font-extrabold text-sky-600 sm:text-base">
-              Saving your result…
+              Saving your answers…
             </p>
           )}
           {saveStatus === 'saved' && (
             <p className="text-sm font-extrabold text-emerald-600 sm:text-base">
-              ✓ Your result has been saved!
+              ✓ Jawabanmu sudah disimpan.
             </p>
           )}
           {saveStatus === 'error' && (
             <p className="text-sm font-extrabold text-rose-600 sm:text-base">
-              ✗ Couldn't save your result. Check the connection and try again.
+              ✗ Jawaban tidak tersimpan. Periksa koneksi dan coba lagi.
             </p>
           )}
-        </div>
-
-        <div className="flex w-full max-w-3xl flex-col gap-2 sm:gap-3">
-          {result.results.map((item, index) => (
-            <div
-              key={item.questionId}
-              className={`animate-pop-in rounded-3xl p-4 shadow-md sm:p-5 ${
-                item.correct ? 'bg-emerald-100' : 'bg-rose-100'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase sm:text-base">
-                  Question {index + 1}
-                </span>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-extrabold text-white uppercase sm:text-sm ${
-                    item.correct ? 'bg-emerald-500' : 'bg-rose-500'
-                  }`}
-                >
-                  {item.correct ? 'Correct' : 'Incorrect'}
-                </span>
-              </div>
-
-              {item.image && (
-                <img
-                  src={item.image}
-                  alt=""
-                  className="mt-2 h-16 w-16 select-none object-contain sm:h-20 sm:w-20"
-                />
-              )}
-
-              <p className="mt-2 text-lg font-extrabold text-slate-700 sm:text-xl">
-                {item.prompt}
-              </p>
-
-              <p
-                className={`mt-1 text-base font-bold sm:text-lg ${
-                  item.correct ? 'text-emerald-800' : 'text-rose-800'
-                }`}
-              >
-                Your answer: {item.givenAnswer ?? 'No answer'}
-              </p>
-            </div>
-          ))}
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
