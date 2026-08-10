@@ -330,12 +330,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
             key={question.id}
             className="animate-pop-in my-auto flex w-full flex-col gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-7"
           >
-            {question.section && (
-              <span className="self-start rounded-full bg-emerald-100 px-3 py-1 text-xs font-extrabold tracking-wide text-emerald-700 uppercase sm:text-sm">
-                {question.section}
-              </span>
-            )}
-
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold tracking-wide text-sky-700 uppercase sm:text-sm">
                 Question {currentIndex + 1}

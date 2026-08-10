@@ -285,7 +285,7 @@ function DashboardView({ onExit }) {
     let cancelled = false
     async function load() {
       if (!supabase) {
-        setState({ status: 'error', message: 'Supabase is not configured.' })
+        if (!cancelled) setState({ status: 'error', message: 'Supabase is not configured.' })
         return
       }
       const { data, error } = await supabase
@@ -301,8 +301,10 @@ function DashboardView({ onExit }) {
       }
     }
     load()
+    const interval = setInterval(load, 3000)
     return () => {
       cancelled = true
+      clearInterval(interval)
     }
   }, [])
 
