@@ -296,13 +296,18 @@ function ExamRunner({ exam = EXAM, onExit }) {
       </div>
 
       <div className="z-10 flex w-full shrink-0 justify-center px-4 py-3 sm:px-6">
-        <div className="flex max-w-full gap-2 overflow-x-auto">
+        <div
+          className="grid w-full max-w-3xl gap-1.5 sm:gap-2"
+          style={{
+            gridTemplateColumns: `repeat(${Math.ceil(exam.questions.length / 2)}, minmax(0, 1fr))`,
+          }}
+        >
           {exam.questions.map((q, index) => (
             <button
               key={q.id}
               type="button"
               onClick={() => setCurrentIndex(index)}
-              className={`relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold shadow transition hover:scale-105 sm:h-11 sm:w-11 sm:text-base ${
+              className={`relative flex h-8 w-full items-center justify-center rounded-full text-xs font-extrabold shadow transition hover:scale-105 sm:h-11 sm:text-base ${
                 index === currentIndex
                   ? 'bg-sky-600 text-white'
                   : answers[q.id] !== undefined && answers[q.id] !== ''
