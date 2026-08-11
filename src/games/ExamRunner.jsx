@@ -265,7 +265,7 @@ function ExamRunner({ exam = EXAM, onExit }) {
           Games
         </button>
         <h1 className="text-[clamp(2rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
-          Exam
+          Quiz
         </h1>
         <div
           className={`flex items-center gap-1 rounded-full px-3 py-2 text-lg font-extrabold shadow-lg sm:px-6 sm:py-3 sm:text-xl ${

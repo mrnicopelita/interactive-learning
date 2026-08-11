@@ -5,10 +5,10 @@ import { formatTime } from '../exams/examEngine.js'
 const ACCESS_CODE = 'j0gl0'
 
 const EXAM_NAMES = {
-  'kuis-berpikir-komputasional': 'Exam G1-G3',
-  'kuis-berpikir-komputasional-4': 'Exam Grade 4',
-  'kuis-berpikir-komputasional-5': 'Exam Grade 5',
-  'kuis-berpikir-komputasional-6': 'Exam Grade 6',
+  'kuis-berpikir-komputasional': 'Quiz G1-G3',
+  'kuis-berpikir-komputasional-4': 'Quiz Grade 4',
+  'kuis-berpikir-komputasional-5': 'Quiz Grade 5',
+  'kuis-berpikir-komputasional-6': 'Quiz Grade 6',
 }
 
 function examName(examId) {
@@ -184,7 +184,7 @@ function EditModal({ row, onSave, onCancel }) {
 
         <label className="flex flex-col gap-1.5 text-left">
           <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
-            Exam
+            Quiz
           </span>
           <select
             value={draft.exam_id}
@@ -469,7 +469,7 @@ function DashboardView({ onExit }) {
 
             <div className="flex w-full max-w-5xl flex-col gap-2 sm:gap-3">
               <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
-                {selectedExam ? `${examName(selectedExam)} results` : 'Results per exam'}
+                {selectedExam ? `${examName(selectedExam)} results` : 'Results per quiz'}
               </h2>
               <div className="flex flex-wrap gap-3">
                 {metrics.perExam.length === 0 && (
@@ -531,7 +531,7 @@ function DashboardView({ onExit }) {
                     <thead>
                       <tr className="border-b-2 border-sky-100 text-xs font-extrabold tracking-wide text-slate-500 uppercase">
                         <th className="px-5 py-3">Student</th>
-                        <th className="px-5 py-3">Exam</th>
+                        <th className="px-5 py-3">Quiz</th>
                         <th className="px-5 py-3">Score</th>
                         <th className="px-5 py-3">%</th>
                         <th className="px-5 py-3">Time</th>
