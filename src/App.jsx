@@ -4,6 +4,7 @@ import BerKomGame from './games/BerKomGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
+import { EXAM_4 } from './exams/exam4Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 
 const GAMES = [
@@ -27,6 +28,13 @@ const GAMES = [
     tagline: 'Answer questions and test what you know!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM} {...props} />,
+  },
+  {
+    id: 'exam-4',
+    title: 'Exam Grade 4',
+    tagline: 'Tough questions for grade 4 learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_4} {...props} />,
   },
   {
     id: 'exam-6',
