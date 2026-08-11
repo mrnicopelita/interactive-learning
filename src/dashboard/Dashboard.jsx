@@ -282,6 +282,7 @@ function DashboardView({ onExit }) {
   const [state, setState] = useState({ status: 'loading' })
   const [editingRow, setEditingRow] = useState(null)
   const [notice, setNotice] = useState(null)
+  const [selectedExam, setSelectedExam] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -346,7 +347,9 @@ function DashboardView({ onExit }) {
 
   const metrics = useMemo(() => {
     if (state.status !== 'ready') return null
-    const rows = state.rows
+    const rows = selectedExam
+      ? state.rows.filter((r) => r.exam_id === selectedExam)
+      : state.rows
     const attempts = rows.length
     const uniqueStudents = new Set(rows.map((r) => r.student_name)).size
     const percentages = rows.map((r) => r.percentage)
@@ -390,7 +393,7 @@ function DashboardView({ onExit }) {
         .sort((a, b) => b.attempts - a.attempts),
       recent: rows.slice(0, 15),
     }
-  }, [state])
+  }, [state, selectedExam])
 
   if (state.status === 'loading') {
     return (
@@ -428,6 +431,34 @@ function DashboardView({ onExit }) {
           </div>
         ) : (
           <>
+            <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedExam(null)}
+                className={`rounded-full px-5 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:text-base ${
+                  selectedExam === null
+                    ? 'bg-sky-600 text-white'
+                    : 'bg-white/80 text-slate-600'
+                }`}
+              >
+                All Grades
+              </button>
+              {Object.entries(EXAM_NAMES).map(([id, name]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setSelectedExam(id)}
+                  className={`rounded-full px-5 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:text-base ${
+                    selectedExam === id
+                      ? 'bg-sky-600 text-white'
+                      : 'bg-white/80 text-slate-600'
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+
             <div className="flex w-full max-w-5xl flex-wrap gap-3 sm:gap-4">
               <StatCard label="Total Attempts" value={metrics.attempts} emoji="📝" />
               <StatCard label="Unique Students" value={metrics.uniqueStudents} emoji="🧑‍🎓" />
@@ -438,7 +469,7 @@ function DashboardView({ onExit }) {
 
             <div className="flex w-full max-w-5xl flex-col gap-2 sm:gap-3">
               <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
-                Results per exam
+                {selectedExam ? `${examName(selectedExam)} results` : 'Results per exam'}
               </h2>
               <div className="flex flex-wrap gap-3">
                 {metrics.perExam.length === 0 && (
