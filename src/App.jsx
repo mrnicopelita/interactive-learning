@@ -25,7 +25,7 @@ const GAMES = [
   },
   {
     id: 'exam',
-    title: 'Quiz G1-G2-G3',
+    title: 'Quiz Primary A',
     tagline: 'Answer questions and test what you know!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM} {...props} />,
