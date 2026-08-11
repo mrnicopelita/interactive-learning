@@ -7,6 +7,7 @@ const ACCESS_CODE = 'j0gl0'
 const EXAM_NAMES = {
   'kuis-berpikir-komputasional': 'Exam G1-G3',
   'kuis-berpikir-komputasional-4': 'Exam Grade 4',
+  'kuis-berpikir-komputasional-5': 'Exam Grade 5',
   'kuis-berpikir-komputasional-6': 'Exam Grade 6',
 }
 

@@ -5,6 +5,7 @@ import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
 import { EXAM_4 } from './exams/exam4Data.js'
+import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 
 const GAMES = [
@@ -35,6 +36,13 @@ const GAMES = [
     tagline: 'Tough questions for grade 4 learners!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM_4} {...props} />,
+  },
+  {
+    id: 'exam-5',
+    title: 'Exam Grade 5',
+    tagline: 'Tough questions for grade 5 learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_5} {...props} />,
   },
   {
     id: 'exam-6',
