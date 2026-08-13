@@ -345,6 +345,58 @@ function DashboardView({ onExit }) {
     setNotice({ kind: 'success', text: 'Submission updated.' })
   }
 
+  function downloadCsv() {
+    if (state.status !== 'ready') return
+    const rows = selectedExam
+      ? state.rows.filter((r) => r.exam_id === selectedExam)
+      : state.rows
+    if (rows.length === 0) {
+      setNotice({ kind: 'error', text: 'No data to export.' })
+      return
+    }
+    const header = [
+      'Student',
+      'Quiz',
+      'Score',
+      'Total',
+      'Percentage',
+      'Time (mm:ss)',
+      'Time (s)',
+      'Date',
+    ]
+    const escapeCell = (value) => {
+      const s = String(value ?? '')
+      const safe = /^[=+\-@]/.test(s) ? `'${s}` : s
+      return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
+    }
+    const lines = rows.map((r) => [
+      r.student_name,
+      examName(r.exam_id),
+      r.score,
+      r.total,
+      `${r.percentage}%`,
+      formatTime(r.time_taken_seconds),
+      r.time_taken_seconds,
+      new Date(r.created_at).toLocaleString(),
+    ])
+    const csv = [header, ...lines]
+      .map((row) => row.map(escapeCell).join(','))
+      .join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    const label = selectedExam
+      ? examName(selectedExam).replace(/\s+/g, '-')
+      : 'All-Grades'
+    link.href = url
+    link.download = `quiz-results-${label}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    setNotice({ kind: 'success', text: `Exported ${rows.length} submissions.` })
+  }
+
   const metrics = useMemo(() => {
     if (state.status !== 'ready') return null
     const rows = selectedExam
@@ -509,9 +561,18 @@ function DashboardView({ onExit }) {
             </div>
 
             <div className="flex w-full max-w-5xl flex-col gap-2 sm:gap-3">
-              <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
-                Recent submissions
-              </h2>
+              <div className="flex w-full flex-wrap items-center justify-between gap-2">
+                <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
+                  Recent submissions
+                </h2>
+                <button
+                  type="button"
+                  onClick={downloadCsv}
+                  className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-extrabold text-white shadow transition hover:scale-105 sm:px-5 sm:text-base"
+                >
+                  ⬇️ Export CSV
+                </button>
+              </div>
               {notice && (
                 <div
                   className={`animate-pop-in rounded-2xl px-5 py-3 text-center text-base font-extrabold shadow ${
