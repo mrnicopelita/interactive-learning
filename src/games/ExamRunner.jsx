@@ -356,7 +356,7 @@ function ExamRunner({ exam = EXAM, onExit }) {
               />
             )}
 
-            <p className="text-xl font-extrabold text-slate-700 sm:text-2xl">
+            <p className="text-xl font-extrabold whitespace-pre-line text-slate-700 sm:text-2xl">
               {question.prompt}
             </p>
 

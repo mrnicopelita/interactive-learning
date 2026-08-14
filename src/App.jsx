@@ -7,6 +7,7 @@ import { EXAM } from './exams/examData.js'
 import { EXAM_4 } from './exams/exam4Data.js'
 import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
+import { EXAM_SMP } from './exams/examSmpData.js'
 
 const GAMES = [
   {
@@ -50,6 +51,13 @@ const GAMES = [
     tagline: 'Tough questions for grade 6 learners!',
     images: ['/images/quiz.svg', '/images/monitor.svg'],
     Component: (props) => <ExamRunner exam={EXAM_6} {...props} />,
+  },
+  {
+    id: 'exam-smp',
+    title: 'Quiz SMP',
+    tagline: 'Advanced questions for junior high learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_SMP} {...props} />,
   },
 ]
 

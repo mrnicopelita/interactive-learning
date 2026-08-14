@@ -9,6 +9,7 @@ const EXAM_NAMES = {
   'kuis-berpikir-komputasional-4': 'Quiz Grade 4',
   'kuis-berpikir-komputasional-5': 'Quiz Grade 5',
   'kuis-berpikir-komputasional-6': 'Quiz Grade 6',
+  'kuis-berpikir-komputasional-smp': 'Quiz SMP',
 }
 
 function examName(examId) {
