@@ -310,7 +310,7 @@ function DashboardView({ onExit }) {
   const [notice, setNotice] = useState(null)
   const [selectedExam, setSelectedExam] = useState(null)
   const [selectedWeek, setSelectedWeek] = useState(null)
-  const { locks, loading: locksLoading, toggleLock } = useQuizLocks()
+  const { locks, loading: locksLoading, error: locksError, toggleLock } = useQuizLocks()
 
   useEffect(() => {
     let cancelled = false
@@ -573,6 +573,14 @@ function DashboardView({ onExit }) {
                   )
                 })}
               </div>
+              {locksError && (
+                <p className="mt-1 rounded-2xl bg-rose-100 px-4 py-2 text-xs font-extrabold text-rose-700 sm:text-sm">
+                  ⚠️ {locksError}
+                </p>
+              )}
+              {locksLoading && (
+                <p className="text-xs font-semibold text-slate-400">Loading quiz settings…</p>
+              )}
             </div>
 
             <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">

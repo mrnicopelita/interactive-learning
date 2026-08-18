@@ -4,13 +4,20 @@ import { supabase } from './supabase.js'
 export function useQuizLocks() {
   const [locks, setLocks] = useState({})
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const fetch = useCallback(async () => {
+  const fetchLocks = useCallback(async () => {
     if (!supabase) {
       setLoading(false)
       return
     }
-    const { data } = await supabase.from('quiz_settings').select('*')
+    const { data, error: fetchError } = await supabase.from('quiz_settings').select('*')
+    if (fetchError) {
+      setError(fetchError.message)
+      setLoading(false)
+      return
+    }
+    setError(null)
     if (data) {
       const map = {}
       for (const row of data) map[row.quiz_id] = row.is_locked
@@ -20,10 +27,10 @@ export function useQuizLocks() {
   }, [])
 
   useEffect(() => {
-    fetch()
-    const interval = setInterval(fetch, 5000)
+    fetchLocks()
+    const interval = setInterval(fetchLocks, 3000)
     return () => clearInterval(interval)
-  }, [fetch])
+  }, [fetchLocks])
 
   const toggleLock = useCallback(
     async (quizId) => {
@@ -31,9 +38,13 @@ export function useQuizLocks() {
       const currentlyLocked = locks[quizId] ?? true
       const newLocked = !currentlyLocked
       setLocks((prev) => ({ ...prev, [quizId]: newLocked }))
-      await supabase
+      const { error: upsertError } = await supabase
         .from('quiz_settings')
         .upsert({ quiz_id: quizId, is_locked: newLocked }, { onConflict: 'quiz_id' })
+      if (upsertError) {
+        setError(upsertError.message)
+        setLocks((prev) => ({ ...prev, [quizId]: currentlyLocked }))
+      }
     },
     [locks],
   )
@@ -43,5 +54,5 @@ export function useQuizLocks() {
     [locks],
   )
 
-  return { locks, loading, toggleLock, isLocked }
+  return { locks, loading, error, toggleLock, isLocked }
 }
