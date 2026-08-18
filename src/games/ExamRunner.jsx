@@ -9,8 +9,6 @@ const isQuestionAnswered = (q, answers) => {
 }
 
 const SPARKLE_COLORS = ['#fbbf24', '#38bdf8', '#34d399', '#fb7185', '#a78bfa', '#f59e0b']
-const CONFETTI_COLORS = ['#fbbf24', '#38bdf8', '#34d399', '#fb7185', '#a78bfa', '#f97316', '#06b6d4', '#e879f9']
-
 function SparkleBurst() {
   const [particles, setParticles] = useState(null)
 
@@ -53,62 +51,6 @@ function SparkleBurst() {
           }}
         >
           ✦
-        </span>
-      ))}
-    </span>
-  )
-}
-
-const CONFETTI_SHAPES = ['■', '●', '▲', '★', '♦']
-
-function ConfettiBurst({ onDone }) {
-  const [particles, setParticles] = useState(null)
-
-  useEffect(() => {
-    const next = Array.from({ length: 18 }, (_, i) => {
-      const angle = (i / 18) * Math.PI * 2 + (Math.random() - 0.5) * 0.5
-      const distance = 50 + Math.random() * 80
-      return {
-        id: i,
-        cx: Math.cos(angle) * distance,
-        cy: Math.sin(angle) * distance - 30,
-        cr: (Math.random() - 0.5) * 540,
-        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-        size: 8 + Math.random() * 8,
-        delay: Math.random() * 120,
-        shape: CONFETTI_SHAPES[i % CONFETTI_SHAPES.length],
-      }
-    })
-    setParticles(next)
-    const timer = setTimeout(() => {
-      setParticles(null)
-      onDone?.()
-    }, 850)
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (!particles) return null
-
-  return (
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
-    >
-      {particles.map((p) => (
-        <span
-          key={p.id}
-          className="animate-confetti absolute"
-          style={{
-            '--cx': `${p.cx}px`,
-            '--cy': `${p.cy}px`,
-            '--cr': `${p.cr}deg`,
-            color: p.color,
-            fontSize: `${p.size}px`,
-            lineHeight: 1,
-            animationDelay: `${p.delay}ms`,
-          }}
-        >
-          {p.shape}
         </span>
       ))}
     </span>
@@ -192,8 +134,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
   const [flagged, setFlagged] = useState([])
   const [timeLeft, setTimeLeft] = useState(exam.durationSeconds)
   const [saveStatus, setSaveStatus] = useState(null)
-  const [showConfetti, setShowConfetti] = useState(false)
-  const [completedFlash, setCompletedFlash] = useState(false)
 
   const question = exam.questions[currentIndex]
   const isFlagged = flagged.includes(question.id)
@@ -394,20 +334,6 @@ function ExamRunner({ exam = EXAM, onExit }) {
             key={question.id}
             className="animate-slide-in relative my-auto flex w-full flex-col gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-7"
           >
-            {showConfetti && (
-              <ConfettiBurst onDone={() => setShowConfetti(false)} />
-            )}
-            {completedFlash && (
-              <span
-                aria-hidden="true"
-                className="animate-completed-pulse pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
-                onAnimationEnd={() => setCompletedFlash(false)}
-              >
-                <span className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-4xl text-white shadow-2xl sm:h-28 sm:w-28 sm:text-6xl">
-                  ✓
-                </span>
-              </span>
-            )}
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold tracking-wide text-sky-700 uppercase sm:text-sm">
                 Question {currentIndex + 1}
@@ -524,13 +450,7 @@ function ExamRunner({ exam = EXAM, onExit }) {
           ) : (
             <button
               type="button"
-              onClick={() => {
-                if (isQuestionAnswered(question, answers)) {
-                  setShowConfetti(true)
-                  setCompletedFlash(true)
-                }
-                setCurrentIndex((index) => Math.min(exam.questions.length - 1, index + 1))
-              }}
+              onClick={() => setCurrentIndex((index) => Math.min(exam.questions.length - 1, index + 1))}
               className="flex items-center gap-1 rounded-full bg-sky-600 px-4 py-3 text-lg font-extrabold text-white shadow-lg transition hover:scale-105 sm:px-6 sm:text-xl"
             >
               Next
