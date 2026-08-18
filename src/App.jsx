@@ -7,6 +7,7 @@ import { EXAM } from './exams/examData.js'
 import { EXAM_4 } from './exams/exam4Data.js'
 import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
+import { EXAM_3 } from './exams/exam3Data.js'
 import { EXAM_SMP } from './exams/examSmpData.js'
 
 const GAMES = [
@@ -30,6 +31,13 @@ const GAMES = [
     tagline: 'Answer questions and test what you know!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM} {...props} />,
+  },
+  {
+    id: 'exam-3',
+    title: 'Quiz Grade 3',
+    tagline: 'Fun questions for grade 3 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_3} {...props} />,
   },
   {
     id: 'exam-4',
