@@ -12,6 +12,18 @@ const EXAM_NAMES = {
   'kuis-berpikir-komputasional-smp': 'Quiz SMP',
 }
 
+const WEEKS = [
+  { id: 'week2', label: 'Week 2', range: 'Aug 10–14', start: '2026-08-10', end: '2026-08-14' },
+  { id: 'week3', label: 'Week 3 August Test', range: 'Aug 17–21', start: '2026-08-17', end: '2026-08-21' },
+]
+
+function isInWeek(row, week) {
+  const d = new Date(row.created_at)
+  const start = new Date(week.start + 'T00:00:00')
+  const end = new Date(week.end + 'T23:59:59')
+  return d >= start && d <= end
+}
+
 function examName(examId) {
   return EXAM_NAMES[examId] || examId
 }
@@ -284,6 +296,7 @@ function DashboardView({ onExit }) {
   const [editingRow, setEditingRow] = useState(null)
   const [notice, setNotice] = useState(null)
   const [selectedExam, setSelectedExam] = useState(null)
+  const [selectedWeek, setSelectedWeek] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -348,9 +361,12 @@ function DashboardView({ onExit }) {
 
   function downloadCsv() {
     if (state.status !== 'ready') return
-    const rows = selectedExam
-      ? state.rows.filter((r) => r.exam_id === selectedExam)
-      : state.rows
+    let rows = state.rows
+    if (selectedWeek) {
+      const week = WEEKS.find((w) => w.id === selectedWeek)
+      if (week) rows = rows.filter((r) => isInWeek(r, week))
+    }
+    if (selectedExam) rows = rows.filter((r) => r.exam_id === selectedExam)
     if (rows.length === 0) {
       setNotice({ kind: 'error', text: 'No data to export.' })
       return
@@ -386,11 +402,11 @@ function DashboardView({ onExit }) {
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    const label = selectedExam
-      ? examName(selectedExam).replace(/\s+/g, '-')
-      : 'All-Grades'
+    const weekLabel = selectedWeek ? WEEKS.find((w) => w.id === selectedWeek)?.label?.replace(/\s+/g, '-') || '' : ''
+    const examLabel = selectedExam ? examName(selectedExam).replace(/\s+/g, '-') : ''
+    const parts = [weekLabel, examLabel].filter(Boolean)
     link.href = url
-    link.download = `quiz-results-${label}.csv`
+    link.download = `quiz-results-${parts.join('-') || 'All'}.csv`
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -400,9 +416,12 @@ function DashboardView({ onExit }) {
 
   const metrics = useMemo(() => {
     if (state.status !== 'ready') return null
-    const rows = selectedExam
-      ? state.rows.filter((r) => r.exam_id === selectedExam)
-      : state.rows
+    let rows = state.rows
+    if (selectedWeek) {
+      const week = WEEKS.find((w) => w.id === selectedWeek)
+      if (week) rows = rows.filter((r) => isInWeek(r, week))
+    }
+    if (selectedExam) rows = rows.filter((r) => r.exam_id === selectedExam)
     const attempts = rows.length
     const uniqueStudents = new Set(rows.map((r) => r.student_name)).size
     const percentages = rows.map((r) => r.percentage)
@@ -484,6 +503,34 @@ function DashboardView({ onExit }) {
           </div>
         ) : (
           <>
+            <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedWeek(null)}
+                className={`rounded-full px-5 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:text-base ${
+                  selectedWeek === null
+                    ? 'bg-slate-700 text-white'
+                    : 'bg-white/80 text-slate-600'
+                }`}
+              >
+                All Weeks
+              </button>
+              {WEEKS.map((w) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  onClick={() => setSelectedWeek(w.id)}
+                  className={`rounded-full px-5 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:text-base ${
+                    selectedWeek === w.id
+                      ? 'bg-slate-700 text-white'
+                      : 'bg-white/80 text-slate-600'
+                  }`}
+                >
+                  {w.label} <span className="font-semibold opacity-70">({w.range})</span>
+                </button>
+              ))}
+            </div>
+
             <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">
               <button
                 type="button"
