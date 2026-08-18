@@ -9,6 +9,7 @@ import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 import { EXAM_3 } from './exams/exam3Data.js'
 import { EXAM_SMP } from './exams/examSmpData.js'
+import { useQuizLocks } from './lib/useQuizLocks.js'
 
 const GAMES = [
   {
@@ -70,6 +71,8 @@ const GAMES = [
 ]
 
 function Catalog({ onPlay }) {
+  const { isLocked, loading } = useQuizLocks()
+
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
       <header className="z-10 flex w-full shrink-0 items-center justify-center bg-white/85 px-4 py-3 text-center shadow-md backdrop-blur-sm sm:py-4">
@@ -84,34 +87,49 @@ function Catalog({ onPlay }) {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-          {GAMES.map((game) => (
-            <div key={game.id} className="animate-pop-in">
-              <button
-                type="button"
-                onClick={() => onPlay(game.id)}
-                className="group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition hover:scale-105 hover:shadow-xl sm:gap-5 sm:px-10 sm:py-8"
-              >
-                <div className="flex items-center gap-4">
-                  {game.images.map((src) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt=""
-                      className="h-24 w-24 object-contain drop-shadow-md transition group-hover:scale-105 sm:h-32 sm:w-32"
-                    />
-                  ))}
-                </div>
-                <div className="text-center">
-                  <h2 className="text-2xl font-extrabold text-slate-700 sm:text-3xl">
-                    {game.title}
-                  </h2>
-                  <p className="mt-1 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
-                    {game.tagline}
-                  </p>
-                </div>
-              </button>
-            </div>
-          ))}
+          {GAMES.map((game) => {
+            const locked = isLocked(game.id)
+            return (
+              <div key={game.id} className="animate-pop-in">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!locked) onPlay(game.id)
+                  }}
+                  disabled={locked}
+                  className={`group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition sm:gap-5 sm:px-10 sm:py-8 ${
+                    locked
+                      ? 'cursor-not-allowed opacity-60 grayscale'
+                      : 'hover:scale-105 hover:shadow-xl'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    {game.images.map((src) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt=""
+                        className="h-24 w-24 object-contain drop-shadow-md transition group-hover:scale-105 sm:h-32 sm:w-32"
+                      />
+                    ))}
+                  </div>
+                  <div className="text-center">
+                    <h2 className="text-2xl font-extrabold text-slate-700 sm:text-3xl">
+                      {game.title}
+                    </h2>
+                    <p className="mt-1 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
+                      {game.tagline}
+                    </p>
+                    {locked && (
+                      <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-extrabold text-rose-600 sm:text-sm">
+                        <span aria-hidden="true">🔒</span> Locked
+                      </p>
+                    )}
+                  </div>
+                </button>
+              </div>
+            )
+          })}
         </div>
       </main>
 

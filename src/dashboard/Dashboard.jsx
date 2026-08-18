@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { formatTime } from '../exams/examEngine.js'
+import { useQuizLocks } from '../lib/useQuizLocks.js'
 
 const ACCESS_CODE = 'j0gl0'
 
@@ -28,6 +29,17 @@ function isInWeek(row, week) {
 function examName(examId) {
   return EXAM_NAMES[examId] || examId
 }
+
+const GAMES_LIST = [
+  { id: 'cpu-monitor', title: 'CPU & Monitor' },
+  { id: 'berkom', title: 'BerKom' },
+  { id: 'exam', title: 'Quiz Primary A' },
+  { id: 'exam-3', title: 'Quiz Grade 3' },
+  { id: 'exam-4', title: 'Quiz Grade 4' },
+  { id: 'exam-5', title: 'Quiz Grade 5' },
+  { id: 'exam-6', title: 'Quiz Grade 6' },
+  { id: 'exam-smp', title: 'Quiz SMP' },
+]
 
 function StatCard({ label, value, emoji }) {
   return (
@@ -298,6 +310,7 @@ function DashboardView({ onExit }) {
   const [notice, setNotice] = useState(null)
   const [selectedExam, setSelectedExam] = useState(null)
   const [selectedWeek, setSelectedWeek] = useState(null)
+  const { locks, loading: locksLoading, toggleLock } = useQuizLocks()
 
   useEffect(() => {
     let cancelled = false
@@ -530,6 +543,36 @@ function DashboardView({ onExit }) {
                   {w.label} <span className="font-semibold opacity-70">({w.range})</span>
                 </button>
               ))}
+            </div>
+
+            <div className="flex w-full max-w-5xl flex-col gap-2 rounded-3xl bg-white/95 px-5 py-4 shadow-lg sm:px-6">
+              <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
+                <span aria-hidden="true">🔐</span> Quiz Access
+              </h2>
+              <p className="text-xs font-semibold text-slate-500 sm:text-sm">
+                Toggle to lock or unlock quizzes for students
+              </p>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                {GAMES_LIST.map((g) => {
+                  const locked = locks[g.id] ?? true
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => toggleLock(g.id)}
+                      disabled={locksLoading}
+                      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:px-5 sm:text-base ${
+                        locked
+                          ? 'bg-rose-100 text-rose-700'
+                          : 'bg-emerald-100 text-emerald-700'
+                      }`}
+                    >
+                      <span aria-hidden="true">{locked ? '🔒' : '🔓'}</span>
+                      {g.title}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">
