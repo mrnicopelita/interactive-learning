@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
+import KeyboardGame from './games/KeyboardGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -25,6 +26,13 @@ const GAMES = [
     tagline: 'Drag the computer parts into the right order!',
     images: ['/images/keyboard.svg', '/images/mouse.svg'],
     Component: BerKomGame,
+  },
+  {
+    id: 'keyboard',
+    title: 'Keyboard',
+    tagline: 'Learn the magic keys on your keyboard!',
+    images: ['/images/keyboard.svg', '/images/mouse.svg'],
+    Component: KeyboardGame,
   },
   {
     id: 'exam',

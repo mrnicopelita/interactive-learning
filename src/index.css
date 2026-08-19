@@ -167,3 +167,44 @@ body {
 .animate-slide-in {
   animation: slide-in-right 0.35s ease-out both;
 }
+
+@keyframes kb-jump {
+  0% {
+    transform: translateX(-30px) translateY(0);
+  }
+  35% {
+    transform: translateX(50px) translateY(-65px);
+  }
+  65% {
+    transform: translateX(170px) translateY(-65px);
+  }
+  100% {
+    transform: translateX(260px) translateY(0);
+  }
+}
+
+@keyframes kb-rocket {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  55% {
+    transform: translateY(-180px) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-340px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes kb-hide {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-140px, 15px) scale(0.3);
+    opacity: 0.15;
+  }
+}
