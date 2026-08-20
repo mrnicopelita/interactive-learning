@@ -10,6 +10,7 @@ import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 import { EXAM_3 } from './exams/exam3Data.js'
 import { EXAM_SMP } from './exams/examSmpData.js'
+import { EXAM_SMP_AUG3 } from './exams/examSmpAugW3.js'
 import { useQuizLocks } from './lib/useQuizLocks.js'
 
 const GAMES = [
@@ -75,6 +76,13 @@ const GAMES = [
     tagline: 'Advanced questions for junior high learners!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM_SMP} {...props} />,
+  },
+  {
+    id: 'exam-smp-aug3',
+    title: 'Quiz SMP Agustus M3',
+    tagline: 'CT & Flowchart — August Week 3!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_SMP_AUG3} {...props} />,
   },
 ]
 
