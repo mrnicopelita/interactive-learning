@@ -12,6 +12,7 @@ const EXAM_NAMES = {
   'kuis-berpikir-komputasional-5': 'Quiz Grade 5',
   'kuis-berpikir-komputasional-6': 'Quiz Grade 6',
   'kuis-berpikir-komputasional-smp': 'Quiz SMP',
+  'kuis-ct-smp-agustus-minggu-3': 'Quiz SMP Grade 9',
 }
 
 const WEEKS = [
