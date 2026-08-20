@@ -79,7 +79,7 @@ const GAMES = [
   },
   {
     id: 'exam-smp-aug3',
-    title: 'Quiz SMP Agustus M3',
+    title: 'Quiz SMP Grade 9',
     tagline: 'CT & Flowchart — August Week 3!',
     images: ['/images/quiz.svg', '/images/monitor.svg'],
     Component: (props) => <ExamRunner exam={EXAM_SMP_AUG3} {...props} />,
