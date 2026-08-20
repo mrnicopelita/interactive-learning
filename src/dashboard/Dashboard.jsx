@@ -40,6 +40,7 @@ const GAMES_LIST = [
   { id: 'exam-5', title: 'Quiz Grade 5' },
   { id: 'exam-6', title: 'Quiz Grade 6' },
   { id: 'exam-smp', title: 'Quiz SMP' },
+  { id: 'exam-smp-aug3', title: 'Quiz SMP Grade 9' },
 ]
 
 function StatCard({ label, value, emoji }) {
