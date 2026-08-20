@@ -13,6 +13,7 @@ const EXAM_NAMES = {
   'kuis-berpikir-komputasional-6': 'Quiz Grade 6',
   'kuis-berpikir-komputasional-smp': 'Quiz SMP',
   'kuis-ct-smp-agustus-minggu-3': 'Quiz SMP Grade 9',
+  'kuis-ct-smp-grade-8': 'Quiz SMP Grade 8',
 }
 
 const WEEKS = [
@@ -41,6 +42,7 @@ const GAMES_LIST = [
   { id: 'exam-6', title: 'Quiz Grade 6' },
   { id: 'exam-smp', title: 'Quiz SMP' },
   { id: 'exam-smp-aug3', title: 'Quiz SMP Grade 9' },
+  { id: 'exam-smp-g8', title: 'Quiz SMP Grade 8' },
 ]
 
 function StatCard({ label, value, emoji }) {

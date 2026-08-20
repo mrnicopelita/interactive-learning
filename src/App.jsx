@@ -11,6 +11,7 @@ import { EXAM_6 } from './exams/exam6Data.js'
 import { EXAM_3 } from './exams/exam3Data.js'
 import { EXAM_SMP } from './exams/examSmpData.js'
 import { EXAM_SMP_AUG3 } from './exams/examSmpAugW3.js'
+import { EXAM_SMP_G8 } from './exams/examSmpGrade8.js'
 import { useQuizLocks } from './lib/useQuizLocks.js'
 
 const GAMES = [
@@ -83,6 +84,13 @@ const GAMES = [
     tagline: 'CT & Flowchart — August Week 3!',
     images: ['/images/quiz.svg', '/images/monitor.svg'],
     Component: (props) => <ExamRunner exam={EXAM_SMP_AUG3} {...props} />,
+  },
+  {
+    id: 'exam-smp-g8',
+    title: 'Quiz SMP Grade 8',
+    tagline: 'CT & Flowchart for Grade 8!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_SMP_G8} {...props} />,
   },
 ]
 
