@@ -7,6 +7,7 @@ const ACCESS_CODE = 'j0gl0'
 
 const EXAM_NAMES = {
   'kuis-berpikir-komputasional': 'Quiz Primary A',
+  'kuis-berpikir-komputasional-2': 'Quiz Grade 2',
   'kuis-berpikir-komputasional-3': 'Quiz Grade 3',
   'kuis-berpikir-komputasional-4': 'Quiz Grade 4',
   'kuis-berpikir-komputasional-5': 'Quiz Grade 5',

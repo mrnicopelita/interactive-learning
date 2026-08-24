@@ -5,6 +5,7 @@ import KeyboardGame from './games/KeyboardGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
+import { EXAM_2 } from './exams/exam2Data.js'
 import { EXAM_4 } from './exams/exam4Data.js'
 import { EXAM_5 } from './exams/exam5Data.js'
 import { EXAM_6 } from './exams/exam6Data.js'
@@ -42,6 +43,13 @@ const GAMES = [
     tagline: 'Answer questions and test what you know!',
     images: ['/images/quiz.svg', '/images/cpu.svg'],
     Component: (props) => <ExamRunner exam={EXAM} {...props} />,
+  },
+  {
+    id: 'exam-2',
+    title: 'Quiz Grade 2',
+    tagline: 'Fun questions for grade 2 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    Component: (props) => <ExamRunner exam={EXAM_2} {...props} />,
   },
   {
     id: 'exam-3',
