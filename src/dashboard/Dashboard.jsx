@@ -9,6 +9,7 @@ const ACCESS_CODE = 'j0gl0'
 const WEEKS = [
   { id: 'week2', label: 'Week 2', range: 'Aug 10–14', start: '2026-08-10', end: '2026-08-14' },
   { id: 'week3', label: 'Week 3 August Test', range: 'Aug 17–21', start: '2026-08-17', end: '2026-08-21' },
+  { id: 'week4', label: 'Week 4', range: 'Aug 24–28', start: '2026-08-24', end: '2026-08-28' },
 ]
 
 function isInWeek(row, week) {
