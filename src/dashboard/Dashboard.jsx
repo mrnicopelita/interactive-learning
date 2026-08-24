@@ -294,6 +294,7 @@ function DashboardView({ onExit }) {
   const [notice, setNotice] = useState(null)
   const [selectedExam, setSelectedExam] = useState(null)
   const [selectedWeek, setSelectedWeek] = useState(null)
+  const [focusedRowId, setFocusedRowId] = useState(null)
   const { locks, loading: locksLoading, error: locksError, toggleLock } = useQuizLocks()
 
   useEffect(() => {
@@ -685,11 +686,20 @@ function DashboardView({ onExit }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {metrics.recent.map((row) => (
-                        <tr
-                          key={row.id}
-                          className="border-b border-sky-50 font-bold text-slate-600 last:border-b-0"
-                        >
+{metrics.recent.map((row) => {
+                         const isFocused = focusedRowId === row.id
+                         const hasFocus = focusedRowId !== null
+                         return (
+                           <tr
+                             key={row.id}
+                             className={`border-b border-sky-50 font-bold last:border-b-0 transition-all duration-200 ${
+                               isFocused
+                                 ? 'text-slate-600 bg-amber-50 ring-2 ring-amber-200'
+                                 : hasFocus
+                                 ? 'opacity-30 text-slate-400'
+                                 : 'text-slate-600'
+                             }`}
+                           >
                           <td className="px-5 py-3">{row.student_name}</td>
                           <td className="px-5 py-3">{examName(row.exam_id)}</td>
                           <td className="px-5 py-3">
@@ -706,6 +716,18 @@ function DashboardView({ onExit }) {
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
+                                onClick={() => setFocusedRowId(focusedRowId === row.id ? null : row.id)}
+                                className={`rounded-full px-3 py-1.5 text-xs font-extrabold shadow transition hover:scale-105 sm:text-sm ${
+                                  focusedRowId === row.id
+                                    ? 'bg-amber-500 text-white'
+                                    : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                }`}
+                                title={focusedRowId === row.id ? 'Clear focus' : 'Focus on this student'}
+                              >
+                                {focusedRowId === row.id ? '👁️' : '👁️'}
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => setEditingRow(row)}
                                 className="rounded-full bg-sky-500 px-3 py-1.5 text-xs font-extrabold text-white shadow transition hover:scale-105 sm:text-sm"
                               >
@@ -720,8 +742,9 @@ function DashboardView({ onExit }) {
                               </button>
                             </div>
                           </td>
-                        </tr>
-                      ))}
+</tr>
+                         )
+                       })}
                     </tbody>
                   </table>
                 )}
