@@ -461,7 +461,7 @@ function DashboardView({ onExit }) {
           best: e.best,
         }))
         .sort((a, b) => b.attempts - a.attempts),
-      recent: rows.slice(0, 15),
+      recent: rows.slice(0, 30),
     }
   }, [state, selectedExam])
 
