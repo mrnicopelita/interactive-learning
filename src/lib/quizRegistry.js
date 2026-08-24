@@ -1,0 +1,87 @@
+export const QUIZ_REGISTRY = [
+  {
+    id: 'cpu-monitor',
+    title: 'CPU & Monitor',
+    tagline: 'Look at the picture, then tap to see another one!',
+    images: ['/images/cpu.svg', '/images/monitor.svg'],
+  },
+  {
+    id: 'berkom',
+    title: 'BerKom',
+    tagline: 'Drag the computer parts into the right order!',
+    images: ['/images/keyboard.svg', '/images/mouse.svg'],
+  },
+  {
+    id: 'keyboard',
+    title: 'Keyboard',
+    tagline: 'Learn the magic keys on your keyboard!',
+    images: ['/images/keyboard.svg', '/images/mouse.svg'],
+  },
+  {
+    id: 'exam',
+    title: 'Quiz Grade 1',
+    tagline: 'Answer questions and test what you know!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-berpikir-komputasional',
+  },
+  {
+    id: 'exam-2',
+    title: 'Quiz Grade 2',
+    tagline: 'Fun questions for grade 2 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    examKey: 'kuis-berpikir-komputasional-2',
+  },
+  {
+    id: 'exam-3',
+    title: 'Quiz Grade 3',
+    tagline: 'Fun questions for grade 3 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    examKey: 'kuis-berpikir-komputasional-3',
+  },
+  {
+    id: 'exam-4',
+    title: 'Quiz Grade 4',
+    tagline: 'Tough questions for grade 4 learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-berpikir-komputasional-4',
+  },
+  {
+    id: 'exam-5',
+    title: 'Quiz Grade 5',
+    tagline: 'Tough questions for grade 5 learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-berpikir-komputasional-5',
+  },
+  {
+    id: 'exam-6',
+    title: 'Quiz Grade 6',
+    tagline: 'Tough questions for grade 6 learners!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    examKey: 'kuis-berpikir-komputasional-6',
+  },
+  {
+    id: 'exam-smp',
+    title: 'Quiz SMP',
+    tagline: 'Advanced questions for junior high learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-berpikir-komputasional-smp',
+  },
+  {
+    id: 'exam-smp-aug3',
+    title: 'Quiz SMP Grade 9',
+    tagline: 'CT & Flowchart — August Week 3!',
+    images: ['/images/quiz.svg', '/images/monitor.svg'],
+    examKey: 'kuis-ct-smp-agustus-minggu-3',
+  },
+  {
+    id: 'exam-smp-g8',
+    title: 'Quiz SMP Grade 8',
+    tagline: 'CT & Flowchart for Grade 8!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-ct-smp-grade-8',
+  },
+]
+
+export const EXAM_NAME_MAP = Object.fromEntries(
+  QUIZ_REGISTRY.filter((q) => q.examKey).map((q) => [q.examKey, q.title]),
+)
