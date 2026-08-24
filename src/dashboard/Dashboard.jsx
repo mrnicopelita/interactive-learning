@@ -2,20 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { formatTime } from '../exams/examEngine.js'
 import { useQuizLocks } from '../lib/useQuizLocks.js'
+import { QUIZ_REGISTRY, EXAM_NAME_MAP } from '../lib/quizRegistry.js'
 
 const ACCESS_CODE = 'j0gl0'
-
-const EXAM_NAMES = {
-  'kuis-berpikir-komputasional': 'Quiz Primary A',
-  'kuis-berpikir-komputasional-2': 'Quiz Grade 2',
-  'kuis-berpikir-komputasional-3': 'Quiz Grade 3',
-  'kuis-berpikir-komputasional-4': 'Quiz Grade 4',
-  'kuis-berpikir-komputasional-5': 'Quiz Grade 5',
-  'kuis-berpikir-komputasional-6': 'Quiz Grade 6',
-  'kuis-berpikir-komputasional-smp': 'Quiz SMP',
-  'kuis-ct-smp-agustus-minggu-3': 'Quiz SMP Grade 9',
-  'kuis-ct-smp-grade-8': 'Quiz SMP Grade 8',
-}
 
 const WEEKS = [
   { id: 'week2', label: 'Week 2', range: 'Aug 10–14', start: '2026-08-10', end: '2026-08-14' },
@@ -30,21 +19,10 @@ function isInWeek(row, week) {
 }
 
 function examName(examId) {
-  return EXAM_NAMES[examId] || examId
+  return EXAM_NAME_MAP[examId] || examId
 }
 
-const GAMES_LIST = [
-  { id: 'cpu-monitor', title: 'CPU & Monitor' },
-  { id: 'berkom', title: 'BerKom' },
-  { id: 'exam', title: 'Quiz Primary A' },
-  { id: 'exam-3', title: 'Quiz Grade 3' },
-  { id: 'exam-4', title: 'Quiz Grade 4' },
-  { id: 'exam-5', title: 'Quiz Grade 5' },
-  { id: 'exam-6', title: 'Quiz Grade 6' },
-  { id: 'exam-smp', title: 'Quiz SMP' },
-  { id: 'exam-smp-aug3', title: 'Quiz SMP Grade 9' },
-  { id: 'exam-smp-g8', title: 'Quiz SMP Grade 8' },
-]
+const GAMES_LIST = QUIZ_REGISTRY.map((q) => ({ id: q.id, title: q.title }))
 
 function StatCard({ label, value, emoji }) {
   return (
@@ -224,7 +202,7 @@ function EditModal({ row, onSave, onCancel }) {
             }
             className={fieldClass}
           >
-            {Object.entries(EXAM_NAMES).map(([id, name]) => (
+            {Object.entries(EXAM_NAME_MAP).map(([id, name]) => (
               <option key={id} value={id}>
                 {name}
               </option>
@@ -600,7 +578,7 @@ function DashboardView({ onExit }) {
               >
                 All Grades
               </button>
-              {Object.entries(EXAM_NAMES).map(([id, name]) => (
+              {Object.entries(EXAM_NAME_MAP).map(([id, name]) => (
                 <button
                   key={id}
                   type="button"

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import { QUIZ_REGISTRY } from './quizRegistry.js'
 
 export function useQuizLocks() {
   const [locks, setLocks] = useState({})
@@ -22,6 +23,15 @@ export function useQuizLocks() {
       const map = {}
       for (const row of data) map[row.quiz_id] = row.is_locked
       setLocks(map)
+
+      const knownIds = new Set(data.map((r) => r.quiz_id))
+      const missing = QUIZ_REGISTRY.filter((q) => !knownIds.has(q.id))
+      if (missing.length > 0) {
+        const rows = missing.map((q) => ({ quiz_id: q.id, is_locked: true }))
+        await supabase.from('quiz_settings').insert(rows)
+        for (const q of missing) map[q.id] = true
+        setLocks({ ...map })
+      }
     }
     setLoading(false)
   }, [])

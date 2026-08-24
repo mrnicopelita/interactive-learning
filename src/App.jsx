@@ -14,93 +14,32 @@ import { EXAM_SMP } from './exams/examSmpData.js'
 import { EXAM_SMP_AUG3 } from './exams/examSmpAugW3.js'
 import { EXAM_SMP_G8 } from './exams/examSmpGrade8.js'
 import { useQuizLocks } from './lib/useQuizLocks.js'
+import { QUIZ_REGISTRY } from './lib/quizRegistry.js'
 
-const GAMES = [
-  {
-    id: 'cpu-monitor',
-    title: 'CPU & Monitor',
-    tagline: 'Look at the picture, then tap to see another one!',
-    images: ['/images/cpu.svg', '/images/monitor.svg'],
-    Component: CpuMonitorGame,
-  },
-  {
-    id: 'berkom',
-    title: 'BerKom',
-    tagline: 'Drag the computer parts into the right order!',
-    images: ['/images/keyboard.svg', '/images/mouse.svg'],
-    Component: BerKomGame,
-  },
-  {
-    id: 'keyboard',
-    title: 'Keyboard',
-    tagline: 'Learn the magic keys on your keyboard!',
-    images: ['/images/keyboard.svg', '/images/mouse.svg'],
-    Component: KeyboardGame,
-  },
-  {
-    id: 'exam',
-    title: 'Quiz Primary A',
-    tagline: 'Answer questions and test what you know!',
-    images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: (props) => <ExamRunner exam={EXAM} {...props} />,
-  },
-  {
-    id: 'exam-2',
-    title: 'Quiz Grade 2',
-    tagline: 'Fun questions for grade 2 learners!',
-    images: ['/images/quiz.svg', '/images/monitor.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_2} {...props} />,
-  },
-  {
-    id: 'exam-3',
-    title: 'Quiz Grade 3',
-    tagline: 'Fun questions for grade 3 learners!',
-    images: ['/images/quiz.svg', '/images/monitor.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_3} {...props} />,
-  },
-  {
-    id: 'exam-4',
-    title: 'Quiz Grade 4',
-    tagline: 'Tough questions for grade 4 learners!',
-    images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_4} {...props} />,
-  },
-  {
-    id: 'exam-5',
-    title: 'Quiz Grade 5',
-    tagline: 'Tough questions for grade 5 learners!',
-    images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_5} {...props} />,
-  },
-  {
-    id: 'exam-6',
-    title: 'Quiz Grade 6',
-    tagline: 'Tough questions for grade 6 learners!',
-    images: ['/images/quiz.svg', '/images/monitor.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_6} {...props} />,
-  },
-  {
-    id: 'exam-smp',
-    title: 'Quiz SMP',
-    tagline: 'Advanced questions for junior high learners!',
-    images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_SMP} {...props} />,
-  },
-  {
-    id: 'exam-smp-aug3',
-    title: 'Quiz SMP Grade 9',
-    tagline: 'CT & Flowchart — August Week 3!',
-    images: ['/images/quiz.svg', '/images/monitor.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_SMP_AUG3} {...props} />,
-  },
-  {
-    id: 'exam-smp-g8',
-    title: 'Quiz SMP Grade 8',
-    tagline: 'CT & Flowchart for Grade 8!',
-    images: ['/images/quiz.svg', '/images/cpu.svg'],
-    Component: (props) => <ExamRunner exam={EXAM_SMP_G8} {...props} />,
-  },
-]
+const EXAM_COMPONENTS = {
+  'exam': EXAM,
+  'exam-2': EXAM_2,
+  'exam-3': EXAM_3,
+  'exam-4': EXAM_4,
+  'exam-5': EXAM_5,
+  'exam-6': EXAM_6,
+  'exam-smp': EXAM_SMP,
+  'exam-smp-aug3': EXAM_SMP_AUG3,
+  'exam-smp-g8': EXAM_SMP_G8,
+}
+
+const GAME_COMPONENTS = {
+  'cpu-monitor': CpuMonitorGame,
+  'berkom': BerKomGame,
+  'keyboard': KeyboardGame,
+}
+
+const GAMES = QUIZ_REGISTRY.map((entry) => ({
+  ...entry,
+  Component: GAME_COMPONENTS[entry.id]
+    ? GAME_COMPONENTS[entry.id]
+    : (props) => <ExamRunner exam={EXAM_COMPONENTS[entry.id]} {...props} />,
+}))
 
 function Catalog({ onPlay }) {
   const { isLocked, loading } = useQuizLocks()

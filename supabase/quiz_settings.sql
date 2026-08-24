@@ -11,12 +11,16 @@ insert into public.quiz_settings (quiz_id, is_locked)
 values
   ('cpu-monitor', true),
   ('berkom', true),
+  ('keyboard', true),
   ('exam', true),
+  ('exam-2', true),
   ('exam-3', true),
   ('exam-4', true),
   ('exam-5', true),
   ('exam-6', true),
-  ('exam-smp', true)
+  ('exam-smp', true),
+  ('exam-smp-aug3', true),
+  ('exam-smp-g8', true)
 on conflict (quiz_id) do nothing;
 
 alter table public.quiz_settings enable row level security;
