@@ -60,6 +60,13 @@ export const QUIZ_REGISTRY = [
     examKey: 'kuis-berpikir-komputasional-6',
   },
   {
+    id: 'exam-7',
+    title: 'Quiz Grade 7',
+    tagline: 'CT questions for Grade 7 learners!',
+    images: ['/images/quiz.svg', '/images/cpu.svg'],
+    examKey: 'kuis-informatika-kelas-7',
+  },
+  {
     id: 'exam-smp',
     title: 'Quiz SMP',
     tagline: 'Advanced questions for junior high learners!',
