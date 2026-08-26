@@ -695,8 +695,8 @@ function DashboardView({ onExit }) {
                              className={`border-b border-sky-50 font-bold last:border-b-0 transition-all duration-200 ${
                                isFocused
                                  ? 'text-slate-600 bg-amber-50 ring-2 ring-amber-200'
-                                 : hasFocus
-                                 ? 'opacity-30 text-slate-400'
+: hasFocus
+                                  ? 'opacity-5 text-slate-500'
                                  : 'text-slate-600'
                              }`}
                            >
