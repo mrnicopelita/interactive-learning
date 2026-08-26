@@ -208,3 +208,115 @@ body {
     opacity: 0.15;
   }
 }
+
+/* IFP / Large touchscreen responsive adjustments */
+@media (min-width: 1280px) {
+  :root {
+    --touch-target-min: 64px;
+    --font-scale: 1.25;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --touch-target-min: 72px;
+    --font-scale: 1.4;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --touch-target-min: 80px;
+    --font-scale: 1.5;
+  }
+}
+
+/* Ensure full viewport usage on IFP */
+@media (min-width: 1024px) {
+  .h-dvh {
+    height: 100vh;
+    height: 100dvh;
+  }
+}
+
+/* Larger touch targets for IFP */
+@media (min-width: 1280px) {
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  select,
+  .touch-manipulation {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Scale up form inputs */
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: calc(1.125rem * var(--font-scale));
+    padding: calc(0.75rem * var(--font-scale)) calc(1rem * var(--font-scale));
+  }
+  
+  /* Larger table cells */
+  table td,
+  table th {
+    padding: calc(0.75rem * var(--font-scale)) calc(1rem * var(--font-scale));
+    font-size: calc(0.875rem * var(--font-scale));
+  }
+  
+  /* Larger card padding */
+  .rounded-3xl {
+    padding: calc(1.25rem * var(--font-scale));
+  }
+  
+  /* Larger modal */
+  .max-w-lg {
+    max-width: calc(32rem * var(--font-scale));
+  }
+}
+
+/* Prevent horizontal overflow on IFP */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better text rendering on large displays */
+@media (min-width: 1280px) {
+  body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Ensure modals center properly on large screens */
+@media (min-width: 1024px) {
+  .fixed.inset-0.flex.items-center.justify-center {
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+}
+
+/* Hide scrollbar on IFP for cleaner look */
+@media (min-width: 1280px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+}
