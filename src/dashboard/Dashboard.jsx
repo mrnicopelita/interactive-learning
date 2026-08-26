@@ -476,7 +476,7 @@ function DashboardView({ onExit }) {
   }
 
   return (
-    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
+    <div className="flex h-dvh w-full touch-manipulation flex-col bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
       <div className="z-10 flex w-full shrink-0 items-center justify-between gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
         <button
           type="button"
@@ -492,7 +492,7 @@ function DashboardView({ onExit }) {
         <div className="w-20 sm:w-32" aria-hidden="true" />
       </div>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+      <main className="flex min-h-0 flex-1 flex-col items-center gap-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 pb-8">
         {state.status === 'error' ? (
           <div className="flex w-full max-w-3xl flex-col items-center gap-2 rounded-3xl bg-rose-100 px-6 py-8 text-center shadow-lg">
             <span className="text-4xl" aria-hidden="true">⚠️</span>
@@ -667,7 +667,7 @@ function DashboardView({ onExit }) {
                   {notice.text}
                 </div>
               )}
-              <div className="w-full overflow-x-auto rounded-3xl bg-white/95 shadow-lg">
+              <div className="w-full overflow-x-auto rounded-3xl bg-white/95 shadow-lg overflow-y-visible">
                 {metrics.recent.length === 0 ? (
                   <p className="px-6 py-5 text-center text-base font-bold text-slate-500">
                     No results yet.
