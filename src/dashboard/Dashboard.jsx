@@ -696,7 +696,7 @@ function DashboardView({ onExit }) {
                                isFocused
                                  ? 'text-slate-600 bg-amber-50 ring-2 ring-amber-200'
 : hasFocus
-                                  ? 'opacity-5 text-slate-500'
+                                  ? 'opacity-0 pointer-events-none'
                                  : 'text-slate-600'
                              }`}
                            >
