@@ -14,8 +14,8 @@ export const QUIZ_REGISTRY = [
   {
     id: 'sinyal-lab',
     title: 'Sinyal Lab',
-    tagline: 'Sort the parts into their signal ports!',
-    images: ['/images/smartphone.svg', '/images/monitor.svg'],
+    tagline: 'Sort the hardware into their signal ports!',
+    images: ['/images/smartphone.svg', '/images/tv.svg'],
   },
   {
     id: 'keyboard',

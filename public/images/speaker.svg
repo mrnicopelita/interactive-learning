@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Speaker">
+  <defs>
+    <linearGradient id="spBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7a5cff"/>
+      <stop offset="1" stop-color="#5a3ff2"/>
+    </linearGradient>
+    <linearGradient id="spCone" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#efeafd"/>
+      <stop offset="1" stop-color="#cfc4f5"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="560" rx="200" ry="22" fill="#000000" opacity="0.1"/>
+
+  <g transform="rotate(-4 300 300)">
+    <rect x="155" y="95" width="290" height="400" rx="26" fill="url(#spBody)" stroke="#4328cc" stroke-width="7"/>
+
+    <rect x="185" y="130" width="230" height="200" rx="20" fill="url(#spCone)" stroke="#b0a3ea" stroke-width="4"/>
+    <circle cx="300" cy="230" r="42" fill="#ffffff"/>
+    <circle cx="300" cy="230" r="22" fill="#5a3ff2"/>
+    <circle cx="300" cy="230" r="8" fill="#3d27b8"/>
+
+    <rect x="185" y="350" width="230" height="14" rx="7" fill="#3d27b8"/>
+    <rect x="185" y="376" width="230" height="14" rx="7" fill="#3d27b8"/>
+    <rect x="185" y="402" width="230" height="14" rx="7" fill="#3d27b8"/>
+
+    <circle cx="230" cy="120" r="7" fill="#b0a3ea"/>
+  </g>
+</svg>

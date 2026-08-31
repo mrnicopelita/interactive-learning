@@ -10,6 +10,20 @@ const PARTS = [
     portId: 'port-out',
   },
   {
+    id: 'tv',
+    name: 'TV',
+    src: '/images/tv.svg',
+    direction: 'out',
+    portId: 'port-out',
+  },
+  {
+    id: 'speaker',
+    name: 'Speaker',
+    src: '/images/speaker.svg',
+    direction: 'out',
+    portId: 'port-out',
+  },
+  {
     id: 'keyboard',
     name: 'Keyboard',
     src: '/images/keyboard.svg',
@@ -24,9 +38,30 @@ const PARTS = [
     portId: 'port-in',
   },
   {
+    id: 'microphone',
+    name: 'Microphone',
+    src: '/images/microphone.svg',
+    direction: 'in',
+    portId: 'port-in',
+  },
+  {
     id: 'smartphone',
     name: 'Smartphone',
     src: '/images/smartphone.svg',
+    direction: 'both',
+    portId: 'port-both',
+  },
+  {
+    id: 'tablet',
+    name: 'Tablet',
+    src: '/images/tablet.svg',
+    direction: 'both',
+    portId: 'port-both',
+  },
+  {
+    id: 'radio',
+    name: 'Radio',
+    src: '/images/radio.svg',
     direction: 'both',
     portId: 'port-both',
   },
@@ -39,7 +74,7 @@ const PORTS = [
     subtitle: 'Satu Arah Keluar',
     color: 'sky',
     arrows: 'out',
-    label: 'Monitor',
+    label: 'Monitor · TV · Speaker',
     hint: 'Hanya melihat',
   },
   {
@@ -48,7 +83,7 @@ const PORTS = [
     subtitle: 'Satu Arah Masuk',
     color: 'emerald',
     arrows: 'in',
-    label: 'Keyboard & Mouse',
+    label: 'Keyboard · Mouse · Mic',
     hint: 'Hanya memberi perintah',
   },
   {
@@ -57,7 +92,7 @@ const PORTS = [
     subtitle: 'Dua Arah / Gabungan',
     color: 'violet',
     arrows: 'both',
-    label: 'Smartphone',
+    label: 'Smartphone · Tablet · Radio',
     hint: 'Bisa ketuk & lihat',
   },
 ]
@@ -221,7 +256,7 @@ function SignalLabGame({ onExit }) {
       </header>
 
       <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-between gap-4 overflow-hidden px-3 pb-4 pt-2 sm:px-6 sm:pb-6">
-        <div className="flex flex-1 flex-wrap items-start justify-center gap-4 px-2 pt-2">
+        <div className="flex min-h-0 flex-1 flex-wrap content-start items-start justify-center gap-3 overflow-y-auto px-2 pt-2 sm:gap-4">
           {remaining.map((part, index) => (
             <button
               key={part.id}
