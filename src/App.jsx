@@ -52,18 +52,18 @@ function Catalog({ onPlay }) {
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">
-      <header className="z-10 flex w-full shrink-0 items-center justify-center bg-white/85 px-4 py-3 text-center shadow-md backdrop-blur-sm sm:py-4">
-        <h1 className="text-[clamp(2rem,6vw,3.5rem)] font-extrabold leading-none text-slate-700">
+      <header className="z-10 flex w-full shrink-0 items-center justify-center bg-white/85 px-4 py-3 text-center shadow-md backdrop-blur-sm sm:py-4 lg:py-6">
+        <h1 className="text-[clamp(2rem,6vw,3.5rem)] font-extrabold leading-none text-slate-700 lg:text-5xl xl:text-6xl">
           Interactive <span className="text-sky-600">Learning</span>
         </h1>
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-start gap-5 overflow-y-auto px-4 py-4 sm:gap-8 sm:px-6 sm:py-6">
-        <p className="text-lg font-bold text-slate-600 sm:text-2xl">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-start gap-5 overflow-y-auto px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 lg:gap-10 lg:px-8 lg:py-8">
+        <p className="text-lg font-bold text-slate-600 sm:text-2xl lg:text-3xl xl:text-4xl">
           Pick a game to play!
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+        <div className="catalog-grid flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           {GAMES.map((game) => {
             const locked = isLocked(game.id)
             return (
@@ -74,7 +74,7 @@ function Catalog({ onPlay }) {
                     if (!locked) onPlay(game.id)
                   }}
                   disabled={locked}
-                  className={`group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition sm:gap-5 sm:px-10 sm:py-8 ${
+                  className={`catalog-card group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition sm:gap-5 sm:px-10 sm:py-8 ${
                     locked
                       ? 'cursor-not-allowed opacity-60 grayscale'
                       : 'hover:scale-105 hover:shadow-xl'
@@ -94,7 +94,7 @@ function Catalog({ onPlay }) {
                     <h2 className="text-2xl font-extrabold text-slate-700 sm:text-3xl">
                       {game.title}
                     </h2>
-                    <p className="mt-1 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
+                    <p className="tagline mt-1 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
                       {game.tagline}
                     </p>
                     {locked && (
@@ -110,11 +110,11 @@ function Catalog({ onPlay }) {
         </div>
       </main>
 
-      <footer className="z-10 flex w-full shrink-0 items-center justify-center pb-4 sm:pb-5">
+      <footer className="z-10 flex w-full shrink-0 items-center justify-center pb-4 sm:pb-5 lg:pb-6">
         <button
           type="button"
           onClick={() => onPlay('dashboard')}
-          className="rounded-full bg-white/60 px-4 py-2 text-xs font-extrabold text-slate-500 shadow transition hover:scale-105 hover:bg-white/95 hover:text-sky-700 sm:px-5 sm:text-sm"
+          className="rounded-full bg-white/60 px-4 py-2 text-xs font-extrabold text-slate-500 shadow transition hover:scale-105 hover:bg-white/95 hover:text-sky-700 sm:px-5 sm:text-sm lg:px-6 lg:py-3 lg:text-base"
         >
           <span aria-hidden="true">🔑</span> Admin Dashboard
         </button>

@@ -377,6 +377,46 @@ html, body {
   }
 }
 
+/* IFP catalog: larger cards, bigger images, more spacing */
+@media (min-width: 1536px) {
+  .catalog-card {
+    width: min(90vw, 26rem);
+    padding: 2.5rem 3rem;
+    gap: 1.75rem;
+  }
+  .catalog-card img {
+    height: 9rem;
+    width: 9rem;
+  }
+  .catalog-card h2 {
+    font-size: 2rem;
+  }
+  .catalog-card p.tagline {
+    font-size: 0.9rem;
+  }
+  .catalog-grid {
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .catalog-card {
+    width: min(90vw, 30rem);
+    padding: 3rem 3.5rem;
+    gap: 2rem;
+  }
+  .catalog-card img {
+    height: 11rem;
+    width: 11rem;
+  }
+  .catalog-card h2 {
+    font-size: 2.25rem;
+  }
+  .catalog-grid {
+    gap: 2.5rem;
+  }
+}
+
 /* Ensure modals center properly on large screens */
 @media (min-width: 1024px) {
   .fixed.inset-0.flex.items-center.justify-center {
