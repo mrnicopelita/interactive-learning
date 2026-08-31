@@ -115,29 +115,27 @@ function WordDisplay({ word, charIdx, color }) {
   )
 }
 
-function VirtualKeyboard({ target, wrongKey, onKey }) {
+function VirtualKeyboard({ target, wrongKey }) {
   return (
-    <div className="flex flex-col items-center gap-1.5 px-2 pb-2 pt-1 sm:gap-2 sm:px-4 sm:pb-3">
+    <div className="pointer-events-none flex flex-col items-center gap-1.5 px-2 pb-2 pt-1 sm:gap-2 sm:px-4 sm:pb-3">
       {KB_ROWS.map((row, ri) => (
         <div key={ri} className="flex justify-center gap-1 sm:gap-1.5">
           {row.map((letter) => {
             const isTarget = target && letter === target.toUpperCase()
             const isWrong = wrongKey === letter
             return (
-              <button
+              <div
                 key={letter}
-                type="button"
-                onClick={() => onKey(letter)}
-                className={`flex h-11 w-[8.5%] max-w-12 items-center justify-center rounded-xl text-sm font-extrabold transition-all duration-150 active:scale-90 sm:h-14 sm:max-w-14 sm:text-lg ${
+                className={`flex h-11 w-[8.5%] max-w-12 items-center justify-center rounded-xl text-sm font-extrabold transition-all duration-150 sm:h-14 sm:max-w-14 sm:text-lg ${
                   isTarget
                     ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-110'
                     : isWrong
                       ? 'bg-red-500 text-white animate-shake'
-                      : 'bg-white/15 text-white/80 active:bg-white/25'
+                      : 'bg-white/15 text-white/80'
                 }`}
               >
                 {letter}
-              </button>
+              </div>
             )
           })}
         </div>
@@ -576,7 +574,7 @@ export default function TypingGame({ onExit }) {
           )}
           {!feedback && target && (
             <p className="text-sm font-bold text-cyan-300 sm:text-base">
-              Press <span className="text-white font-black">{target}</span> on the keyboard
+              Ketik huruf <span className="text-white font-black">{target}</span> di keyboard
             </p>
           )}
         </div>
@@ -602,7 +600,10 @@ export default function TypingGame({ onExit }) {
       </div>
 
       <div className="z-10 shrink-0">
-        <VirtualKeyboard target={target} wrongKey={wrongKey} onKey={processKey} />
+        <p className="mb-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
+          ⌨️ Ketik langsung pada keyboard fisik
+        </p>
+        <VirtualKeyboard target={target} wrongKey={wrongKey} />
       </div>
     </div>
   )
