@@ -3,6 +3,7 @@ import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
 import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
+import TypingGame from './games/TypingGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -56,7 +57,7 @@ function Catalog({ onPlay }) {
         </h1>
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 overflow-y-auto px-4 py-4 sm:gap-8 sm:px-6 sm:py-6">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-start gap-5 overflow-y-auto px-4 py-4 sm:gap-8 sm:px-6 sm:py-6">
         <p className="text-lg font-bold text-slate-600 sm:text-2xl">
           Pick a game to play!
         </p>
