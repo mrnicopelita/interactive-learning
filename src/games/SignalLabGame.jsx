@@ -125,18 +125,27 @@ function ArrowSet({ mode, className }) {
   )
 }
 
+const TIME_LIMIT = 30
+
 function SignalLabGame({ onExit }) {
   const [placed, setPlaced] = useState([])
   const [wrongFlash, setWrongFlash] = useState(false)
   const [wrongMsg, setWrongMsg] = useState(false)
   const [wrongCount, setWrongCount] = useState(0)
-  const [seconds, setSeconds] = useState(0)
+  const [seconds, setSeconds] = useState(TIME_LIMIT)
+  const [timeOut, setTimeOut] = useState(false)
   const timerTickRef = useRef(null)
   const flashTimerRef = useRef(null)
 
   useEffect(() => {
     timerTickRef.current = setInterval(() => {
-      setSeconds((prev) => prev + 1)
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerTickRef.current)
+          return 0
+        }
+        return prev - 1
+      })
     }, 1000)
     return () => {
       clearInterval(timerTickRef.current)
@@ -145,15 +154,14 @@ function SignalLabGame({ onExit }) {
   }, [])
 
   useEffect(() => {
-    if (done) clearInterval(timerTickRef.current)
-  }, [done])
+    if (seconds <= 0) setTimeOut(true)
+  }, [seconds])
 
   const remaining = PARTS.filter((p) => !placed.includes(p.id))
-  const doneNow = placed.length === PARTS.length
-  const done = doneNow
+  const done = placed.length === PARTS.length
 
   function startDrag(event, part) {
-    if (done) return
+    if (done || timeOut) return
     const target = event.currentTarget
     const rect = target.getBoundingClientRect()
     const ghost = target.cloneNode(true)
@@ -210,28 +218,62 @@ function SignalLabGame({ onExit }) {
   }
 
   function restart() {
+    clearInterval(timerTickRef.current)
+    timerTickRef.current = setInterval(() => {
+      setSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerTickRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
     setPlaced([])
     setWrongCount(0)
     setWrongMsg(false)
-    setSeconds(0)
+    setTimeOut(false)
+    setSeconds(TIME_LIMIT)
   }
 
-  if (done) {
+  if (done || timeOut) {
+    const success = done
     return (
       <div className="relative flex h-dvh w-full touch-manipulation flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-indigo-900 via-sky-900 to-slate-900">
-        <ConfettiCelebration />
-        <div className="animate-pop-in flex max-w-lg flex-col items-center gap-4 rounded-3xl bg-white/10 px-6 py-8 text-center backdrop-blur-md sm:gap-6 sm:px-12 sm:py-10 lg:max-w-xl">
+        {success && <ConfettiCelebration />}
+        <div className="animate-pop-in flex max-w-lg flex-col items-center gap-4 rounded-3xl bg-white/10 px-6 py-8 text-center backdrop-blur-md sm:gap-5 sm:px-12 sm:py-10 lg:max-w-xl">
           <div className="flex gap-3 text-4xl sm:text-5xl lg:text-6xl">
-            <span className="animate-bounce" aria-hidden="true">🚀</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.15s' }} aria-hidden="true">⭐</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.3s' }} aria-hidden="true">✨</span>
+            {success ? (
+              <>
+                <span className="animate-bounce" aria-hidden="true">🚀</span>
+                <span className="animate-bounce" style={{ animationDelay: '0.15s' }} aria-hidden="true">⭐</span>
+                <span className="animate-bounce" style={{ animationDelay: '0.3s' }} aria-hidden="true">✨</span>
+              </>
+            ) : (
+              <span className="animate-bounce" aria-hidden="true">⏰</span>
+            )}
           </div>
           <h1 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
-            Sinyal Terhubung!
+            {success ? 'Sinyal Terhubung!' : 'Waktu Habis!'}
           </h1>
           <p className="text-base font-bold text-sky-200 sm:text-lg lg:text-xl">
-            Semua perangkat sudah masuk ke port yang benar!
+            {success
+              ? 'Semua perangkat sudah masuk ke port yang benar!'
+              : `Masih ada ${remaining.length} perangkat yang belum masuk.`}
           </p>
+          <div className="mt-1 flex items-center gap-3">
+            <div
+              className={`flex items-center gap-1 rounded-full px-4 py-1.5 text-sm font-extrabold sm:text-base ${
+                success ? 'bg-emerald-500/20 text-emerald-300' : 'bg-white/15 text-sky-200'
+              }`}
+            >
+              <span aria-hidden="true">⏱️</span>
+              {TIME_LIMIT - seconds} detik
+            </div>
+            <div className="flex items-center gap-1 rounded-full bg-red-500/20 px-4 py-1.5 text-sm font-extrabold text-red-300 sm:text-base">
+              <span aria-hidden="true">💡</span>
+              {wrongCount} salah
+            </div>
+          </div>
           <div className="flex gap-3 sm:gap-4">
             <button
               type="button"
@@ -259,6 +301,15 @@ function SignalLabGame({ onExit }) {
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-red-500/30" />
       )}
 
+      {wrongMsg && (
+        <div className="animate-pop-in pointer-events-none absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2">
+          <div className="animate-shake flex items-center gap-2 whitespace-nowrap rounded-full bg-red-500 px-6 py-3 text-xl font-extrabold text-white shadow-2xl sm:px-8 sm:text-2xl">
+            <span aria-hidden="true">💡</span>
+            Salah! Coba di port yang benar!
+          </div>
+        </div>
+      )}
+
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute left-6 top-16 h-24 w-24 rounded-full bg-yellow-200 opacity-20 blur-2xl" />
         <div className="absolute right-10 top-32 h-20 w-20 rounded-full bg-sky-300 opacity-20 blur-2xl" />
@@ -273,6 +324,17 @@ function SignalLabGame({ onExit }) {
         <span aria-hidden="true" className="text-lg sm:text-3xl">←</span>
         Permainan
       </button>
+
+      <div
+        className={`absolute right-3 top-3 z-30 flex items-center gap-2 rounded-full px-4 py-2 text-lg font-extrabold shadow-lg backdrop-blur-sm transition sm:right-5 sm:top-5 sm:px-6 sm:py-3 sm:text-2xl ${
+          seconds <= 5
+            ? 'bg-red-500/90 text-white'
+            : 'bg-white/15 text-white'
+        }`}
+      >
+        <span aria-hidden="true">⏱️</span>
+        <span className={seconds <= 5 ? 'animate-pulse' : ''}>{seconds}</span>
+      </div>
 
       <header className="z-10 flex w-full shrink-0 flex-col items-center gap-1 px-4 pt-14 text-center sm:pt-16 lg:pt-18">
         <h1 className="text-[clamp(2rem,6vw,3.5rem)] font-extrabold leading-none text-white lg:text-5xl xl:text-6xl">
