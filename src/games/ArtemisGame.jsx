@@ -44,11 +44,26 @@ const DEFAULT_STORE = {
 }
 
 const INTRO_LINES = [
-  'ATTENTION ALL FLIGHT DIRECTORS…',
-  'SOLAR ACTIVITY REPORT: a coronal mass ejection from the Sun has just struck NASA’s Deep Space Network.',
-  'Three years of Artemis telemetry — Orion Test, Crewed Lunar Flyby, and the South Pole Landing — arrived scrambled into one massive unsorted data stream.',
-  'No Mission Control can clear Orion for orbital insertion until every core telemetry metric is computed and verified live.',
-  'TEAM ASSIGNMENTS DECODED. {name}, report to your station. The launch window is open… but not for long.',
+  {
+    en: 'ATTENTION ALL FLIGHT DIRECTORS…',
+    id: 'PERHATIAN SEMUA PENGENDALI PENERBANGAN…',
+  },
+  {
+    en: "SOLAR ACTIVITY REPORT: a coronal mass ejection from the Sun has just struck NASA's Deep Space Network.",
+    id: 'LAPORAN AKTIVITAS MATAHARI: lontaran massa korona baru saja menghantam Jaringan Luar Angkasa Dalam milik NASA.',
+  },
+  {
+    en: 'Three years of Artemis telemetry — Orion Test, Crewed Lunar Flyby, and the South Pole Landing — arrived scrambled into one massive unsorted data stream.',
+    id: 'Data telemetri tiga misi Artemis — Orion Test, Terbang Lintas Berawak, dan Pendaratan Kutub Selatan — tiba teracak dalam satu aliran data raksasa yang belum diurutkan.',
+  },
+  {
+    en: 'NO MISSION CONTROL CAN CLEAR ORION FOR ORBITAL INSERTION until every core telemetry metric is computed and verified live.',
+    id: 'Mission Control TIDAK BISA menyiapkan Orion untuk masuk orbit sampai seluruh metrik telemetri inti dihitung dan diverifikasi.',
+  },
+  {
+    en: 'TEAM ASSIGNMENTS DECODED. {name}, report to your station. The launch window is open… but not for long.',
+    id: 'PEMBAGIAN TIM TELAH DIDEKODE. {name}, laporkan diri ke stasiunmu. Jendela peluncuran terbuka… tapi tidak lama.',
+  },
 ]
 
 function loadStore() {
@@ -257,22 +272,34 @@ function TypeLine({ text, speed = 26, onDone }) {
 function CinematicIntro({ player, teamId, mission, onComplete }) {
   const [lineIdx, setLineIdx] = useState(0)
   const [finished, setFinished] = useState(false)
+  const [idVisible, setIdVisible] = useState(false)
 
   useEffect(() => {
     sndAlarm()
   }, [])
 
+  useEffect(() => {
+    setIdVisible(false)
+  }, [lineIdx])
+
   const lines = useMemo(
-    () => INTRO_LINES.map((l) => l.replace('{name}', player)),
+    () =>
+      INTRO_LINES.map(({ en, id }) => ({
+        en: en.replace('{name}', player),
+        id: id.replace('{name}', player),
+      })),
     [player],
   )
 
   function handleLineDone() {
+    setIdVisible(true)
     if (lineIdx < lines.length - 1) {
-      setTimeout(() => setLineIdx((i) => i + 1), 750)
+      setTimeout(() => setLineIdx((i) => i + 1), 800)
     } else {
-      setFinished(true)
-      sndCorrect()
+      setTimeout(() => {
+        setFinished(true)
+        sndCorrect()
+      }, 700)
     }
   }
 
@@ -288,7 +315,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="flex items-center gap-2">
             <span className="animate-alert-pulse h-3 w-3 rounded-full bg-red-500" aria-hidden="true" />
             <span className="animate-alert-pulse font-mono text-[11px] font-extrabold tracking-widest text-red-400 sm:text-sm">
-              ⚠ SOLAR FLARE WARNING
+              ⚠ SOLAR FLARE WARNING · PERINGATAN LETAUSAN MATAHARI
             </span>
           </div>
           <button
@@ -299,7 +326,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
             }}
             className="rounded-full border border-cyan-500/40 bg-cyan-950/60 px-4 py-1.5 font-mono text-xs font-bold text-cyan-300 transition hover:scale-105 hover:text-white sm:px-5 sm:text-sm"
           >
-            SKIP ➔
+            SKIP · LEWATI ➔
           </button>
         </div>
 
@@ -307,25 +334,29 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="w-full max-w-3xl rounded-2xl border border-cyan-500/30 bg-black/70 shadow-[0_0_80px_rgba(34,211,238,0.12)] p-5 font-mono sm:p-8">
             <div className="mb-4 flex items-center justify-between border-b border-cyan-500/20 pb-3">
               <span className="font-mono text-[10px] font-bold tracking-widest text-cyan-500/70 sm:text-xs">
-                DSN-1 · MISSION CONTROL — INCOMING TRANSMISSION
+                DSN-1 · MISSION CONTROL / PUSAT KENDALI MISI — INCOMING TRANSMISSION / TRANSMISI MASUK
               </span>
               <span className="animate-alert-pulse font-mono text-[10px] font-bold text-red-400 sm:text-xs">
                 ● REC
               </span>
             </div>
 
-            <div className="min-h-[13rem] space-y-3 font-mono sm:min-h-[15rem]">
+            <div className="min-h-[14rem] space-y-3 font-mono sm:min-h-[16rem]">
               {lines.slice(0, lineIdx).map((l) => (
-                <p
-                  key={l}
-                  className="text-sm font-bold text-cyan-600/70 sm:text-base"
-                >
-                  {l}
+                <p key={l.en} className="text-xs font-bold text-cyan-600/70 sm:text-sm">
+                  {l.en}
                 </p>
               ))}
-              <p className="text-lg font-extrabold leading-relaxed text-rose-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.3)] sm:text-2xl">
-                <TypeLine key={lineIdx} text={lines[lineIdx]} onDone={handleLineDone} />
-              </p>
+              <div>
+                <p className="text-lg font-extrabold leading-relaxed text-rose-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.3)] sm:text-2xl">
+                  <TypeLine key={lineIdx} text={lines[lineIdx].en} onDone={handleLineDone} />
+                </p>
+                {idVisible && (
+                  <p className="animate-pop-in mt-2 text-base font-bold text-slate-400 sm:text-lg">
+                    {lines[lineIdx].id}
+                  </p>
+                )}
+              </div>
             </div>
 
             {finished && (
@@ -337,7 +368,8 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   </span>
                 </div>
                 <p className="font-mono text-sm font-bold text-slate-300 sm:text-base">
-                  {player}, the fleet is counting on you. Go to your station.
+                  {player}, the fleet is counting on you. Go to your station! ·{' '}
+                  {player}, seluruh armada mengandalkanmu. Segera ke posisimu!
                 </p>
                 <button
                   type="button"
@@ -347,7 +379,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   }}
                   className={`mt-1 w-full rounded-full bg-gradient-to-r ${TEAM_STYLE[teamId].grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
                 >
-                  🎧 Enter Mission Control →
+                  🎧 Masuk ke Mission Control (Enter Mission Control) →
                 </button>
               </div>
             )}
