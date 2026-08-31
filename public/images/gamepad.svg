@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Gamepad">
+  <defs>
+    <linearGradient id="gpBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7b6bff"/>
+      <stop offset="1" stop-color="#5a3fe0"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="560" rx="200" ry="22" fill="#000000" opacity="0.1"/>
+
+  <path d="M200 250 C200 330 210 390 228 420 L270 440 C300 452 300 452 330 440 L372 420 C390 390 400 330 400 250 L364 210 C330 178 270 178 236 210 Z"
+        fill="url(#gpBody)" stroke="#3a2496" stroke-width="8"/>
+
+  <circle cx="228" cy="300" r="52" fill="#4a30c4" stroke="#3a2496" stroke-width="7"/>
+  <circle cx="372" cy="300" r="52" fill="#4a30c4" stroke="#3a2496" stroke-width="7"/>
+  <circle cx="228" cy="300" r="26" fill="#6b56ff"/>
+  <circle cx="372" cy="300" r="26" fill="#6b56ff"/>
+
+  <g fill="#ffd34d" stroke="#d9a520" stroke-width="4">
+    <ellipse cx="300" cy="240" rx="14" ry="20"/>
+    <ellipse cx="300" cy="330" rx="14" ry="20"/>
+    <ellipse cx="255" cy="180" rx="20" ry="14"/>
+    <ellipse cx="345" cy="180" rx="20" ry="14"/>
+  </g>
+</svg>

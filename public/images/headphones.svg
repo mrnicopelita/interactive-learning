@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Headphones">
+  <defs>
+    <linearGradient id="hpPad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a94f5"/>
+      <stop offset="1" stop-color="#5a67e8"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="560" rx="120" ry="16" fill="#000000" opacity="0.1"/>
+
+  <path d="M210 280 C210 160 390 160 390 280" fill="none" stroke="#3b4bd8" stroke-width="26" stroke-linecap="round"/>
+
+  <path d="M150 280 C150 180 210 180 210 280 L210 380 C210 420 175 420 175 380 Z" fill="url(#hpPad)" stroke="#3b4bd8" stroke-width="6"/>
+  <path d="M450 280 C450 180 390 180 390 280 L390 380 C390 420 425 420 425 380 Z" fill="url(#hpPad)" stroke="#3b4bd8" stroke-width="6"/>
+
+  <path d="M150 300 L150 360 C150 415 190 455 245 455 L245 400 C210 400 185 380 185 350 L185 300 Z" fill="url(#hpPad)" stroke="#3b4bd8" stroke-width="6"/>
+  <path d="M450 300 L450 360 C450 415 410 455 355 455 L355 400 C390 400 415 380 415 350 L415 300 Z" fill="url(#hpPad)" stroke="#3b4bd8" stroke-width="6"/>
+
+  <g fill="#ffffff" opacity="0.35">
+    <circle cx="175" cy="340" r="16"/>
+    <circle cx="425" cy="340" r="16"/>
+  </g>
+
+  <path d="M210 180 L300 145 L390 180" fill="none" stroke="#3b4bd8" stroke-width="18" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Projector">
+  <defs>
+    <linearGradient id="projBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2f5f7"/>
+      <stop offset="1" stop-color="#c3cdd6"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="545" rx="170" ry="20" fill="#000000" opacity="0.1"/>
+
+  <rect x="160" y="470" width="280" height="16" rx="8" fill="#9aa8b5"/>
+
+  <rect x="140" y="360" width="320" height="120" rx="22" fill="url(#projBody)" stroke="#8b99a6" stroke-width="6"/>
+  <rect x="260" y="340" width="80" height="40" rx="14" fill="url(#projBody)" stroke="#8b99a6" stroke-width="6"/>
+
+  <circle cx="430" cy="460" r="34" fill="#9aadff" opacity="0.55"/>
+  <circle cx="430" cy="460" r="28" fill="#6b83ff"/>
+  <circle cx="430" cy="460" r="12" fill="#eef1ff"/>
+
+  <g fill="#b7c4d0">
+    <circle cx="180" cy="390" r="8"/>
+    <circle cx="200" cy="390" r="8"/>
+    <circle cx="220" cy="390" r="8"/>
+  </g>
+
+  <path d="M0 300 L600 300" stroke="#ffd34d" stroke-width="4" stroke-dasharray="18 14" opacity="0.7"/>
+  <path d="M410 300 L240 300 L260 420 L300 460 L400 420 Z" fill="#8fb4ff" opacity="0.22" stroke="#6b83ff" stroke-width="4"/>
+</svg>

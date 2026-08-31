@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Interactive Whiteboard">
+  <defs>
+    <linearGradient id="wbScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f8ff"/>
+      <stop offset="1" stop-color="#cfe0f7"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="565" rx="190" ry="18" fill="#000000" opacity="0.1"/>
+
+  <path d="M245 540 L320 540 L300 470 L265 470 Z" fill="#8b99a8"/>
+  <rect x="160" y="500" width="140" height="42" rx="12" fill="#8b99a8" transform="rotate(-16 230 521)"/>
+  <rect x="300" y="500" width="140" height="42" rx="12" fill="#8b99a8" transform="rotate(16 370 521)"/>
+
+  <rect x="130" y="120" width="340" height="380" rx="24" fill="url(#wbScreen)" stroke="#7b8ba0" stroke-width="9"/>
+
+  <g fill="none" stroke-width="6" stroke-linecap="round">
+    <path d="M180 200 C210 170 240 220 270 185 C300 150 320 200 350 170" stroke="#ff6b8a"/>
+    <path d="M180 260 L240 315 L300 210 L360 300" stroke="#5c7bff"/>
+    <circle cx="330" cy="330" r="45" fill="#ffe08a" stroke="#e2b93d"/>
+    <path d="M180 390 L260 340 L340 390 L420 340 L380 420 L180 420 Z" fill="#8bffd0" stroke="#2bbf8c"/>
+  </g>
+
+  <rect x="445" y="150" width="14" height="60" rx="7" fill="#3b4bd8"/>
+</svg>

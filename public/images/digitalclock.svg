@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Digital Clock">
+  <defs>
+    <linearGradient id="clkFrame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe9b0"/>
+      <stop offset="1" stop-color="#f5c34d"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="545" rx="150" ry="18" fill="#000000" opacity="0.1"/>
+
+  <rect x="140" y="320" width="90" height="10" rx="5" fill="#2b3848"/>
+  <path d="M195 320 L225 280 L255 320" fill="#2b3848"/>
+
+  <rect x="150" y="195" width="300" height="300" rx="40" fill="url(#clkFrame)" stroke="#c99a2b" stroke-width="8"/>
+
+  <rect x="180" y="225" width="240" height="60" rx="14" fill="#14202e"/>
+  <g fill="#ffd34d">
+    <text x="215" y="270" font-family="Arial, sans-serif" font-size="52" font-weight="bold">12</text>
+    <circle cx="308" cy="250" r="6"/>
+    <circle cx="308" cy="262" r="6"/>
+    <text x="330" y="270" font-family="Arial, sans-serif" font-size="52" font-weight="bold">45</text>
+  </g>
+
+  <rect x="205" y="310" width="110" height="30" rx="8" fill="#14202e"/>
+  <rect x="330" y="310" width="75" height="30" rx="8" fill="#14202e" opacity="0.7"/>
+
+  <rect x="180" y="405" width="240" height="16" rx="8" fill="#c99a2b" opacity="0.4"/>
+
+  <g fill="#8a6416">
+    <circle cx="190" cy="150" r="14"/>
+    <circle cx="410" cy="150" r="14"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Laptop">
+  <defs>
+    <linearGradient id="lapScreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26324a"/>
+      <stop offset="1" stop-color="#141b2a"/>
+    </linearGradient>
+    <linearGradient id="lapBase" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2f5f8"/>
+      <stop offset="1" stop-color="#c3cdd8"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="560" rx="210" ry="20" fill="#000000" opacity="0.1"/>
+
+  <path d="M250 120 L355 260 L150 370 L90 250 Z" fill="url(#lapScreen)" stroke="#8b99a8" stroke-width="7"/>
+
+  <path d="M300 290 L510 380 L430 545 L210 490 Z" fill="url(#lapBase)" stroke="#8b99a8" stroke-width="7"/>
+
+  <rect x="120" y="520" width="370" height="22" rx="11" fill="#9fb0c0" stroke="#8b99a8" stroke-width="5" transform="skewX(-27) translate(80 12)"/>
+
+  <rect x="200" y="350" width="170" height="5" rx="2.5" fill="#8b99a8" opacity="0.6" transform="rotate(-4 285 352)"/>
+  <rect x="220" y="370" width="130" height="5" rx="2.5" fill="#8b99a8" opacity="0.6" transform="rotate(-4 285 372)"/>
+
+  <path d="M260 170 L340 280" stroke="#38ff8a" stroke-width="4" opacity="0.6"/>
+  <path d="M240 180 L310 260" stroke="#38ff8a" stroke-width="4" opacity="0.4"/>
+</svg>
