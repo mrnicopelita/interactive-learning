@@ -24,6 +24,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/keyboard.svg', '/images/mouse.svg'],
   },
   {
+    id: 'typing',
+    title: 'Typing Rescue',
+    tagline: 'Save the floating letters in space!',
+    images: ['/images/keyboard.svg', '/images/cpu.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',

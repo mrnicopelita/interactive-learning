@@ -265,6 +265,33 @@ body {
   }
 }
 
+@keyframes typing-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-18px) rotate(2deg); }
+}
+
+.animate-typing-float {
+  animation: typing-float 2.5s ease-in-out infinite;
+}
+
+@keyframes typing-rescued {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-200px) scale(0.5); opacity: 0; }
+}
+
+.animate-typing-rescued {
+  animation: typing-rescued 0.7s ease-in forwards;
+}
+
+@keyframes typing-glow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.4); }
+  50% { box-shadow: 0 0 20px 6px rgba(34, 211, 238, 0.8); }
+}
+
+.animate-typing-glow {
+  animation: typing-glow 1.2s ease-in-out infinite;
+}
+
 /* IFP / Large touchscreen responsive adjustments */
 @media (min-width: 1280px) {
   :root {

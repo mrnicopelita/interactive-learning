@@ -37,6 +37,7 @@ const GAME_COMPONENTS = {
   'berkom': BerKomGame,
   'sinyal-lab': SignalLabGame,
   'keyboard': KeyboardGame,
+  'typing': TypingGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
