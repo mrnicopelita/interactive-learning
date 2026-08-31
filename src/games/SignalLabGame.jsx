@@ -195,7 +195,7 @@ function ArrowSet({ mode, className }) {
   )
 }
 
-const TIME_LIMIT = 45
+const TIME_LIMIT = 60
 
 function SignalLabGame({ onExit }) {
   const [placed, setPlaced] = useState([])
