@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
+import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
@@ -33,6 +34,7 @@ const EXAM_COMPONENTS = {
 const GAME_COMPONENTS = {
   'cpu-monitor': CpuMonitorGame,
   'berkom': BerKomGame,
+  'sinyal-lab': SignalLabGame,
   'keyboard': KeyboardGame,
 }
 

@@ -12,6 +12,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/keyboard.svg', '/images/mouse.svg'],
   },
   {
+    id: 'sinyal-lab',
+    title: 'Sinyal Lab',
+    tagline: 'Sort the parts into their signal ports!',
+    images: ['/images/smartphone.svg', '/images/monitor.svg'],
+  },
+  {
     id: 'keyboard',
     title: 'Keyboard',
     tagline: 'Learn the magic keys on your keyboard!',
