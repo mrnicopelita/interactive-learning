@@ -602,9 +602,11 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   const [states, setStates] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [flash, setFlash] = useState(false)
+  const [rejected, setRejected] = useState(false)
 
   function setValue(key, value) {
     setValues((v) => ({ ...v, [key]: value }))
+    setRejected(false)
   }
 
   function transmit() {
@@ -618,10 +620,12 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
     }
     setStates(next)
     if (perfect) {
+      setRejected(false)
       setSubmitted(true)
       sndCorrect()
       onTransmitted(player, true)
     } else {
+      setRejected(true)
       setFlash(true)
       setTimeout(() => setFlash(false), 600)
       sndError()
@@ -677,6 +681,28 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
               teamId={student.team}
               row={student.row}
             />
+
+            {rejected && (
+              <div
+                role="alert"
+                className="animate-pop-in rounded-2xl border-2 border-red-400 bg-red-50 p-3 sm:p-4"
+              >
+                <p className="text-base font-extrabold text-red-600 sm:text-lg">
+                  🚨 TRANSMISSION REJECTED — {METRICS.filter((m) => states[m.key] === 'bad').length} of 6
+                  values incorrect.
+                </p>
+                <p className="mt-1 text-sm font-bold text-amber-700 sm:text-base">
+                  The flight computer will not accept launch telemetry with errors.
+                  Re-check your calculations for{' '}
+                  <b>
+                    {METRICS.filter((m) => states[m.key] === 'bad')
+                      .map((m) => m.label)
+                      .join(', ')}
+                  </b>{' '}
+                  against Row {student.row} in Google Sheets, then transmit again.
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {METRICS.map((m) => (
