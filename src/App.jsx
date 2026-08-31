@@ -64,21 +64,13 @@ function Catalog({ onPlay }) {
         </p>
 
         <div className="catalog-grid flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-          {GAMES.map((game) => {
-            const locked = isLocked(game.id)
+          {GAMES.filter((game) => !isLocked(game.id)).map((game) => {
             return (
               <div key={game.id} className="animate-pop-in">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!locked) onPlay(game.id)
-                  }}
-                  disabled={locked}
-                  className={`catalog-card group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition sm:gap-5 sm:px-10 sm:py-8 ${
-                    locked
-                      ? 'cursor-not-allowed opacity-60 grayscale'
-                      : 'hover:scale-105 hover:shadow-xl'
-                  }`}
+                  onClick={() => onPlay(game.id)}
+                  className="catalog-card group flex w-[min(90vw,22rem)] flex-col items-center gap-4 rounded-3xl bg-white/95 px-8 py-6 shadow-lg transition sm:gap-5 sm:px-10 sm:py-8 hover:scale-105 hover:shadow-xl"
                 >
                   <div className="flex items-center gap-4">
                     {game.images.map((src) => (
@@ -97,11 +89,6 @@ function Catalog({ onPlay }) {
                     <p className="tagline mt-1 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
                       {game.tagline}
                     </p>
-                    {locked && (
-                      <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-rose-100 px-3 py-1 text-xs font-extrabold text-rose-600 sm:text-sm">
-                        <span aria-hidden="true">🔒</span> Locked
-                      </p>
-                    )}
                   </div>
                 </button>
               </div>
