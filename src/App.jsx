@@ -4,6 +4,7 @@ import BerKomGame from './games/BerKomGame.jsx'
 import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
 import TypingGame from './games/TypingGame.jsx'
+import ArtemisGame from './games/ArtemisGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -38,6 +39,7 @@ const GAME_COMPONENTS = {
   'sinyal-lab': SignalLabGame,
   'keyboard': KeyboardGame,
   'typing': TypingGame,
+  'artemis': ArtemisGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Rocket">
+  <defs>
+    <linearGradient id="rocketBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c9d7f0"/>
+    </linearGradient>
+    <linearGradient id="rocketCone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6ee7ff"/>
+      <stop offset="1" stop-color="#0c87d8"/>
+    </linearGradient>
+    <linearGradient id="rocketWing" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fb7185"/>
+      <stop offset="1" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff7c4"/>
+      <stop offset="0.45" stop-color="#ffb648"/>
+      <stop offset="1" stop-color="#fb5a2e"/>
+    </linearGradient>
+    <linearGradient id="flameCore" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ffe15c"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="300" cy="562" rx="205" ry="22" fill="#000000" opacity="0.08"/>
+
+  <path d="M300 66 C 258 120, 218 176, 210 250 L 210 428 Q 210 462 242 462 L 358 462 Q 390 462 390 428 L 390 250 C 382 176, 342 120, 300 66 Z" fill="url(#rocketBody)" stroke="#93a7cc" stroke-width="4"/>
+  <path d="M300 66 C 258 120, 218 176, 210 250 L 210 320 L 390 320 L 390 250 C 382 176, 342 120, 300 66 Z" fill="url(#rocketCone)"/>
+
+  <circle cx="300" cy="338" r="52" fill="#274b8f"/>
+  <circle cx="300" cy="338" r="42" fill="#5fb6ff"/>
+  <circle cx="300" cy="338" r="30" fill="#a5d9ff"/>
+  <circle cx="289" cy="326" r="12" fill="#ffffff" opacity="0.85"/>
+
+  <rect x="210" y="404" width="180" height="16" rx="8" fill="url(#rocketWing)"/>
+  <rect x="210" y="440" width="180" height="16" rx="8" fill="url(#rocketWing)"/>
+
+  <path d="M210 300 L 158 428 L 210 428 Z" fill="url(#rocketWing)" stroke="#be123c" stroke-width="3"/>
+  <path d="M390 300 L 442 428 L 390 428 Z" fill="url(#rocketWing)" stroke="#be123c" stroke-width="3"/>
+
+  <ellipse cx="300" cy="560" rx="120" ry="26" fill="#ffffff" opacity="0.35"/>
+  <path d="M300 462 Q 232 500 188 556 Q 256 552 300 540 Q 344 552 412 556 Q 368 500 300 462 Z" fill="url(#flame)"/>
+  <path d="M300 462 Q 270 490 252 520 Q 272 512 300 516 Q 328 512 348 520 Q 330 490 300 462 Z" fill="url(#flameCore)"/>
+
+  <circle cx="216" cy="548" r="18" fill="#e6ecf7" opacity="0.9"/>
+  <circle cx="384" cy="548" r="18" fill="#e6ecf7" opacity="0.9"/>
+  <circle cx="188" cy="534" r="12" fill="#e6ecf7" opacity="0.7"/>
+  <circle cx="412" cy="534" r="12" fill="#e6ecf7" opacity="0.7"/>
+</svg>

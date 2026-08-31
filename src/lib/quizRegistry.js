@@ -30,6 +30,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/keyboard.svg', '/images/cpu.svg'],
   },
   {
+    id: 'artemis',
+    title: 'Operation Artemis',
+    tagline: 'Mission Control: compute telemetry and launch Orion to the Moon!',
+    images: ['/images/rocket.svg', '/images/monitor.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',

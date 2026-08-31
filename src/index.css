@@ -292,6 +292,89 @@ body {
   animation: typing-glow 1.2s ease-in-out infinite;
 }
 
+@keyframes artemis-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-32vh) scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-82vh) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.animate-artemis-rise {
+  animation: artemis-rise 5.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes artemis-wiggle {
+  0%, 100% { transform: translateY(1px); }
+  50% { transform: translateY(-1px); }
+}
+
+.animate-artemis-wiggle {
+  animation: artemis-wiggle 0.08s linear infinite;
+}
+
+@keyframes smoke-puff {
+  0% {
+    transform: scale(0.3);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+.animate-smoke-puff {
+  animation: smoke-puff 1.4s ease-out infinite;
+}
+
+@keyframes alert-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.animate-alert-pulse {
+  animation: alert-pulse 0.85s ease-in-out infinite;
+}
+
+@keyframes flare-glow {
+  0% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 0.5; transform: scale(1); }
+}
+
+.animate-flare {
+  animation: flare-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.92; }
+  92% { opacity: 0.92; }
+  93% { opacity: 0.55; }
+  94% { opacity: 0.92; }
+  96% { opacity: 0.6; }
+  97% { opacity: 0.92; }
+}
+
+.animate-crt-flicker {
+  animation: flicker 4s linear infinite;
+}
+
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.05) 0 1px,
+    transparent 1px 3px
+  );
+}
+
 /* IFP / Large touchscreen responsive adjustments */
 @media (min-width: 1280px) {
   :root {
