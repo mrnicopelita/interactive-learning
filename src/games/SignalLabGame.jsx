@@ -100,27 +100,27 @@ const PORTS = [
 function ArrowSet({ mode, className }) {
   if (mode === 'out') {
     return (
-      <div className={`flex flex-col gap-1 ${className}`}>
-        <span className="text-3xl leading-none text-sky-400">↑</span>
-        <span className="text-3xl leading-none text-sky-400">↑</span>
-        <span className="text-3xl leading-none text-sky-400">↑</span>
+      <div className={`flex flex-col gap-0.5 sm:gap-1 ${className}`}>
+        <span className="text-xl leading-none text-sky-400 sm:text-2xl lg:text-3xl">↑</span>
+        <span className="text-xl leading-none text-sky-400 sm:text-2xl lg:text-3xl">↑</span>
+        <span className="text-xl leading-none text-sky-400 sm:text-2xl lg:text-3xl">↑</span>
       </div>
     )
   }
   if (mode === 'in') {
     return (
-      <div className={`flex flex-col gap-1 ${className}`}>
-        <span className="text-3xl leading-none text-emerald-400">↓</span>
-        <span className="text-3xl leading-none text-emerald-400">↓</span>
-        <span className="text-3xl leading-none text-emerald-400">↓</span>
+      <div className={`flex flex-col gap-0.5 sm:gap-1 ${className}`}>
+        <span className="text-xl leading-none text-emerald-400 sm:text-2xl lg:text-3xl">↓</span>
+        <span className="text-xl leading-none text-emerald-400 sm:text-2xl lg:text-3xl">↓</span>
+        <span className="text-xl leading-none text-emerald-400 sm:text-2xl lg:text-3xl">↓</span>
       </div>
     )
   }
   return (
-    <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-3xl leading-none text-violet-400">⇅</span>
-      <span className="text-3xl leading-none text-violet-400">⇅</span>
-      <span className="text-3xl leading-none text-violet-400">⇅</span>
+    <div className={`flex flex-col gap-0.5 sm:gap-1 ${className}`}>
+      <span className="text-xl leading-none text-violet-400 sm:text-2xl lg:text-3xl">⇅</span>
+      <span className="text-xl leading-none text-violet-400 sm:text-2xl lg:text-3xl">⇅</span>
+      <span className="text-xl leading-none text-violet-400 sm:text-2xl lg:text-3xl">⇅</span>
     </div>
   )
 }
@@ -128,9 +128,29 @@ function ArrowSet({ mode, className }) {
 function SignalLabGame({ onExit }) {
   const [placed, setPlaced] = useState([])
   const [wrongFlash, setWrongFlash] = useState(false)
+  const [wrongMsg, setWrongMsg] = useState(false)
+  const [wrongCount, setWrongCount] = useState(0)
+  const [seconds, setSeconds] = useState(0)
+  const timerTickRef = useRef(null)
+  const flashTimerRef = useRef(null)
+
+  useEffect(() => {
+    timerTickRef.current = setInterval(() => {
+      setSeconds((prev) => prev + 1)
+    }, 1000)
+    return () => {
+      clearInterval(timerTickRef.current)
+      clearTimeout(flashTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (done) clearInterval(timerTickRef.current)
+  }, [done])
 
   const remaining = PARTS.filter((p) => !placed.includes(p.id))
-  const done = placed.length === PARTS.length
+  const doneNow = placed.length === PARTS.length
+  const done = doneNow
 
   function startDrag(event, part) {
     if (done) return
@@ -177,45 +197,53 @@ function SignalLabGame({ onExit }) {
 
     if (inside) {
       setPlaced((prev) => [...prev, part.id])
+      setWrongMsg(false)
       confetti({ particleCount: 60, spread: 70, origin: { x: x / window.innerWidth, y: y / window.innerHeight } })
     } else {
+      setWrongCount((prev) => prev + 1)
       setWrongFlash(true)
+      setWrongMsg(true)
+      clearTimeout(flashTimerRef.current)
       setTimeout(() => setWrongFlash(false), 500)
+      flashTimerRef.current = setTimeout(() => setWrongMsg(false), 1200)
     }
   }
 
   function restart() {
     setPlaced([])
+    setWrongCount(0)
+    setWrongMsg(false)
+    setSeconds(0)
   }
 
   if (done) {
     return (
       <div className="relative flex h-dvh w-full touch-manipulation flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-indigo-900 via-sky-900 to-slate-900">
         <ConfettiCelebration />
-        <div className="animate-pop-in flex max-w-lg flex-col items-center gap-6 rounded-3xl bg-white/10 px-8 py-10 text-center backdrop-blur-md sm:px-12">
-          <div className="flex gap-3 text-5xl sm:text-6xl">
+        <div className="animate-pop-in flex max-w-lg flex-col items-center gap-4 rounded-3xl bg-white/10 px-6 py-8 text-center backdrop-blur-md sm:gap-6 sm:px-12 sm:py-10 lg:max-w-xl">
+          <div className="flex gap-3 text-4xl sm:text-5xl lg:text-6xl">
             <span className="animate-bounce" aria-hidden="true">🚀</span>
             <span className="animate-bounce" style={{ animationDelay: '0.15s' }} aria-hidden="true">⭐</span>
             <span className="animate-bounce" style={{ animationDelay: '0.3s' }} aria-hidden="true">✨</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-white sm:text-4xl">
+          <h1 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
             Sinyal Terhubung!
           </h1>
-          <p className="text-lg font-bold text-sky-200 sm:text-xl">
+          <p className="text-base font-bold text-sky-200 sm:text-lg lg:text-xl">
             Semua perangkat sudah masuk ke port yang benar!
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             <button
               type="button"
               onClick={restart}
-              className="rounded-full bg-sky-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+              className="rounded-full bg-sky-500 px-6 py-2.5 text-lg font-extrabold text-white shadow-lg transition hover:scale-105 sm:px-8 sm:py-3 sm:text-xl lg:text-2xl"
             >
               Main Lagi
             </button>
             <button
               type="button"
               onClick={onExit}
-              className="rounded-full bg-white/20 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+              className="rounded-full bg-white/20 px-6 py-2.5 text-lg font-extrabold text-white shadow-lg transition hover:scale-105 sm:px-8 sm:py-3 sm:text-xl lg:text-2xl"
             >
               Kembali
             </button>
@@ -240,22 +268,22 @@ function SignalLabGame({ onExit }) {
       <button
         type="button"
         onClick={onExit}
-        className="absolute left-3 top-3 z-30 flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-lg font-extrabold text-white shadow-lg backdrop-blur-sm transition hover:scale-105 sm:left-5 sm:top-5 sm:px-6 sm:py-3 sm:text-2xl"
+        className="absolute left-3 top-3 z-30 flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-extrabold text-white shadow-lg backdrop-blur-sm transition hover:scale-105 sm:left-5 sm:top-5 sm:px-6 sm:py-3 sm:text-2xl"
       >
-        <span aria-hidden="true" className="text-xl sm:text-3xl">←</span>
+        <span aria-hidden="true" className="text-lg sm:text-3xl">←</span>
         Permainan
       </button>
 
-      <header className="z-10 flex w-full shrink-0 flex-col items-center gap-1 px-4 pt-14 text-center sm:pt-16">
-        <h1 className="text-[clamp(2.25rem,7vw,4rem)] font-extrabold leading-none text-white">
+      <header className="z-10 flex w-full shrink-0 flex-col items-center gap-1 px-4 pt-14 text-center sm:pt-16 lg:pt-18">
+        <h1 className="text-[clamp(2rem,6vw,3.5rem)] font-extrabold leading-none text-white lg:text-5xl xl:text-6xl">
           Sinyal <span className="text-sky-300">Lab</span>
         </h1>
-        <p className="text-sm font-bold text-sky-200 sm:text-lg">
+        <p className="text-xs font-bold text-sky-200 sm:text-base lg:text-lg">
           Seret perangkat ke port yang tepat di stasiun luar angkasa! 🛰️
         </p>
       </header>
 
-      <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-between gap-4 overflow-hidden px-3 pb-4 pt-2 sm:px-6 sm:pb-6">
+      <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-between gap-2 overflow-hidden px-3 pb-4 pt-2 sm:gap-4 sm:px-6 sm:pb-6">
         <div className="flex min-h-0 flex-1 flex-wrap content-start items-start justify-center gap-3 overflow-y-auto px-2 pt-2 sm:gap-4">
           {remaining.map((part, index) => (
             <button
@@ -268,16 +296,16 @@ function SignalLabGame({ onExit }) {
               <img
                 src={part.src}
                 alt=""
-                className="h-20 w-20 object-contain drop-shadow-lg sm:h-24 sm:w-24"
+                className="h-16 w-16 object-contain drop-shadow-lg sm:h-20 sm:w-20 lg:h-24 lg:w-24"
               />
-              <span className="text-sm font-extrabold text-white sm:text-base">
+              <span className="text-xs font-extrabold text-white sm:text-sm lg:text-base">
                 {part.name}
               </span>
             </button>
           ))}
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid w-full shrink-0 grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3 lg:gap-4">
           {PORTS.map((port) => {
             const portParts = placed.filter(
               (id) => PARTS.find((p) => p.id === id).portId === port.id,
@@ -287,7 +315,7 @@ function SignalLabGame({ onExit }) {
               <div
                 key={port.id}
                 id={port.id}
-                className="flex flex-col items-center gap-2 rounded-3xl bg-white/10 p-3 ring-2 backdrop-blur-sm sm:p-4"
+                className="flex flex-col items-center gap-1 rounded-2xl bg-white/10 p-2 ring-2 backdrop-blur-sm sm:gap-2 sm:rounded-3xl sm:p-3 lg:p-4"
                 style={{
                   borderColor: port.color,
                   ...(portFull
@@ -295,20 +323,18 @@ function SignalLabGame({ onExit }) {
                     : {}),
                 }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <ArrowSet mode={port.arrows} />
-                  <span
-                    className="text-base font-extrabold text-white sm:text-lg"
-                  >
+                  <span className="text-sm font-extrabold text-white sm:text-base lg:text-lg">
                     {port.title}
                   </span>
                 </div>
-                <span className="text-xs font-bold text-sky-200 sm:text-sm">
+                <span className="text-[10px] font-bold text-sky-200 sm:text-xs lg:text-sm">
                   {port.subtitle} · {port.hint}
                 </span>
-                <div className="flex min-h-16 flex-wrap items-center justify-center gap-2">
+                <div className="flex min-h-10 flex-wrap items-center justify-center gap-1 sm:min-h-14 sm:gap-2">
                   {portParts.length === 0 ? (
-                    <span className="text-xs font-bold text-slate-300 opacity-60">
+                    <span className="text-[10px] font-bold text-slate-300 opacity-60 sm:text-xs">
                       Seret ke sini
                     </span>
                   ) : (
@@ -319,7 +345,7 @@ function SignalLabGame({ onExit }) {
                           key={id}
                           src={p.src}
                           alt={p.name}
-                          className="animate-pop-in h-14 w-14 object-contain drop-shadow sm:h-16 sm:w-16"
+                          className="animate-pop-in h-10 w-10 object-contain drop-shadow sm:h-14 sm:w-14 lg:h-16 lg:w-16"
                         />
                       )
                     })
