@@ -38,7 +38,7 @@ export const QUIZ_REGISTRY = [
   {
     id: 'polisi-warna',
     title: 'Polisi Warna',
-    tagline: 'Tap the car and send it to its matching color police station!',
+    tagline: 'Drag the car to its matching color police station!',
     images: ['/images/polisi.svg', '/images/palette.svg'],
   },
   {

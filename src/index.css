@@ -559,6 +559,22 @@ html, body {
   transform-box: fill-box;
 }
 
+@keyframes station-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-station-pop {
+  animation: station-pop 0.5s ease-out;
+}
+
 /* Hide scrollbar on IFP for cleaner look */
 @media (min-width: 1280px) {
   ::-webkit-scrollbar {

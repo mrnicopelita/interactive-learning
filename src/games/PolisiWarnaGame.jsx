@@ -2,30 +2,10 @@ import { useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 const STATIONS = [
-  {
-    id: 'red',
-    bg: 'from-red-400 to-red-700',
-    roof: 'bg-red-800',
-    light: '#ef4444',
-  },
-  {
-    id: 'yellow',
-    bg: 'from-yellow-300 to-amber-500',
-    roof: 'bg-amber-700',
-    light: '#f59e0b',
-  },
-  {
-    id: 'green',
-    bg: 'from-green-400 to-green-700',
-    roof: 'bg-green-800',
-    light: '#22c55e',
-  },
-  {
-    id: 'blue',
-    bg: 'from-sky-400 to-blue-700',
-    roof: 'bg-blue-800',
-    light: '#3b82f6',
-  },
+  { id: 'red', bg: 'from-red-400 to-red-700', roof: 'bg-red-800', light: '#ef4444' },
+  { id: 'yellow', bg: 'from-yellow-300 to-amber-500', roof: 'bg-amber-700', light: '#f59e0b' },
+  { id: 'green', bg: 'from-green-400 to-green-700', roof: 'bg-green-800', light: '#22c55e' },
+  { id: 'blue', bg: 'from-sky-400 to-blue-700', roof: 'bg-blue-800', light: '#3b82f6' },
 ]
 
 const CARS = {
@@ -43,12 +23,22 @@ const CLOUDS = [
 ]
 
 const STAR_DIRS = [
-  { x: 0, y: -95 },
-  { x: 78, y: -60 },
-  { x: 94, y: 8 },
-  { x: 58, y: 72 },
-  { x: -58, y: 72 },
-  { x: -94, y: 8 },
+  { x: 0, y: -105 },
+  { x: 85, y: -65 },
+  { x: 100, y: 10 },
+  { x: 62, y: 80 },
+  { x: -62, y: 80 },
+  { x: -100, y: 10 },
+]
+
+const REWARD_EMOJI = [
+  { e: '⭐', x: 0, y: -120 },
+  { e: '🎉', x: 110, y: -80 },
+  { e: '💛', x: -110, y: -70 },
+  { e: '🎊', x: 70, y: -130 },
+  { e: '🧡', x: -70, y: -120 },
+  { e: '✨', x: 140, y: -40 },
+  { e: '✨', x: -140, y: -35 },
 ]
 
 const SKIN = '#f3b888'
@@ -67,6 +57,22 @@ let audioCtx = null
 function ensureCtx() {
   audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)()
   return audioCtx
+}
+
+function playPick() {
+  const ctx = ensureCtx()
+  const t = ctx.currentTime
+  const o = ctx.createOscillator()
+  const g = ctx.createGain()
+  o.type = 'triangle'
+  o.frequency.setValueAtTime(480, t)
+  o.frequency.exponentialRampToValueAtTime(760, t + 0.08)
+  g.gain.setValueAtTime(0.18, t)
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.12)
+  o.connect(g)
+  g.connect(ctx.destination)
+  o.start(t)
+  o.stop(t + 0.14)
 }
 
 function playNino() {
@@ -94,21 +100,43 @@ function playNino() {
   }
 }
 
-function playYay() {
+function playFanfare() {
   const ctx = ensureCtx()
-  ;[523.25, 659.25, 783.99].forEach((f, i) => {
-    const t = ctx.currentTime + i * 0.09
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = 'triangle'
-    osc.frequency.value = f
-    gain.gain.setValueAtTime(0.24, t)
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3)
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.start(t)
-    osc.stop(t + 0.32)
+  ;[523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+    const t = ctx.currentTime + i * 0.11
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.type = 'triangle'
+    o.frequency.value = f
+    g.gain.setValueAtTime(0.22, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.35)
+    o.connect(g)
+    g.connect(ctx.destination)
+    o.start(t)
+    o.stop(t + 0.38)
   })
+}
+
+function playBuzz() {
+  const ctx = ensureCtx()
+  for (let i = 0; i < 2; i++) {
+    const t = ctx.currentTime + i * 0.16
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    const f = ctx.createBiquadFilter()
+    o.type = 'sawtooth'
+    o.frequency.setValueAtTime(230 - i * 45, t)
+    o.frequency.exponentialRampToValueAtTime(110, t + 0.15)
+    f.type = 'lowpass'
+    f.frequency.value = 620
+    g.gain.setValueAtTime(0.16, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.16)
+    o.connect(f)
+    f.connect(g)
+    g.connect(ctx.destination)
+    o.start(t)
+    o.stop(t + 0.18)
+  }
 }
 
 function pickCar() {
@@ -169,9 +197,7 @@ function Officer({ side, gender }) {
       <circle cx="148" cy="78" r="5.5" fill="#1b1b21" />
       <circle cx="150" cy="76" r="1.8" fill="#ffffff" />
 
-      {!girl && (
-        <path d="M92 66 Q110 60 128 66 L128 62 Q110 54 92 62 Z" fill={HAIR} />
-      )}
+      {!girl && <path d="M92 66 Q110 60 128 66 L128 62 Q110 54 92 62 Z" fill={HAIR} />}
 
       {girl && (
         <path d="M78 70 Q100 60 118 66 Q128 68 130 72 Q112 58 92 64 Q82 66 78 70 Z" fill={HAIR} />
@@ -198,10 +224,22 @@ function Officer({ side, gender }) {
   )
 }
 
-function Station({ s, innerRef }) {
+function Station({ s, innerRef, alert, pop }) {
   return (
-    <div ref={innerRef} className="relative flex flex-col items-end">
-      <div className="flex flex-col items-center">
+    <div ref={innerRef} className="relative">
+      {alert && (
+        <span
+          className="animate-pop-in absolute -inset-2 z-0 rounded-3xl bg-red-500/40 ring-4 ring-red-500"
+          aria-hidden="true"
+        />
+      )}
+      {pop && (
+        <span
+          className="animate-station-pop absolute -inset-3 z-0 rounded-3xl bg-white/50 shadow-[0_0_45px_rgba(255,255,255,0.85)] ring-4 ring-white"
+          aria-hidden="true"
+        />
+      )}
+      <div className={`relative z-[1] flex flex-col items-center ${alert ? 'animate-shake' : ''} ${pop ? 'animate-station-pop' : ''}`}>
         <span
           className="animate-alert-pulse h-3 w-3 rounded-full shadow-[0_0_12px_rgba(255,255,255,0.9)]"
           style={{ background: s.light }}
@@ -270,58 +308,166 @@ function Car({ color, className, style }) {
   )
 }
 
+function homePoint(stage) {
+  const r = stage.getBoundingClientRect()
+  return { x: r.width / 2, y: r.height * 0.22 }
+}
+
+function celebrateAt(rect) {
+  const cx = (rect.left + rect.width / 2) / window.innerWidth
+  const cy = (rect.top + rect.height * 0.45) / window.innerHeight
+  const star = confetti.shapeFromText({ text: '⭐', scalar: 1.1 })
+  const palette = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ffffff']
+  confetti({ particleCount: 60, spread: 90, startVelocity: 40, angle: 90, origin: { x: cx, y: cy }, colors: palette })
+  confetti({ particleCount: 26, spread: 100, startVelocity: 34, angle: 90, origin: { x: cx, y: cy - 0.08 }, colors: palette, shapes: [star, 'circle'], scalar: 1.05 })
+  setTimeout(() => {
+    confetti({ particleCount: 55, spread: 100, startVelocity: 45, angle: 60, origin: { x: 0.05, y: 0.9 }, colors: palette })
+  }, 160)
+  setTimeout(() => {
+    confetti({ particleCount: 55, spread: 100, startVelocity: 45, angle: 120, origin: { x: 0.95, y: 0.9 }, colors: palette })
+  }, 300)
+}
+
 export default function PolisiWarnaGame({ onExit }) {
   const [item, setItem] = useState(pickCar)
-  const [flying, setFlying] = useState(null)
+  const [phase, setPhase] = useState('idle')
+  const [pos, setPos] = useState(null)
   const [burst, setBurst] = useState(null)
+  const [wrongStation, setWrongStation] = useState(null)
+  const [wrongMark, setWrongMark] = useState(null)
+  const [rewardStation, setRewardStation] = useState(null)
   const stageRef = useRef(null)
   const stationRefs = useRef({})
+  const posRef = useRef(null)
 
-  function launchCar() {
-    if (flying) return
-    const stage = stageRef.current
-    const station = stationRefs.current[item.color]
-    if (!stage || !station) return
-    const s = stage.getBoundingClientRect()
-    const b = station.getBoundingClientRect()
-    const cx = b.left + b.width / 2
-    const cy = b.top + b.height / 2
-    setFlying({
-      ...item,
-      fx: cx - (s.left + s.width / 2),
-      fy: cy - (s.top + s.height * 0.22),
-    })
-    playNino()
+  function stageInfo(e) {
+    const s = stageRef.current
+    if (!s) return null
+    const r = s.getBoundingClientRect()
+    return { x: e.clientX - r.left, y: e.clientY - r.top, r }
   }
 
-  function handleLand() {
-    const station = stationRefs.current[flying.color]
+  function onCarDown(e) {
+    if (phase !== 'idle' || !stageRef.current) return
+    e.preventDefault()
+    const p = stageInfo(e)
+    if (!p) return
+    const w = p.r.width
+    const x = Math.max(0, Math.min(w, p.x))
+    const y = Math.max(0, Math.min(p.r.height, p.y))
+    setPos({ x, y })
+    posRef.current = { x, y }
+    setPhase('dragging')
+    playPick()
+  }
+
+  function onCarMove(e) {
+    if (phase !== 'dragging') return
+    e.preventDefault()
+    const p = stageInfo(e)
+    if (!p) return
+    const x = Math.max(0, Math.min(p.r.width, p.x))
+    const y = Math.max(0, Math.min(p.r.height, p.y))
+    setPos({ x, y })
+    posRef.current = { x, y }
+  }
+
+  function dropTarget(p) {
+    const s = stageRef.current
+    if (!s) return null
+    const r = s.getBoundingClientRect()
+    for (const st of STATIONS) {
+      const el = stationRefs.current[st.id]
+      if (!el) continue
+      const br = el.getBoundingClientRect()
+      const cx = br.left - r.left + br.width / 2
+      const cy = br.top - r.top + br.height / 2
+      if (Math.abs(p.x - cx) <= br.width * 0.85 && Math.abs(p.y - cy) <= br.height * 1.05) {
+        return st
+      }
+    }
+    return null
+  }
+
+  function onCarUp(e) {
+    if (phase !== 'dragging') return
+    e.preventDefault()
+    const p = posRef.current
+    if (!p) return
+    const target = dropTarget(p)
+    if (!target) {
+      setPhase('idle')
+      const s = stageRef.current
+      if (s) setPos(homePoint(s))
+      return
+    }
+    if (target.id === item.color) {
+      succeedDrop()
+    } else {
+      wrongDrop(target, p)
+    }
+  }
+
+  function onCarCancel() {
+    if (phase !== 'dragging') return
+    const s = stageRef.current
+    if (s) setPos(homePoint(s))
+    setPhase('idle')
+  }
+
+  function wrongDrop(target, p) {
+    setWrongStation(target.id)
+    setWrongMark({ key: Date.now(), x: p.x, y: p.y })
+    setPhase('wrong')
+    playBuzz()
+    setTimeout(() => {
+      setWrongStation(null)
+      setWrongMark(null)
+      setPhase('idle')
+      if (stageRef.current) setPos(homePoint(stageRef.current))
+    }, 800)
+  }
+
+  function succeedDrop() {
+    setRewardStation(item.color)
+    setPhase('success')
+    playNino()
+    playFanfare()
+    const station = stationRefs.current[item.color]
     const stage = stageRef.current
     if (station && stage) {
-      const r = station.getBoundingClientRect()
       const sr = stage.getBoundingClientRect()
+      const r = station.getBoundingClientRect()
       setBurst({
-        key: flying.id,
+        key: item.id,
         x: r.left - sr.left + r.width / 2,
-        y: r.top - sr.top + r.height * 0.45,
+        y: r.top - sr.top + r.height * 0.4,
       })
-      confetti({
-        particleCount: 45,
-        spread: 80,
-        startVelocity: 30,
-        origin: {
-          x: (r.left + r.width / 2) / window.innerWidth,
-          y: (r.top + r.height * 0.45) / window.innerHeight,
-        },
-        colors: ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ffffff'],
-        disableForReducedMotion: true,
-      })
+      celebrateAt(r)
     }
-    playYay()
     setTimeout(() => {
-      setFlying(null)
+      setPhase('idle')
+      setRewardStation(null)
+      setBurst(null)
+      setPos(homePoint(stageRef.current))
       setItem(pickCar())
-    }, 260)
+    }, 1000)
+  }
+
+  const carStyle = {
+    touchAction: 'none',
+    transform: phase === 'success' ? 'translate(-50%,-50%) scale(0.5)' : 'translate(-50%,-50%)',
+    transition:
+      phase === 'dragging'
+        ? 'none'
+        : 'left 0.45s cubic-bezier(0.34,1.26,0.5,1), top 0.45s cubic-bezier(0.34,1.26,0.5,1), transform 0.35s ease',
+  }
+  if (pos) {
+    carStyle.left = `${pos.x}px`
+    carStyle.top = `${pos.y}px`
+  } else {
+    carStyle.left = '50%'
+    carStyle.top = '22%'
   }
 
   return (
@@ -340,7 +486,7 @@ export default function PolisiWarnaGame({ onExit }) {
         <span className="w-24 sm:w-28" aria-hidden="true" />
       </header>
 
-      <div ref={stageRef} className="relative z-10 min-h-0 flex-1">
+      <div ref={stageRef} className="pointer-events-auto relative z-10 min-h-0 flex-1">
         <span className="animate-floaty pointer-events-none absolute right-6 top-4 select-none text-6xl opacity-90 sm:text-8xl" aria-hidden="true" style={{ animationDuration: '10s' }}>☀️</span>
         {CLOUDS.map((c, i) => (
           <span
@@ -365,9 +511,30 @@ export default function PolisiWarnaGame({ onExit }) {
 
         <div className="absolute bottom-[2.5vh] left-1/2 z-10 flex -translate-x-1/2 items-end gap-2 sm:gap-4">
           {STATIONS.map((s) => (
-            <Station key={s.id} s={s} innerRef={(el) => (stationRefs.current[s.id] = el)} />
+            <Station
+              key={s.id}
+              s={s}
+              innerRef={(el) => (stationRefs.current[s.id] = el)}
+              alert={wrongStation === s.id}
+              pop={rewardStation === s.id}
+            />
           ))}
         </div>
+
+        {phase === 'wrong' && (
+          <div className="animate-flash-red pointer-events-none absolute inset-0 z-40" aria-hidden="true" />
+        )}
+
+        {wrongMark && (
+          <span
+            key={wrongMark.key}
+            className="animate-shake pointer-events-none absolute z-40 -translate-x-1/2 -translate-y-1/2 text-7xl font-black text-red-600 drop-shadow-[0_0_18px_rgba(0,0,0,0.4)]"
+            style={{ left: wrongMark.x, top: wrongMark.y }}
+            aria-hidden="true"
+          >
+            ✗
+          </span>
+        )}
 
         {burst && (
           <span
@@ -385,34 +552,43 @@ export default function PolisiWarnaGame({ onExit }) {
                 ⭐
               </span>
             ))}
-            <span className="animate-pop-in absolute -translate-x-1/2 -translate-y-1/2 text-5xl sm:text-7xl">✨</span>
+            {REWARD_EMOJI.map((r, i) => (
+              <span
+                key={i}
+                className="animate-sparkle absolute -translate-x-1/2 -translate-y-1/2 text-3xl sm:text-5xl"
+                style={{ '--dx': `${r.x}px`, '--dy': `${r.y}px` }}
+              >
+                {r.e}
+              </span>
+            ))}
+            <span className="animate-pop-in absolute -translate-x-1/2 -translate-y-1/2 text-6xl sm:text-8xl">✨</span>
           </span>
         )}
 
-        {flying ? (
-          <span
-            key={flying.id}
-            onAnimationEnd={handleLand}
-            className="animate-color-fly pointer-events-none absolute z-30"
-            style={{ left: '50%', top: '22%', '--fx': `${flying.fx}px`, '--fy': `${flying.fy}px` }}
-          >
-            <Car color={flying.color} className="w-[min(46vmin,250px)]" />
-          </span>
-        ) : (
-          <div key={item.id} className="absolute left-1/2 top-[22%] z-20 -translate-x-1/2">
-            <div className="animate-vehicle-drop">
-              <button
-                type="button"
-                onClick={launchCar}
-                aria-label={`Tap the ${item.color} car`}
-                className="animate-floaty cursor-pointer rounded-2xl transition-transform hover:scale-105 active:scale-95"
-                style={{ animationDuration: '4.5s' }}
-              >
-                <Car color={item.color} className="w-[min(46vmin,250px)]" />
-              </button>
+        <div
+          key={item.id}
+          role="button"
+          aria-label={`Drag the ${item.color} car to its station`}
+          tabIndex={0}
+          onPointerDown={onCarDown}
+          onPointerMove={onCarMove}
+          onPointerUp={onCarUp}
+          onPointerCancel={onCarCancel}
+          className={`absolute z-20 ${phase === 'idle' ? 'cursor-grab' : ''} ${phase === 'dragging' ? 'cursor-grabbing' : ''}`}
+          style={carStyle}
+        >
+          <div className={pos === null ? 'animate-vehicle-drop' : ''}>
+            <div
+              className={`pointer-events-none ${phase === 'dragging' ? '' : 'animate-floaty'}`}
+              style={{ animationDuration: '4.5s' }}
+            >
+              <Car
+                color={item.color}
+                className={`w-[min(46vmin,250px)] ${phase === 'wrong' ? 'animate-shake drop-shadow-[0_0_24px_rgba(239,68,68,0.95)]' : ''} ${phase === 'dragging' ? 'drop-shadow-[0_14px_18px_rgba(2,6,23,0.35)]' : ''}`}
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
