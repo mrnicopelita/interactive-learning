@@ -568,6 +568,15 @@ function DashboardView({ onExit }) {
               )}
             </div>
 
+            <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 rounded-full bg-sky-500 px-4 py-2 text-sm font-extrabold text-white shadow transition hover:scale-105 sm:px-5 sm:text-base"
+              >
+                <span aria-hidden="true">🔄</span> Refresh Now
+              </button>
+
             <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2">
               <button
                 type="button"
