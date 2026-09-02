@@ -36,6 +36,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {
+    id: 'color-matcher',
+    title: 'Color Matcher',
+    tagline: 'Tap the object and send it into its matching color bin!',
+    images: ['/images/palette.svg', '/images/quiz.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',
