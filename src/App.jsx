@@ -5,7 +5,7 @@ import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
 import TypingGame from './games/TypingGame.jsx'
 import ArtemisGame from './games/ArtemisGame.jsx'
-import ColorMatcherGame from './games/ColorMatcherGame.jsx'
+import PolisiWarnaGame from './games/PolisiWarnaGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -41,7 +41,7 @@ const GAME_COMPONENTS = {
   'keyboard': KeyboardGame,
   'typing': TypingGame,
   'artemis': ArtemisGame,
-  'color-matcher': ColorMatcherGame,
+  'polisi-warna': PolisiWarnaGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
