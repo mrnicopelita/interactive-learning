@@ -139,6 +139,43 @@ function playBuzz() {
   }
 }
 
+function playExtremeConfetti() {
+  const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#c084fc', '#ff8fab', '#ffffff']
+  const star = confetti.shapeFromText({ text: '⭐', scalar: 1.4 })
+  const shapes = [star, 'circle', 'square']
+  const volley = (origin, angle, count, scalar) =>
+    confetti({
+      particleCount: count,
+      angle,
+      spread: 130,
+      startVelocity: 45,
+      gravity: 0.9,
+      scalar: scalar || 1.1,
+      ticks: 240,
+      decay: 0.9,
+      origin,
+      colors,
+      shapes,
+    })
+  volley({ x: 0.5, y: 0.55 }, 90, 150, 1.5)
+  setTimeout(() => volley({ x: 0.5, y: 0.55 }, 270, 150, 1.5), 160)
+  setTimeout(() => volley({ x: 0.18, y: 0.8 }, 75, 95), 320)
+  setTimeout(() => volley({ x: 0.82, y: 0.8 }, 105, 95), 430)
+  setTimeout(() => {
+    confetti({
+      particleCount: 100,
+      angle: 90,
+      spread: 170,
+      startVelocity: 55,
+      gravity: 0.95,
+      origin: { x: 0.5, y: 0.1 },
+      colors,
+      shapes,
+      scalar: 1.2,
+    })
+  }, 560)
+}
+
 function pickCar() {
   const ids = Object.keys(CAR_IMG)
   const color = ids[Math.floor(Math.random() * ids.length)]
@@ -299,6 +336,8 @@ export default function PolisiWarnaGame({ onExit }) {
   const [wrongStation, setWrongStation] = useState(null)
   const [wrongMark, setWrongMark] = useState(null)
   const [rewardStation, setRewardStation] = useState(null)
+  const [matches, setMatches] = useState(0)
+  const [mega, setMega] = useState(null)
   const stageRef = useRef(null)
   const stationRefs = useRef({})
   const posRef = useRef(null)
@@ -392,6 +431,12 @@ export default function PolisiWarnaGame({ onExit }) {
   }
 
   function succeedDrop() {
+    const next = matches + 1
+    setMatches(next)
+    if (next % 5 === 0) {
+      setMega({ key: Date.now() })
+      playExtremeConfetti()
+    }
     setRewardStation(item.color)
     setPhase('success')
     playNino()
@@ -412,6 +457,7 @@ export default function PolisiWarnaGame({ onExit }) {
       setPhase('idle')
       setRewardStation(null)
       setBurst(null)
+      setMega(null)
       setPos(homePoint(stageRef.current))
       setItem(pickCar())
     }, 1000)
@@ -446,7 +492,12 @@ export default function PolisiWarnaGame({ onExit }) {
         <h1 className="text-[clamp(1.6rem,5.5vw,3rem)] font-black leading-none text-slate-800 drop-shadow-sm">
           <span aria-hidden="true">🚨</span> POLISI WARNA
         </h1>
-        <span className="w-24 sm:w-28" aria-hidden="true" />
+        <span className="animate-pop-in flex items-center gap-1.5 rounded-full bg-amber-400/90 px-4 py-2 text-lg font-black text-white shadow-[0_4px_0_rgba(161,98,7,0.9)] ring-2 ring-amber-300 sm:px-5 sm:text-xl">
+          <span key={matches} className="animate-pop-in inline-block text-xl sm:text-2xl" aria-hidden="true">
+            ⭐
+          </span>
+          <span className="tabular-nums">{matches}</span>
+        </span>
       </header>
 
       <div ref={stageRef} className="pointer-events-auto relative z-10 min-h-0 flex-1">
@@ -486,6 +537,14 @@ export default function PolisiWarnaGame({ onExit }) {
 
         {phase === 'wrong' && (
           <div className="animate-flash-red pointer-events-none absolute inset-0 z-40" aria-hidden="true" />
+        )}
+
+        {mega && (
+          <span key={mega.key} className="pointer-events-none absolute inset-0 z-[55] flex items-center justify-center" aria-hidden="true">
+            <span className="animate-pop-in text-6xl font-black drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] sm:text-9xl">
+              🎉⭐⭐🎉
+            </span>
+          </span>
         )}
 
         {wrongMark && (
