@@ -8,11 +8,11 @@ const STATIONS = [
   { id: 'blue', bg: 'from-sky-400 to-blue-700', roof: 'bg-blue-800', light: '#3b82f6' },
 ]
 
-const CARS = {
-  red: { top: '#ff8a75', bottom: '#e23b2c' },
-  yellow: { top: '#ffe37f', bottom: '#eab308' },
-  green: { top: '#86e39c', bottom: '#1fa64f' },
-  blue: { top: '#7fc6ff', bottom: '#2f6bff' },
+const CAR_IMG = {
+  red: '/images/cars-red.png',
+  yellow: '/images/cars-yellow.png',
+  green: '/images/cars-green.png',
+  blue: '/images/cars-blue.png',
 }
 
 const CLOUDS = [
@@ -140,7 +140,7 @@ function playBuzz() {
 }
 
 function pickCar() {
-  const ids = Object.keys(CARS)
+  const ids = Object.keys(CAR_IMG)
   const color = ids[Math.floor(Math.random() * ids.length)]
   return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, color }
 }
@@ -268,43 +268,6 @@ function Station({ s, innerRef, alert, pop }) {
         </div>
       </div>
     </div>
-  )
-}
-
-function Car({ color, className, style }) {
-  const p = CARS[color]
-  return (
-    <svg viewBox="0 0 240 132" className={className} style={style} aria-hidden="true">
-      <defs>
-        <linearGradient id={`car-body-${color}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={p.top} />
-          <stop offset="100%" stopColor={p.bottom} />
-        </linearGradient>
-      </defs>
-      <ellipse cx="120" cy="124" rx="98" ry="8" fill="rgba(2,6,23,0.18)" />
-      <rect x="26" y="92" width="188" height="18" rx="9" fill={p.bottom} />
-      <rect x="24" y="56" width="192" height="54" rx="26" fill={`url(#car-body-${color})`} />
-      <rect x="56" y="34" width="112" height="42" rx="20" fill="#cfeaff" />
-      <rect x="56" y="34" width="112" height="22" rx="20" fill="#e6f6ff" opacity="0.85" />
-      <rect x="28" y="86" width="184" height="9" rx="4" fill="rgba(255,255,255,0.3)" />
-      <path d="M120 56 L120 100" stroke="rgba(0,0,0,0.15)" strokeWidth="3" />
-      <circle cx="129" cy="74" r="3" fill="rgba(255,255,255,0.75)" />
-      <circle cx="74" cy="106" r="16" fill="#1f2330" />
-      <circle cx="74" cy="106" r="8" fill="#dbe0e6" />
-      <circle cx="74" cy="106" r="3" fill="#9aa3af" />
-      <circle cx="166" cy="106" r="16" fill="#1f2330" />
-      <circle cx="166" cy="106" r="8" fill="#dbe0e6" />
-      <circle cx="166" cy="106" r="3" fill="#9aa3af" />
-      <circle cx="96" cy="56" r="7" fill="#ffffff" />
-      <circle cx="130" cy="56" r="7" fill="#ffffff" />
-      <circle cx="97.5" cy="54.5" r="3.4" fill="#20283a" />
-      <circle cx="131.5" cy="54.5" r="3.4" fill="#20283a" />
-      <circle cx="98.5" cy="53" r="1.2" fill="#ffffff" />
-      <circle cx="132.5" cy="53" r="1.2" fill="#ffffff" />
-      <path d="M104 68 Q114 75 124 68" stroke="#20283a" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <line x1="60" y1="34" x2="42" y2="18" stroke="#475569" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="40" cy="15" r="5" fill="#ef4444" />
-    </svg>
   )
 }
 
@@ -582,9 +545,11 @@ export default function PolisiWarnaGame({ onExit }) {
               className={`pointer-events-none ${phase === 'dragging' ? '' : 'animate-floaty'}`}
               style={{ animationDuration: '4.5s' }}
             >
-              <Car
-                color={item.color}
-                className={`w-[min(46vmin,250px)] ${phase === 'wrong' ? 'animate-shake drop-shadow-[0_0_24px_rgba(239,68,68,0.95)]' : ''} ${phase === 'dragging' ? 'drop-shadow-[0_14px_18px_rgba(2,6,23,0.35)]' : ''}`}
+              <img
+                src={CAR_IMG[item.color]}
+                alt=""
+                draggable="false"
+                className={`w-[min(46vmin,250px)] h-auto ${phase === 'wrong' ? 'animate-shake drop-shadow-[0_0_24px_rgba(239,68,68,0.95)]' : ''} ${phase === 'dragging' ? 'drop-shadow-[0_14px_18px_rgba(2,6,23,0.35)]' : 'drop-shadow-[0_8px_14px_rgba(2,6,23,0.25)]'}`}
               />
             </div>
           </div>
