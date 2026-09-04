@@ -380,50 +380,151 @@ function AnalystPanel({ data, onChange, locked }) {
 
 /* ─── STRATEGIST PANEL ─── */
 function StrategistPanel({ data, onChange, locked }) {
-  const [categories] = useState(data?.categories || QUEUE_CATEGORIES)
+  const [activeCategories, setActiveCategories] = useState(data?.activeCategories || ['express', 'berat', 'minuman', 'snack'])
   const [activeVars, setActiveVars] = useState(data?.activeVars || ['itemName', 'paymentMethod', 'amount'])
-  const allVars = ['itemName', 'itemCategory', 'paymentMethod', 'amount', 'prepTime', 'stockLevel', 'studentName', 'queuePosition']
+  const [ignoredVars, setIgnoredVars] = useState(data?.ignoredVars || ['studentName', 'queuePosition', 'prepTime', 'stockLevel'])
 
-  useEffect(() => { onChange({ categories, activeVars }) }, [categories, activeVars])
+  const allVars = [
+    { id: 'itemName', label: 'Nama Item', desc: 'Apa yang dipesan (Nasi Goreng, Es Teh, dll)', important: true },
+    { id: 'itemCategory', label: 'Kategori Item', desc: 'Jenis: berat, minuman, atau snack', important: false },
+    { id: 'paymentMethod', label: 'Metode Bayar', desc: 'Tunai, Uang Pas, atau Transfer', important: true },
+    { id: 'amount', label: 'Jumlah Uang', desc: 'Berapa uang yang dibawa siswa', important: true },
+    { id: 'prepTime', label: 'Waktu Siap', desc: 'Berapa lama makanan disiapkan (detik)', important: false },
+    { id: 'stockLevel', label: 'Stok Tersisa', desc: 'Sisa makanan di kantin', important: false },
+    { id: 'studentName', label: 'Nama Siswa', desc: 'Siapa yang memesan', important: false },
+    { id: 'queuePosition', label: 'Posisi Antrean', desc: 'Urutan siswa di antrean', important: false },
+  ]
+
+  useEffect(() => { onChange({ activeCategories, activeVars, ignoredVars }) }, [activeCategories, activeVars, ignoredVars])
+
+  function toggleCategory(catId) {
+    sndClick()
+    setActiveCategories(prev => prev.includes(catId) ? prev.filter(x => x !== catId) : [...prev, catId])
+  }
+
+  function moveVarToActive(varId) {
+    sndClick()
+    setIgnoredVars(prev => prev.filter(x => x !== varId))
+    if (!activeVars.includes(varId)) setActiveVars(prev => [...prev, varId])
+  }
+
+  function moveVarToIgnored(varId) {
+    sndClick()
+    setActiveVars(prev => prev.filter(x => x !== varId))
+    if (!ignoredVars.includes(varId)) setIgnoredVars(prev => [...prev, varId])
+  }
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Mission Brief */}
+      <div className="rounded-2xl bg-purple-100 p-3 sm:p-4">
+        <p className="mb-1 text-sm font-extrabold text-purple-800 sm:text-base">🎯 Misi Kamu: Konfigurasi Aturan Kantin</p>
+        <p className="text-xs font-bold text-purple-600 sm:text-sm">
+          Sebagai <b>Solution Strategist</b>, tugasmu adalah menentukan <b>aturan main</b> untuk sistem kantin.
+          Kamu harus memutuskan:
+        </p>
+        <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
+          <li>1️⃣ <b>Kategori antrean apa saja yang aktif?</b> — Sistem hanya akan melayani kategori yang kamu nyalakan.</li>
+          <li>2️⃣ <b>Data apa yang perlu diproses sistem?</b> — Aktifkan variabel penting, matikan yang tidak perlu.</li>
+        </ol>
+      </div>
+
+      {/* Step 1: Queue Categories */}
       <div className="rounded-2xl bg-purple-50 p-3 sm:p-4">
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">⚙️ Rule & Parameter Configurator</p>
-        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Atur kategori antrean dan variabel penting.</p>
-
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-purple-500 sm:text-xs">Kategori Antrean</p>
-        <div className="mb-3 grid grid-cols-2 gap-2">
-          {categories.map((cat, i) => (
-            <div key={cat.id} className="flex items-center gap-2 rounded-xl border border-purple-200 bg-white p-2">
-              <div className={`h-3 w-3 rounded-full bg-${cat.color}-500`} />
-              <div>
-                <p className="text-xs font-extrabold text-slate-700">{cat.name}</p>
-                <p className="text-[10px] font-bold text-slate-400">{cat.desc}</p>
-              </div>
-            </div>
-          ))}
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">1</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">Atur Kategori Antrean</p>
         </div>
-
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-purple-500 sm:text-xs">Variabel Aktif (diproses oleh sistem)</p>
-        <div className="flex flex-wrap gap-1.5">
-          {allVars.map(v => {
-            const isActive = activeVars.includes(v)
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">
+          Klik untuk menyalakan/mematikan kategori. Sistem hanya akan memproses siswa dari kategori yang <b>aktif</b>.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {QUEUE_CATEGORIES.map(cat => {
+            const isActive = activeCategories.includes(cat.id)
             return (
               <button
-                key={v} type="button" disabled={locked}
-                onClick={() => {
-                  sndClick()
-                  setActiveVars(prev => isActive ? prev.filter(x => x !== v) : [...prev, v])
-                }}
-                className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${isActive ? 'bg-purple-500 text-white' : 'bg-slate-200 text-slate-500'} disabled:opacity-50`}
+                key={cat.id} type="button" disabled={locked}
+                onClick={() => toggleCategory(cat.id)}
+                className={`flex items-center gap-2 rounded-xl border-2 p-2.5 text-left transition sm:p-3 ${isActive ? `border-${cat.color}-400 bg-${cat.color}-50 shadow-sm` : 'border-slate-200 bg-white opacity-50'}`}
               >
-                {isActive ? '✓ ' : ''}{v}
+                <div className={`flex h-5 w-5 items-center justify-center rounded-full ${isActive ? `bg-${cat.color}-500` : 'bg-slate-300'}`}>
+                  <span className="text-[10px] font-extrabold text-white">{isActive ? '✓' : '✕'}</span>
+                </div>
+                <div>
+                  <p className="text-xs font-extrabold text-slate-700">{cat.name}</p>
+                  <p className="text-[10px] font-bold text-slate-400">{cat.desc}</p>
+                </div>
               </button>
             )
           })}
         </div>
-        <p className="mt-2 text-[10px] font-bold text-slate-400 sm:text-xs">💡 Abaikan detail tak relevan (misal: warna baju siswa)</p>
+        <p className="mt-2 text-[10px] font-bold text-purple-500 sm:text-xs">
+          💡 Tips: Express Lane untuk siswa bayar pas. Makanan Berat untuk nasi/mie. Minuman untuk es/kopi.
+        </p>
+      </div>
+
+      {/* Step 2: Variables */}
+      <div className="rounded-2xl bg-purple-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">2</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">Pilih Variabel yang Diproses</p>
+        </div>
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">
+          Variabel <b>Aktif</b> = data yang akan dibaca oleh sistem saat memproses pesanan.
+          Variabel <b>Diacuhkan</b> = data yang diabaikan (tidak mempengaruhi keputusan).
+        </p>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* Active Variables */}
+          <div className="rounded-xl border-2 border-green-300 bg-green-50 p-2.5">
+            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-green-600 sm:text-xs">✅ Aktif (Diproses)</p>
+            <div className="space-y-1.5">
+              {activeVars.map(v => {
+                const vData = allVars.find(x => x.id === v)
+                return (
+                  <div key={v} className="flex items-center justify-between rounded-lg bg-white p-2">
+                    <div>
+                      <p className="text-xs font-extrabold text-slate-700">{vData?.label || v}</p>
+                      <p className="text-[9px] font-bold text-slate-400">{vData?.desc}</p>
+                    </div>
+                    <button type="button" disabled={locked} onClick={() => moveVarToIgnored(v)}
+                      className="shrink-0 rounded-full bg-red-100 px-2 py-1 text-[10px] font-extrabold text-red-600 hover:bg-red-200 disabled:opacity-50">
+                      Matikan
+                    </button>
+                  </div>
+                )
+              })}
+              {activeVars.length === 0 && <p className="text-center text-[10px] font-bold text-slate-400">Tidak ada variabel aktif</p>}
+            </div>
+          </div>
+
+          {/* Ignored Variables */}
+          <div className="rounded-xl border-2 border-slate-200 bg-slate-50 p-2.5">
+            <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-slate-500 sm:text-xs">🚫 Diacuhkan (Tidak Diproses)</p>
+            <div className="space-y-1.5">
+              {ignoredVars.map(v => {
+                const vData = allVars.find(x => x.id === v)
+                return (
+                  <div key={v} className="flex items-center justify-between rounded-lg bg-white p-2 opacity-60">
+                    <div>
+                      <p className="text-xs font-extrabold text-slate-600">{vData?.label || v}</p>
+                      <p className="text-[9px] font-bold text-slate-400">{vData?.desc}</p>
+                    </div>
+                    <button type="button" disabled={locked} onClick={() => moveVarToActive(v)}
+                      className="shrink-0 rounded-full bg-green-100 px-2 py-1 text-[10px] font-extrabold text-green-600 hover:bg-green-200 disabled:opacity-50">
+                      Aktifkan
+                    </button>
+                  </div>
+                )
+              })}
+              {ignoredVars.length === 0 && <p className="text-center text-[10px] font-bold text-slate-400">Semua variabel aktif</p>}
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-2 text-[10px] font-bold text-purple-500 sm:text-xs">
+          💡 Tips: Abaikan warna baju siswa, nama, dan posisi antrean — itu tidak penting untuk sistem pembayaran.
+        </p>
       </div>
     </div>
   )
