@@ -6,10 +6,10 @@ import {
   STUDENTS_DATA,
   SENSOR_NAMES,
   METRICS,
-} from './artemisDataAdvanced.js'
+} from './artemis3Data.js'
 
-const STORAGE_KEY = 'artemis-advanced-telemetry-v2'
-const CHANNEL_NAME = 'artemis-advanced-telemetry'
+const STORAGE_KEY = 'artemis-3-telemetry-v2'
+const CHANNEL_NAME = 'artemis-3-telemetry'
 
 const TEAM_STYLE = {
   'artemis-1': {
@@ -403,7 +403,7 @@ function LoginScreen({ onStart, onExit }) {
           <span className="text-5xl sm:text-6xl" aria-hidden="true">🛰️</span>
           <div>
             <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
-              Operation <span className="text-sky-600">Artemis</span>
+              Operation <span className="text-sky-600">Artemis III</span>
             </h1>
             <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
               Telemetry Control · Mission Control Center

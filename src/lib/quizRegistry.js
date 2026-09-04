@@ -42,9 +42,9 @@ export const QUIZ_REGISTRY = [
     images: ['/images/rocket.svg', '/images/smartwatch.svg'],
   },
   {
-    id: 'artemis-advanced',
-    title: 'Operation Artemis — Grade 8',
-    tagline: 'Extended deep-space supply run for advanced students.',
+    id: 'artemis-3',
+    title: 'Operation Artemis III',
+    tagline: 'Grade 8 supply run: compute extended telemetry and launch Orion!',
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {

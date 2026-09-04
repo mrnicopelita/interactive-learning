@@ -6,7 +6,7 @@ import KeyboardGame from './games/KeyboardGame.jsx'
 import TypingGame from './games/TypingGame.jsx'
 import ArtemisGame from './games/ArtemisGame.jsx'
 import Artemis2Game from './games/Artemis2Game.jsx'
-import ArtemisGameAdvanced from './games/ArtemisGameAdvanced.jsx'
+import ArtemisGame3 from './games/ArtemisGame3.jsx'
 import PolisiWarnaGame from './games/PolisiWarnaGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
@@ -44,7 +44,7 @@ const GAME_COMPONENTS = {
   'typing': TypingGame,
   'artemis': ArtemisGame,
   'artemis2': Artemis2Game,
-  'artemis-advanced': ArtemisGameAdvanced,
+  'artemis-3': ArtemisGame3,
   'polisi-warna': PolisiWarnaGame,
 }
 
