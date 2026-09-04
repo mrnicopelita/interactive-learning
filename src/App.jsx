@@ -5,6 +5,8 @@ import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
 import TypingGame from './games/TypingGame.jsx'
 import ArtemisGame from './games/ArtemisGame.jsx'
+import Artemis2Game from './games/Artemis2Game.jsx'
+import ArtemisGameAdvanced from './games/ArtemisGameAdvanced.jsx'
 import PolisiWarnaGame from './games/PolisiWarnaGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
@@ -41,6 +43,8 @@ const GAME_COMPONENTS = {
   'keyboard': KeyboardGame,
   'typing': TypingGame,
   'artemis': ArtemisGame,
+  'artemis2': Artemis2Game,
+  'artemis-advanced': ArtemisGameAdvanced,
   'polisi-warna': PolisiWarnaGame,
 }
 

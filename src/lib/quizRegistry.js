@@ -36,6 +36,18 @@ export const QUIZ_REGISTRY = [
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {
+    id: 'artemis2',
+    title: 'Operation Artemis II',
+    tagline: 'Mission Control: compute telemetry for the Artemis II lunar mission!',
+    images: ['/images/rocket.svg', '/images/smartwatch.svg'],
+  },
+  {
+    id: 'artemis-advanced',
+    title: 'Operation Artemis — Grade 8',
+    tagline: 'Extended deep-space supply run for advanced students.',
+    images: ['/images/rocket.svg', '/images/monitor.svg'],
+  },
+  {
     id: 'polisi-warna',
     title: 'Polisi Warna',
     tagline: 'Drag the car to its matching color police station!',
