@@ -54,6 +54,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/polisi.svg', '/images/palette.svg'],
   },
   {
+    id: 'kantin-crisis',
+    title: 'Krisis 15 Menit',
+    tagline: 'Build a canteen automation system under 15 minutes!',
+    images: ['/images/kantin.svg', '/images/robot.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',
