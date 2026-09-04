@@ -80,20 +80,6 @@ function sum(list) {
   return list.reduce((a, b) => a + b, 0)
 }
 
-function mode(list) {
-  const freq = new Map()
-  for (const v of list) freq.set(v, (freq.get(v) || 0) + 1)
-  let best = null
-  let bestN = -1
-  for (const [v, n] of freq) {
-    if (n > bestN || (n === bestN && v < best)) {
-      best = v
-      bestN = n
-    }
-  }
-  return best
-}
-
 function median(list) {
   const s = [...list].sort((a, b) => a - b)
   const m = s.length >> 1
@@ -107,7 +93,7 @@ function computeStats(list) {
     avg: sum(list) / list.length,
     min: s[0],
     max: s[s.length - 1],
-    mode: mode(list),
+    count: list.length,
     median: median(list),
   }
 }
@@ -519,7 +505,7 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
               <li>2️⃣ Locate your row: <b>Row {student.row}</b> for {mission.name}.</li>
               <li>
                 3️⃣ Compute <b>SUM</b>, <b>AVERAGE</b>, <b>MIN</b>, <b>MAX</b>,{' '}
-                <b>MODE</b> & <b>MEDIAN</b> in the sheet.
+                <b>COUNT</b> & <b>MEDIAN</b> in the sheet.
               </li>
               <li>4️⃣ Return here and transmit your values to Mission Control.</li>
             </ol>

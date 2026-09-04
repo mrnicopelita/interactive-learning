@@ -71,10 +71,10 @@ export const METRICS = [
     sheet: (row) => `=MAX(B${row}:F${row})`,
   },
   {
-    key: 'mode',
-    label: 'MODE',
-    friendly: 'Frequent',
-    sheet: (row) => `=MODE(B${row}:F${row})`,
+    key: 'count',
+    label: 'COUNT',
+    friendly: 'Count',
+    sheet: (row) => `=COUNT(B${row}:F${row})`,
   },
   {
     key: 'median',
