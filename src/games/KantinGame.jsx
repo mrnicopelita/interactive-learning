@@ -1178,6 +1178,7 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
   const [testRunning, setTestRunning] = useState(false)
   const [testProgress, setTestProgress] = useState(0)
   const [localLogs, setLocalLogs] = useState([])
+  const [testDone, setTestDone] = useState(false)
 
   const menu = teamData.menu?.items || MENU_ITEMS
   const testScripts = isQA ? (store.teams[opponentTeam]?.testScripts || []) : (teamData.testScripts || [])
@@ -1197,6 +1198,8 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
     if (testRunning) return
     setTestRunning(true)
     setTestProgress(0)
+    setTestDone(false)
+    setLocalLogs([])
 
     const enabled = testScripts.filter(s => s.enabled)
     let i = 0
@@ -1205,6 +1208,8 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
       if (i >= enabled.length) {
         clearInterval(interval)
         setTestRunning(false)
+        setTestDone(true)
+        sndCorrect()
         return
       }
 
@@ -1255,6 +1260,8 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
   const bugs = teamData.bugs || []
   const unfixedBugs = bugs.filter(b => !b.fixed)
   const fixedBugs = bugs.filter(b => b.fixed)
+  const passCount = localLogs.filter(l => l.result === 'PASS').length
+  const failCount = localLogs.filter(l => l.result === 'FAIL').length
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-amber-200 via-orange-100 to-yellow-200">
@@ -1269,10 +1276,25 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
 
         {isQA ? (
           <div className="w-full max-w-2xl">
-            <div className="rounded-2xl bg-red-50 p-3 sm:p-4">
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-red-600 sm:text-sm">
-                🧪 Fire Test Scripts → {TEAMS[opponentTeam].name}
+            {/* Mission Brief for QA */}
+            <div className="rounded-2xl bg-red-100 p-3 sm:p-4">
+              <p className="mb-1 text-sm font-extrabold text-red-800 sm:text-base">🎯 Misi Kamu: Serang Sistem Lawan</p>
+              <p className="text-xs font-bold text-red-600 sm:text-sm">
+                Sebagai <b>QA Tester</b>, tugamu adalah menjalankan test script ke sistem <b>{TEAMS[opponentTeam].name}</b>.
               </p>
+              <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
+                <li>1️⃣ <b>Tekan "FIRE TEST SCRIPTS"</b> — Sistem akan menjalankan semua script aktif secara otomatis.</li>
+                <li>2️⃣ <b>Perhatikan hasilnya</b> — PASS = sistem lawan lolos, FAIL = bug ditemukan!</li>
+                <li>3️⃣ <b>Lihat Test Log</b> — Hasil uji akan muncul di bawah secara real-time.</li>
+              </ol>
+            </div>
+
+            {/* Fire Button */}
+            <div className="mt-3 rounded-2xl bg-red-50 p-3 sm:p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-extrabold text-white">1</span>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-red-600 sm:text-sm">Fire Test Scripts → {TEAMS[opponentTeam].name}</p>
+              </div>
               <ProgressBar current={testProgress} total={testScripts.filter(s => s.enabled).length} label="Progress Pengujian" color="red" />
               <button
                 type="button" disabled={testRunning}
@@ -1283,8 +1305,17 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
               </button>
             </div>
 
+            {/* Test Log */}
             <div className="mt-3 rounded-2xl bg-slate-900 p-3 sm:p-4">
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-green-400 sm:text-sm">📋 Test Log</p>
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-green-400 sm:text-sm">📋 Test Log</p>
+                {testDone && (
+                  <div className="flex gap-2">
+                    <span className="rounded-full bg-green-900/50 px-2 py-0.5 text-[10px] font-extrabold text-green-400">✅ {passCount} PASS</span>
+                    <span className="rounded-full bg-red-900/50 px-2 py-0.5 text-[10px] font-extrabold text-red-400">❌ {failCount} FAIL</span>
+                  </div>
+                )}
+              </div>
               <div className="max-h-[300px] space-y-1 overflow-y-auto font-mono text-xs">
                 {localLogs.length === 0 && <p className="text-slate-500">Belum ada test yang dijalankan...</p>}
                 {localLogs.map((log, i) => (
@@ -1294,12 +1325,39 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
                 ))}
               </div>
             </div>
+
+            {/* Summary */}
+            {testDone && (
+              <div className={`mt-3 rounded-2xl p-3 sm:p-4 ${failCount > 0 ? 'bg-red-50 border-2 border-red-300' : 'bg-green-50 border-2 border-green-300'}`}>
+                <p className={`text-sm font-extrabold sm:text-base ${failCount > 0 ? 'text-red-700' : 'text-green-700'}`}>
+                  {failCount > 0 ? `🚨 ${failCount} Bug Ditemukan di Sistem ${TEAMS[opponentTeam].name}!` : `🛡️ Semua Test Lolos! Sistem ${TEAMS[opponentTeam].name} Aman.`}
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="w-full max-w-2xl">
+            {/* Mission Brief for Debug */}
+            <div className="rounded-2xl bg-amber-100 p-3 sm:p-4">
+              <p className="mb-1 text-sm font-extrabold text-amber-800 sm:text-base">🎯 Misi Kamu: Defend & Patch</p>
+              <p className="text-xs font-bold text-amber-600 sm:text-sm">
+                Tim QA lawan sedang menyerang sistem kamu. Tugamu adalah memperbaiki bug secepat mungkin!
+              </p>
+              <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
+                <li>1️⃣ <b>Tunggu serangan</b> — Bug akan muncul sebagai alert merah.</li>
+                <li>2️⃣ <b>Baca deskripsi bug</b> — Pahami apa yang rusak.</li>
+                <li>3️⃣ <b>TEKAN "APPLY PATCH"</b> — Untuk memperbaiki bug tersebut.</li>
+                <li>4️⃣ <b>Pantau status</b> — Bug yang sudah diperbaiki akan berubah hijau.</li>
+              </ol>
+            </div>
+
+            {/* Bug List */}
             {unfixedBugs.length > 0 && (
-              <div className="rounded-2xl bg-red-50 p-3 sm:p-4">
-                <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-red-600 sm:text-sm">🐛 Bug List — Live Debugging</p>
+              <div className="mt-3 rounded-2xl bg-red-50 p-3 sm:p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-extrabold text-white">1</span>
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-red-600 sm:text-sm">🐛 Bug List — Live Debugging</p>
+                </div>
                 <div className="space-y-2">
                   {unfixedBugs.map(bug => (
                     <div key={bug.id} className="animate-shake rounded-xl border-2 border-red-300 bg-red-100 p-3">
@@ -1322,9 +1380,13 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
               </div>
             )}
 
+            {/* Fixed Bugs */}
             {fixedBugs.length > 0 && (
               <div className="mt-3 rounded-2xl bg-green-50 p-3 sm:p-4">
-                <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-green-600 sm:text-sm">✅ Bug Fixed</p>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs font-extrabold text-white">2</span>
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-green-600 sm:text-sm">✅ Bug Fixed ({fixedBugs.length})</p>
+                </div>
                 {fixedBugs.map(bug => (
                   <div key={bug.id} className="rounded-xl border border-green-200 bg-white p-2">
                     <p className="text-xs font-extrabold text-green-700">✓ {bug.name}</p>
@@ -1333,14 +1395,16 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
               </div>
             )}
 
+            {/* No Bugs Yet */}
             {unfixedBugs.length === 0 && fixedBugs.length === 0 && (
-              <div className="rounded-2xl bg-green-50 p-6 text-center">
+              <div className="mt-3 rounded-2xl bg-green-50 p-6 text-center">
                 <span className="text-4xl" aria-hidden="true">🛡️</span>
                 <p className="mt-2 text-sm font-extrabold text-green-700">Sistem Aman!</p>
                 <p className="text-xs font-bold text-slate-500">Belum ada bug yang terdeteksi. Tunggu serangan dari QA tim lawan.</p>
               </div>
             )}
 
+            {/* System Status */}
             <div className="mt-3 rounded-2xl bg-slate-900 p-3 sm:p-4">
               <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-amber-400 sm:text-sm">📊 Status Sistem</p>
               <div className="grid grid-cols-3 gap-2 text-center">
@@ -1353,7 +1417,7 @@ function StressTestScreen({ player, teamId, role, store, onUpdate, timer, onExit
                   <p className="text-[10px] font-bold text-slate-400">Flow Nodes</p>
                 </div>
                 <div className="rounded-xl bg-red-900/30 p-2">
-                  <p className="text-lg font-extrabold text-red-400">{fixedBugs.length}</p>
+                  <p className="text-lg font-extrabold text-red-400">{fixedBugs.length}/{bugs.length}</p>
                   <p className="text-[10px] font-bold text-slate-400">Bugs Fixed</p>
                 </div>
               </div>
@@ -1435,10 +1499,10 @@ function LeaderboardScreen({ store, onExit, onRestart }) {
 
                   <div className="mt-3 space-y-2 text-left">
                     {[
-                      { label: 'System Completion', val: score.completion, weight: '20%', color: 'sky' },
-                      { label: 'First-Run Stability', val: score.stability, weight: '40%', color: 'green' },
-                      { label: 'Debugging Agility', val: score.agility, weight: '30%', color: 'purple' },
-                      { label: 'QA Test Rigor', val: score.rigor, weight: '10%', color: 'red' },
+                      { label: 'System Completion', val: score.completion, weight: '20%', color: 'sky', desc: 'Seberapa lengkap modul yang diselesaikan' },
+                      { label: 'First-Run Stability', val: score.stability, weight: '40%', color: 'green', desc: 'Bug yang berhasil diperbaiki dari total bug' },
+                      { label: 'Debugging Agility', val: score.agility, weight: '30%', color: 'purple', desc: 'Kecepatan merespon & memperbaiki bug' },
+                      { label: 'QA Test Rigor', val: score.rigor, weight: '10%', color: 'red', desc: 'Jumlah test script yang aktif dijalankan' },
                     ].map(item => (
                       <div key={item.label}>
                         <div className="flex items-center justify-between">
@@ -1448,6 +1512,7 @@ function LeaderboardScreen({ store, onExit, onRestart }) {
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
                           <div className={`h-full rounded-full bg-${item.color}-500`} style={{ width: `${item.val}%` }} />
                         </div>
+                        <p className="mt-0.5 text-[9px] font-bold text-slate-400">{item.desc}</p>
                       </div>
                     ))}
                   </div>
