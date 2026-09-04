@@ -5,6 +5,7 @@ import {
   DEFAULT_FLOWCHART_NODES, DEFAULT_FLOWCHART_CONNECTIONS,
   CUSTOMER_PRESETS, TEST_SCRIPTS, PROBLEMS_TEMPLATE, OBJECTIVE_METRICS,
   SCORING_WEIGHTS, PHASE_DURATIONS,
+  LOG_DATA, ERROR_PATTERNS, PERFORMANCE_METRICS, CUSTOMER_SCENARIOS, QA_TEST_CASES,
 } from './kantinData.js'
 
 const STORAGE_KEY = 'kantin-crisis-v1'
@@ -323,16 +324,16 @@ function BriefingScreen({ player, teamId, role, timer, onReady, onExit }) {
 
 /* ─── ANALYST PANEL ─── */
 function AnalystPanel({ data, onChange, locked }) {
-  const [problems, setProblems] = useState(data?.problems || PROBLEMS_TEMPLATE.map(p => ({ ...p, impact: '', solution: '' })))
+  const [errorAnalysis, setErrorAnalysis] = useState(data?.errorAnalysis || ERROR_PATTERNS.map(e => ({ ...e, rootCause: '', solution: '' })))
   const [metrics, setMetrics] = useState(data?.metrics || OBJECTIVE_METRICS.map(m => ({ ...m, value: '' })))
-  const [saved, setSaved] = useState(!!data?.problems)
+  const [saved, setSaved] = useState(!!data?.errorAnalysis)
   const [errors, setErrors] = useState([])
 
   function validate() {
     const errs = []
-    problems.forEach((p, i) => {
-      if (!p.impact.trim()) errs.push(`Masalah #${i + 1}: Dampak belum diisi`)
-      if (!p.solution.trim()) errs.push(`Masalah #${i + 1}: Solusi belum diisi`)
+    errorAnalysis.forEach((e, i) => {
+      if (!e.rootCause.trim()) errs.push(`Error #${i + 1} (${e.desc.slice(0, 30)}...): Akar masalah belum diisi`)
+      if (!e.solution.trim()) errs.push(`Error #${i + 1} (${e.desc.slice(0, 30)}...): Solusi belum diisi`)
     })
     metrics.forEach((m) => {
       if (!m.value || Number(m.value) <= 0) errs.push(`Metrik "${m.label}" belum diisi`)
@@ -346,7 +347,7 @@ function AnalystPanel({ data, onChange, locked }) {
     if (errs.length === 0) {
       sndCorrect()
       setSaved(true)
-      onChange({ problems, metrics, validated: true })
+      onChange({ errorAnalysis, metrics, validated: true })
     } else {
       sndError()
       setSaved(false)
@@ -359,45 +360,104 @@ function AnalystPanel({ data, onChange, locked }) {
       <div className="rounded-2xl bg-sky-100 p-3 sm:p-4">
         <p className="mb-1 text-sm font-extrabold text-sky-800 sm:text-base">🎯 Misi Kamu: Analisis Masalah Kantin</p>
         <p className="text-xs font-bold text-sky-600 sm:text-sm">
-          Sebagai <b>System Analyst</b>, tugasmu adalah mengidentifikasi masalah utama kantin dan menentukan target kinerja sistem.
+          Sebagai <b>System Analyst</b>, tugamu adalah <b>menganalisis data log</b> dan <b>mengidentifikasi akar masalah</b> dari error yang terjadi.
         </p>
         <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
-          <li>1️⃣ <b>Isi 3 masalah utama</b> — Tuliskan dampak dan solusi untuk setiap masalah.</li>
-          <li>2️⃣ <b>Tentukan metrik target</b> — Berapa detik per siswa? Berapa persen akurasi?</li>
-          <li>3️⃣ <b>Simpan jawabanmu</b> — Tekan tombol "Simpan" setelah selesai.</li>
+          <li>1️⃣ <b>Baca data log</b> — Perhatikan waktu antrean, jumlah pesanan, dan error yang terjadi.</li>
+          <li>2️⃣ <b>Identifikasi akar masalah</b> — Untuk setiap error, jelaskan <b>mengapa</b> ini terjadi.</li>
+          <li>3️⃣ <b>Usulkan solusi</b> — Bagaimana cara mengatasi masalah tersebut?</li>
+          <li>4️⃣ <b>Tentukan metrik target</b> — Berapa detik per siswa? Berapa persen akurasi?</li>
         </ol>
       </div>
 
-      {/* Step 1: Problems */}
+      {/* Log Data */}
       <div className="rounded-2xl bg-sky-50 p-3 sm:p-4">
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-xs font-extrabold text-white">1</span>
-          <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600 sm:text-sm">Isi 3 Masalah Utama Kantin</p>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600 sm:text-sm">📊 Data Log Kantin (1 Jam)</p>
         </div>
-        {problems.map((p, i) => {
-          const impactOk = p.impact.trim().length > 0
-          const solutionOk = p.solution.trim().length > 0
+        <p className="mb-2 text-[10px] font-bold text-slate-500 sm:text-xs">Perhatikan pola: waktu antrean meningkat, ada pesanan timeout, dan error yang terjadi.</p>
+        <div className="max-h-[200px] overflow-y-auto rounded-xl border border-sky-200 bg-white">
+          <table className="w-full text-[10px] font-bold sm:text-xs">
+            <thead className="sticky top-0 bg-sky-100">
+              <tr>
+                <th className="px-2 py-1 text-left text-sky-700">Waktu</th>
+                <th className="px-2 py-1 text-right text-sky-700">Antrian</th>
+                <th className="px-2 py-1 text-right text-sky-700">Item</th>
+                <th className="px-2 py-1 text-right text-sky-700">Tunggu</th>
+                <th className="px-2 py-1 text-center text-sky-700">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {LOG_DATA.map((row, i) => (
+                <tr key={i} className={`border-t border-sky-100 ${row.status === 'timeout' ? 'bg-red-50' : ''}`}>
+                  <td className="px-2 py-1 text-slate-600">{row.time}</td>
+                  <td className="px-2 py-1 text-right text-slate-600">{row.queue}</td>
+                  <td className="px-2 py-1 text-right text-slate-600">{row.item}</td>
+                  <td className={`px-2 py-1 text-right ${row.wait > 60 ? 'font-extrabold text-red-600' : 'text-slate-600'}`}>{row.wait}s</td>
+                  <td className={`px-2 py-1 text-center ${row.status === 'timeout' ? 'font-extrabold text-red-600' : 'text-green-600'}`}>
+                    {row.status === 'timeout' ? '⏰ TIMEOUT' : '✓ OK'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg bg-sky-100 p-1.5">
+            <p className="text-sm font-extrabold text-sky-700">{PERFORMANCE_METRICS.avgWait}s</p>
+            <p className="text-[9px] font-bold text-sky-500">Rata-rata Tunggu</p>
+          </div>
+          <div className="rounded-lg bg-red-100 p-1.5">
+            <p className="text-sm font-extrabold text-red-700">{PERFORMANCE_METRICS.maxWait}s</p>
+            <p className="text-[9px] font-bold text-red-500">Maks Tunggu</p>
+          </div>
+          <div className="rounded-lg bg-amber-100 p-1.5">
+            <p className="text-sm font-extrabold text-amber-700">{PERFORMANCE_METRICS.failedOrders + PERFORMANCE_METRICS.cancelledOrders}</p>
+            <p className="text-[9px] font-bold text-amber-500">Pesanan Gagal</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Step 1: Error Analysis */}
+      <div className="rounded-2xl bg-sky-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-xs font-extrabold text-white">2</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600 sm:text-sm">Identifikasi Error & Akar Masalah</p>
+        </div>
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Untuk setiap error yang terjadi, jelaskan <b>mengapa</b> ini terjadi (akar masalah) dan <b>bagaimana</b> cara mengatasinya.</p>
+        {errorAnalysis.map((e, i) => {
+          const rootOk = e.rootCause.trim().length > 0
+          const solOk = e.solution.trim().length > 0
           return (
-            <div key={p.id} className="mb-3 rounded-xl border border-sky-200 bg-white p-3">
+            <div key={e.id} className="mb-3 rounded-xl border border-sky-200 bg-white p-3">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-extrabold text-sky-700">Masalah #{i + 1}: {p.problem}</p>
-                {impactOk && solutionOk && <span className="text-sm text-green-500">✅</span>}
+                <div>
+                  <span className={`mr-1 rounded-full px-1.5 py-0.5 text-[9px] font-extrabold ${e.type === 'stok' ? 'bg-amber-100 text-amber-700' : e.type === 'bayar' ? 'bg-red-100 text-red-700' : e.type === 'antrian' ? 'bg-sky-100 text-sky-700' : e.type === 'transfer' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'}`}>
+                    {e.type}
+                  </span>
+                  <span className="text-xs font-extrabold text-sky-700">Error #{i + 1}</span>
+                  {rootOk && solOk && <span className="ml-1 text-sm text-green-500">✅</span>}
+                </div>
+                <span className="text-[9px] font-bold text-red-500">Frekuensi: {e.freq}x</span>
               </div>
+              <p className="mb-2 text-[10px] font-bold text-slate-600 sm:text-xs">{e.desc}</p>
+              <p className="mb-1 text-[9px] font-bold text-red-500">Dampak: {e.impact}</p>
               <label className="mb-2 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-500">Dampak <span className="text-red-400">*</span></span>
+                <span className="text-[10px] font-bold text-slate-500">Akar Masalah <span className="text-red-400">*</span></span>
                 <input
-                  type="text" value={p.impact} disabled={locked}
-                  onChange={(e) => { const n = [...problems]; n[i] = { ...n[i], impact: e.target.value }; setProblems(n); setSaved(false) }}
-                  placeholder="Contoh: Siswa antre > 10 menit, waktu istirahat habis"
+                  type="text" value={e.rootCause} disabled={locked}
+                  onChange={(e2) => { const n = [...errorAnalysis]; n[i] = { ...n[i], rootCause: e2.target.value }; setErrorAnalysis(n); setSaved(false) }}
+                  placeholder="Contoh: Tidak ada validasi stok sebelum terima pesanan"
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400 disabled:bg-slate-50"
                 />
               </label>
               <label className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-slate-500">Solusi <span className="text-red-400">*</span></span>
                 <input
-                  type="text" value={p.solution} disabled={locked}
-                  onChange={(e) => { const n = [...problems]; n[i] = { ...n[i], solution: e.target.value }; setProblems(n); setSaved(false) }}
-                  placeholder="Contoh: Sistem antrean berbasis kategori (Express, Berat, Minuman)"
+                  type="text" value={e.solution} disabled={locked}
+                  onChange={(e2) => { const n = [...errorAnalysis]; n[i] = { ...n[i], solution: e2.target.value }; setErrorAnalysis(n); setSaved(false) }}
+                  placeholder="Contoh: Cek stok dulu sebelum konfirmasi pesanan"
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:border-sky-400 disabled:bg-slate-50"
                 />
               </label>
@@ -409,10 +469,10 @@ function AnalystPanel({ data, onChange, locked }) {
       {/* Step 2: Metrics */}
       <div className="rounded-2xl bg-sky-50 p-3 sm:p-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-xs font-extrabold text-white">2</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-500 text-xs font-extrabold text-white">3</span>
           <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600 sm:text-sm">Tentukan Metrik Target</p>
         </div>
-        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Target ini menjadi acuan apakah sistem kantin sudah berhasil.</p>
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Target ini menjadi acuan apakah sistem kantin sudah berhasil. Lihat data log untuk menentukan target yang realistis.</p>
         {metrics.map((m, i) => {
           const ok = m.value && Number(m.value) > 0
           return (
@@ -455,9 +515,9 @@ function AnalystPanel({ data, onChange, locked }) {
 
 /* ─── STRATEGIST PANEL ─── */
 function StrategistPanel({ data, onChange, locked }) {
-  const [activeCategories, setActiveCategories] = useState(data?.activeCategories || ['express', 'berat', 'minuman', 'snack'])
-  const [activeVars, setActiveVars] = useState(data?.activeVars || ['itemName', 'paymentMethod', 'amount'])
-  const [ignoredVars, setIgnoredVars] = useState(data?.ignoredVars || ['studentName', 'queuePosition', 'prepTime', 'stockLevel'])
+  const [activeCategories, setActiveCategories] = useState(data?.activeCategories || [])
+  const [activeVars, setActiveVars] = useState(data?.activeVars || [])
+  const [ignoredVars, setIgnoredVars] = useState(data?.ignoredVars || [])
   const [saved, setSaved] = useState(!!data?.activeCategories)
   const [errors, setErrors] = useState([])
 
@@ -476,6 +536,8 @@ function StrategistPanel({ data, onChange, locked }) {
     const errs = []
     if (activeCategories.length < 2) errs.push('Minimal 2 kategori antrean harus aktif')
     if (activeVars.length < 3) errs.push('Minimal 3 variabel harus aktif')
+    const hasImportant = activeVars.some(v => ['itemName', 'paymentMethod', 'amount'].includes(v))
+    if (!hasImportant) errs.push('Minimal harus ada 1 variabel penting: Nama Item, Metode Bayar, atau Jumlah Uang')
     return errs
   }
 
@@ -518,23 +580,81 @@ function StrategistPanel({ data, onChange, locked }) {
       <div className="rounded-2xl bg-purple-100 p-3 sm:p-4">
         <p className="mb-1 text-sm font-extrabold text-purple-800 sm:text-base">🎯 Misi Kamu: Konfigurasi Aturan Kantin</p>
         <p className="text-xs font-bold text-purple-600 sm:text-sm">
-          Sebagai <b>Solution Strategist</b>, tugasmu adalah menentukan <b>aturan main</b> untuk sistem kantin.
+          Sebagai <b>Solution Strategist</b>, tugamu adalah <b>menganalisis pola pelanggan</b> dan menentukan <b>aturan abstraksi</b> untuk sistem kantin.
         </p>
         <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
-          <li>1️⃣ <b>Pilih kategori antrean</b> — Aktifkan kategori yang ingin dilayani sistem.</li>
-          <li>2️⃣ <b>Atur variabel</b> — Pilih data apa yang perlu diproses, mana yang diabaikan.</li>
-          <li>3️⃣ <b>Simpan jawabanmu</b> — Tekan tombol "Simpan" setelah selesai.</li>
+          <li>1️⃣ <b>Analisis pola pelanggan</b> — Perhatikan jenis pelanggan dan perilaku mereka.</li>
+          <li>2️⃣ <b>Pilih kategori antrean</b> — Aktifkan kategori yang sesuai dengan pola pelanggan.</li>
+          <li>3️⃣ <b>Filter variabel</b> — Pilih data yang penting untuk diproses, abaikan yang tidak perlu.</li>
+          <li>4️⃣ <b>Simpan jawabanmu</b> — Tekan tombol "Simpan" setelah selesai.</li>
         </ol>
       </div>
 
-      {/* Step 1: Queue Categories */}
+      {/* Customer Pattern Analysis */}
       <div className="rounded-2xl bg-purple-50 p-3 sm:p-4">
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">1</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">📊 Analisis Pola Pelanggan</p>
+        </div>
+        <p className="mb-2 text-[10px] font-bold text-slate-500 sm:text-xs">Perhatikan jenis pelanggan dan perilaku mereka untuk menentukan kategori antrean yang tepat.</p>
+        <div className="max-h-[180px] overflow-y-auto rounded-xl border border-purple-200 bg-white">
+          <table className="w-full text-[10px] font-bold sm:text-xs">
+            <thead className="sticky top-0 bg-purple-100">
+              <tr>
+                <th className="px-2 py-1 text-left text-purple-700">Nama</th>
+                <th className="px-2 py-1 text-center text-purple-700">Tipe</th>
+                <th className="px-2 py-1 text-center text-purple-700">Items</th>
+                <th className="px-2 py-1 text-center text-purple-700">Bayar</th>
+                <th className="px-2 py-1 text-left text-purple-700">Pola</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CUSTOMER_SCENARIOS.map(c => (
+                <tr key={c.id} className="border-t border-purple-100">
+                  <td className="px-2 py-1 font-extrabold text-slate-700">{c.name}</td>
+                  <td className="px-2 py-1 text-center">
+                    <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-extrabold ${c.type === 'regular' ? 'bg-green-100 text-green-700' : c.type === 'problem' ? 'bg-red-100 text-red-700' : c.type === 'digital' ? 'bg-sky-100 text-sky-700' : c.type === 'vip' ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'}`}>
+                      {c.type}
+                    </span>
+                  </td>
+                  <td className="px-2 py-1 text-center text-slate-600">{c.items.length}</td>
+                  <td className="px-2 py-1 text-center">
+                    {c.payment === 'pas' ? '💰' : c.payment === 'transfer' ? '📱' : '💵'}
+                  </td>
+                  <td className="px-2 py-1 text-[9px] text-slate-500">{c.pattern}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-2 grid grid-cols-4 gap-1.5 text-center">
+          <div className="rounded-lg bg-green-100 p-1">
+            <p className="text-[10px] font-extrabold text-green-700">{CUSTOMER_SCENARIOS.filter(c => c.type === 'regular').length}</p>
+            <p className="text-[8px] font-bold text-green-500">Regular</p>
+          </div>
+          <div className="rounded-lg bg-red-100 p-1">
+            <p className="text-[10px] font-extrabold text-red-700">{CUSTOMER_SCENARIOS.filter(c => c.type === 'problem').length}</p>
+            <p className="text-[8px] font-bold text-red-500">Problem</p>
+          </div>
+          <div className="rounded-lg bg-sky-100 p-1">
+            <p className="text-[10px] font-extrabold text-sky-700">{CUSTOMER_SCENARIOS.filter(c => c.type === 'digital').length}</p>
+            <p className="text-[8px] font-bold text-sky-500">Digital</p>
+          </div>
+          <div className="rounded-lg bg-amber-100 p-1">
+            <p className="text-[10px] font-extrabold text-amber-700">{CUSTOMER_SCENARIOS.filter(c => c.type === 'vip' || c.type === 'whale').length}</p>
+            <p className="text-[8px] font-bold text-amber-500">VIP/Whale</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Step 2: Queue Categories */}
+      <div className="rounded-2xl bg-purple-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">2</span>
           <p className="text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">Atur Kategori Antrean</p>
         </div>
         <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">
-          Klik untuk menyalakan/mematikan. Sistem hanya melayani kategori yang <b>aktif</b>.
+          Klik untuk menyalakan/mematikan. Sistem hanya melayani kategori yang <b>aktif</b>. Pertimbangkan pola pelanggan di atas.
         </p>
         <div className="grid grid-cols-2 gap-2">
           {QUEUE_CATEGORIES.map(cat => {
@@ -558,14 +678,14 @@ function StrategistPanel({ data, onChange, locked }) {
         </div>
       </div>
 
-      {/* Step 2: Variables */}
+      {/* Step 3: Variables */}
       <div className="rounded-2xl bg-purple-50 p-3 sm:p-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">2</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-xs font-extrabold text-white">3</span>
           <p className="text-xs font-extrabold uppercase tracking-wide text-purple-600 sm:text-sm">Pilih Variabel yang Diproses</p>
         </div>
         <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">
-          <b>Aktif</b> = data yang dibaca sistem. <b>Diacuhkan</b> = diabaikan.
+          <b>Aktif</b> = data yang dibaca sistem. <b>Diacuhkan</b> = diabaikan. Pilih yang penting untuk logika kantin.
         </p>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -637,20 +757,39 @@ function StrategistPanel({ data, onChange, locked }) {
 
 /* ─── ALGORIST PANEL (FLOWCHART) ─── */
 function AlgoristPanel({ data, onChange, locked }) {
-  const [nodes, setNodes] = useState(data?.nodes || DEFAULT_FLOWCHART_NODES)
-  const [connections, setConnections] = useState(data?.connections || DEFAULT_FLOWCHART_CONNECTIONS)
+  const [nodes, setNodes] = useState(data?.nodes || [])
+  const [connections, setConnections] = useState(data?.connections || [])
   const [selectedNode, setSelectedNode] = useState(null)
   const [saved, setSaved] = useState(!!data?.nodes)
   const [errors, setErrors] = useState([])
   const canvasRef = useRef(null)
 
+  const requiredNodes = [
+    { label: 'START', type: 'start', desc: 'Titik awal alur' },
+    { label: 'Ambil Pesanan', type: 'process', desc: 'Siswa memilih item' },
+    { label: 'Cek Stok', type: 'decision', desc: 'Apakah stok tersedia?' },
+    { label: 'Hitung Total', type: 'process', desc: 'Jumlahkan harga item' },
+    { label: 'Cek Uang', type: 'decision', desc: 'Apakah uang cukup?' },
+    { label: 'Proses Bayar', type: 'process', desc: 'Terima pembayaran' },
+    { label: 'Siapkan Pesanan', type: 'process', desc: 'Siapkan makanan/minuman' },
+    { label: 'FINISH', type: 'end', desc: 'Selesai' },
+  ]
+
   function validate() {
     const errs = []
     const hasStart = nodes.some(n => n.type === 'start')
     const hasEnd = nodes.some(n => n.type === 'end')
+    const hasDecision = nodes.some(n => n.type === 'decision')
+    const decisionCount = nodes.filter(n => n.type === 'decision').length
     if (!hasStart) errs.push('Flowchart harus punya blok START')
     if (!hasEnd) errs.push('Flowchart harus punya blok FINISH')
-    if (connections.length === 0) errs.push('Minimal ada 1 hubungan antar blok')
+    if (!hasDecision) errs.push('Minimal harus ada 1 blok Kondisi (IF) untuk keputusan')
+    if (decisionCount < 2) errs.push('Minimal 2 blok Kondisi: Cek Stok dan Cek Uang')
+    if (connections.length < 5) errs.push('Minimal harus ada 5 hubungan antar blok')
+    const hasStokDecision = nodes.some(n => n.label.toLowerCase().includes('stok'))
+    const hasUangDecision = nodes.some(n => n.label.toLowerCase().includes('uang'))
+    if (!hasStokDecision) errs.push('Harus ada blok keputusan "Cek Stok"')
+    if (!hasUangDecision) errs.push('Harus ada blok keputusan "Cek Uang"')
     return errs
   }
 
@@ -714,15 +853,34 @@ function AlgoristPanel({ data, onChange, locked }) {
           <li>1️⃣ <b>Tambah blok</b> — Klik tombol "+ Proses", "+ Kondisi (IF)", atau "+ Output".</li>
           <li>2️⃣ <b>Hubungkan blok</b> — Klik blok lalu klik "+ Hubungkan" untuk menyambung.</li>
           <li>3️⃣ <b>Edit label</b> — Klik blok untuk mengubah teksnya.</li>
-          <li>4️⃣ <b>Simpan</b> — Tekan tombol "Simpan" setelah flowchart selesai.</li>
+          <li>4️⃣ <b>Harus ada</b>: START, FINISH, Cek Stok, Cek Uang, minimal 5 koneksi.</li>
         </ol>
+      </div>
+
+      {/* Required Nodes Checklist */}
+      <div className="rounded-2xl bg-emerald-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-extrabold text-white">1</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-emerald-600 sm:text-sm">Blok yang Harus Ada</p>
+        </div>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          {requiredNodes.map(req => {
+            const exists = nodes.some(n => n.label.toLowerCase().includes(req.label.toLowerCase()))
+            return (
+              <div key={req.label} className={`rounded-lg p-2 text-center ${exists ? 'bg-green-100 border border-green-300' : 'bg-red-50 border border-red-200'}`}>
+                <p className={`text-[10px] font-extrabold ${exists ? 'text-green-700' : 'text-red-600'}`}>{exists ? '✅' : '❌'} {req.label}</p>
+                <p className="text-[8px] font-bold text-slate-400">{req.desc}</p>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Flowchart Editor */}
       <div className="rounded-2xl bg-emerald-50 p-3 sm:p-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-extrabold text-white">1</span>
-          <p className="text-xs font-extrabold uppercase tracking-wide text-emerald-600 sm:text-sm">Flowchart Editor — Core Engine</p>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-extrabold text-white">2</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-emerald-600 sm:text-sm">Flowchart Editor</p>
         </div>
 
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -738,65 +896,56 @@ function AlgoristPanel({ data, onChange, locked }) {
           </button>
         </div>
 
-        <div ref={canvasRef} className="relative min-h-[300px] rounded-xl border-2 border-dashed border-emerald-300 bg-white p-2">
-          {nodes.map(node => {
-            const isSelected = selectedNode === node.id
-            const isDecision = node.type === 'decision'
-            return (
-              <div
-                key={node.id}
-                onClick={() => { sndClick(); setSelectedNode(node.id) }}
-                className={`absolute left-1/2 flex -translate-x-1/2 cursor-pointer items-center justify-center rounded-lg border-2 px-3 py-2 text-[10px] font-extrabold transition sm:text-xs ${
-                  isSelected ? 'border-emerald-500 bg-emerald-100 shadow-lg scale-110 z-10' :
-                  isDecision ? 'border-amber-400 bg-amber-50 rotate-0' :
-                  node.type === 'start' || node.type === 'end' ? 'border-emerald-400 bg-emerald-50 rounded-full' :
-                  'border-slate-300 bg-white'
-                }`}
-                style={{ top: `${node.y}px` }}
-              >
-                {node.type === 'decision' && <span className="mr-1">◇</span>}
-                {node.label}
-                {isSelected && !locked && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeNode(node.id) }}
-                    className="ml-2 rounded-full bg-red-400 px-1.5 py-0.5 text-[8px] text-white hover:bg-red-500">✕</button>
-                )}
-              </div>
-            )
-          })}
-
-          <svg className="pointer-events-none absolute inset-0 h-full w-full">
-            {connections.map((conn, i) => {
-              const from = nodes.find(n => n.id === conn.from)
-              const to = nodes.find(n => n.id === conn.to)
-              if (!from || !to) return null
-              return (
-                <g key={i}>
-                  <line x1="50%" y1={from.y + 20} x2="50%" y2={to.y} stroke="#10b981" strokeWidth="2" strokeDasharray={conn.label ? '' : '4'} />
-                  {conn.label && (
-                    <text x="52%" y={(from.y + 20 + to.y) / 2} fill="#6b7280" fontSize="10" fontWeight="bold">{conn.label}</text>
-                  )}
-                </g>
-              )
-            })}
-          </svg>
-        </div>
-
-        {selectedNode && (
-          <div className="mt-2 rounded-xl border border-emerald-200 bg-white p-2">
-            <p className="mb-1 text-[10px] font-extrabold text-emerald-600">Edit Node Label:</p>
-            <input
-              type="text"
-              value={nodes.find(n => n.id === selectedNode)?.label || ''}
-              onChange={(e) => updateNodeLabel(selectedNode, e.target.value)}
-              disabled={locked}
-              className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-bold text-slate-700 outline-none focus:border-emerald-400 disabled:bg-slate-50"
-            />
+        {nodes.length === 0 && (
+          <div className="rounded-xl border-2 border-dashed border-emerald-300 bg-white p-6 text-center">
+            <p className="text-sm font-extrabold text-emerald-600">Mulai dari nol!</p>
+            <p className="text-xs font-bold text-slate-400">Tambah blok dengan tombol di atas.</p>
           </div>
         )}
 
-        <p className="mt-2 text-[10px] font-bold text-emerald-600 sm:text-xs">
-          💡 Tips: Flowchart harus punya START dan FINISH. Kondisi (IF) punya 2 jalur: YA dan TIDAK.
-        </p>
+        <div className="space-y-1.5">
+          {nodes.map(node => {
+            const isSelected = selectedNode === node.id
+            const connCount = connections.filter(c => c.from === node.id || c.to === node.id).length
+            return (
+              <div key={node.id}
+                className={`flex items-center gap-2 rounded-xl border-2 p-2 transition cursor-pointer ${isSelected ? 'border-emerald-500 bg-emerald-50 shadow-md' : node.type === 'start' ? 'border-green-300 bg-green-50' : node.type === 'end' ? 'border-red-300 bg-red-50' : node.type === 'decision' ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'}`}
+                onClick={() => { sndClick(); setSelectedNode(isSelected ? null : node.id) }}
+              >
+                <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold ${node.type === 'start' ? 'bg-green-500 text-white' : node.type === 'end' ? 'bg-red-500 text-white' : node.type === 'decision' ? 'bg-amber-500 text-white' : 'bg-slate-500 text-white'}`}>
+                  {node.type}
+                </span>
+                <input type="text" value={node.label} disabled={locked}
+                  onChange={(e) => updateNodeLabel(node.id, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 bg-transparent text-xs font-bold text-slate-700 outline-none"
+                />
+                <span className="text-[9px] font-bold text-slate-400">{connCount} koneksi</span>
+                <button type="button" disabled={locked} onClick={(e) => { e.stopPropagation(); sndClick(); removeNode(node.id) }}
+                  className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-extrabold text-red-600 hover:bg-red-200 disabled:opacity-50">
+                  ✕
+                </button>
+              </div>
+            )
+          })}
+        </div>
+
+        {connections.length > 0 && (
+          <div className="mt-3 rounded-xl bg-slate-100 p-2">
+            <p className="mb-1 text-[10px] font-extrabold text-slate-500">Koneksi ({connections.length})</p>
+            <div className="flex flex-wrap gap-1">
+              {connections.map((c, i) => {
+                const fromNode = nodes.find(n => n.id === c.from)
+                const toNode = nodes.find(n => n.id === c.to)
+                return (
+                  <span key={i} className="rounded-full bg-white border border-slate-200 px-2 py-0.5 text-[9px] font-bold text-slate-600">
+                    {fromNode?.label} → {toNode?.label} {c.label && `(${c.label})`}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Validation Errors */}
@@ -889,13 +1038,38 @@ function SimulatorPanel({ data, onChange }) {
       <div className="rounded-2xl bg-orange-100 p-3 sm:p-4">
         <p className="mb-1 text-sm font-extrabold text-orange-800 sm:text-base">🎯 Misi Kamu: Rancang Menu & Data Kantin</p>
         <p className="text-xs font-bold text-orange-600 sm:text-sm">
-          Sebagai <b>Interface & Data Simulator</b>, tugamu adalah merancang <b>menu makanan</b> dan <b>data pelanggan</b> untuk simulasi.
+          Sebagai <b>Interface & Data Simulator</b>, tugamu adalah <b>mengenali pola pelanggan</b> dan merancang <b>data menu</b> yang sesuai.
         </p>
         <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
-          <li>1️⃣ <b>Periksa daftar menu</b> — Pastikan semua item punya harga dan stok.</li>
-          <li>2️⃣ <b>Periksa preset pelanggan</b> — Pastikan ada data siswa untuk simulasi.</li>
-          <li>3️⃣ <b>Simpan</b> — Tekan tombol "Simpan" jika data sudah benar.</li>
+          <li>1️⃣ <b>Analisis pola pelanggan</b> — Perhatikan jenis pelanggan: regular, problem, digital, vip, whale.</li>
+          <li>2️⃣ <b>Rancang menu</b> — Atur harga dan stok sesuai pola permintaan.</li>
+          <li>3️⃣ <b>Buat preset pelanggan</b> — Pastikan ada data untuk semua jenis pola.</li>
+          <li>4️⃣ <b>Simpan</b> — Tekan tombol "Simpan" jika data sudah benar.</li>
         </ol>
+      </div>
+
+      {/* Customer Pattern Guide */}
+      <div className="rounded-2xl bg-orange-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-extrabold text-white">1</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-orange-600 sm:text-sm">📊 Panduan Pola Pelanggan</p>
+        </div>
+        <p className="mb-2 text-[10px] font-bold text-slate-500 sm:text-xs">Pahami jenis pelanggan untuk membuat data yang realistis.</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {[
+            { type: 'regular', label: 'Regular', desc: 'Uang pas, 1-2 item', color: 'green', count: CUSTOMER_SCENARIOS.filter(c => c.type === 'regular').length },
+            { type: 'problem', label: 'Problem', desc: 'Uang kurang, banyak item', color: 'red', count: CUSTOMER_SCENARIOS.filter(c => c.type === 'problem').length },
+            { type: 'digital', label: 'Digital', desc: 'Bayar transfer', color: 'sky', count: CUSTOMER_SCENARIOS.filter(c => c.type === 'digital').length },
+            { type: 'vip', label: 'VIP', desc: 'Banyak item, uang besar', color: 'amber', count: CUSTOMER_SCENARIOS.filter(c => c.type === 'vip').length },
+            { type: 'whale', label: 'Whale', desc: 'Belanja paling banyak', color: 'purple', count: CUSTOMER_SCENARIOS.filter(c => c.type === 'whale').length },
+          ].map(p => (
+            <div key={p.type} className={`rounded-lg bg-${p.color}-100 p-2 text-center`}>
+              <p className={`text-sm font-extrabold text-${p.color}-700`}>{p.count}</p>
+              <p className={`text-[10px] font-extrabold text-${p.color}-600`}>{p.label}</p>
+              <p className="text-[8px] font-bold text-slate-400">{p.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Menu Items */}
@@ -1060,13 +1234,36 @@ function QAPanel({ data, onChange, teamId, locked }) {
       <div className="rounded-2xl bg-red-100 p-3 sm:p-4">
         <p className="mb-1 text-sm font-extrabold text-red-800 sm:text-base">🎯 Misi Kamu: Siapkan Serangan Stress-Test</p>
         <p className="text-xs font-bold text-red-600 sm:text-sm">
-          Sebagai <b>Test Evaluator / QA</b>, tugamu adalah menyiapkan <b>10 skenario kacau</b> untuk menyerang sistem <b>{TEAMS[opponentTeam].name}</b>.
+          Sebagai <b>Test Evaluator / QA</b>, tugamu adalah <b>menganalisis bug</b> dan menyiapkan <b>test script</b> untuk menyerang sistem <b>{TEAMS[opponentTeam].name}</b>.
         </p>
         <ol className="mt-2 space-y-1 text-xs font-bold text-slate-600 sm:text-sm">
-          <li>1️⃣ <b>Pilih test script</b> — Aktifkan minimal 5 skenario yang ingin dikirim.</li>
-          <li>2️⃣ <b>Periksa jenis skenario</b> — Ada edge-case, stress, dan bug.</li>
-          <li>3️⃣ <b>Simpan</b> — Tekan tombol "Simpan" untuk mengunci pilihanmu.</li>
+          <li>1️⃣ <b>Pahami jenis error</b> — Ada edge-case, stress, dan bug. Pahami apa yang diuji.</li>
+          <li>2️⃣ <b>Pilih test script</b> — Aktifkan minimal 5 skenario yang ingin dikirim.</li>
+          <li>3️⃣ <b>Perhatikan input</b> — Setiap test punya input spesifik yang harus dipahami.</li>
+          <li>4️⃣ <b>Simpan</b> — Tekan tombol "Simpan" untuk mengunci pilihanmu.</li>
         </ol>
+      </div>
+
+      {/* Debugging Guide */}
+      <div className="rounded-2xl bg-red-50 p-3 sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-extrabold text-white">1</span>
+          <p className="text-xs font-extrabold uppercase tracking-wide text-red-600 sm:text-sm">📖 Panduan Debugging</p>
+        </div>
+        <p className="mb-2 text-[10px] font-bold text-slate-500 sm:text-xs">Pahami jenis-jenis test untuk menyerang dengan efektif.</p>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { type: 'edge-case', label: 'Edge Case', desc: 'Situasi batas/ekstrem', color: 'amber', icon: '⚡' },
+            { type: 'stress', label: 'Stress Test', desc: 'Beban berat/many', color: 'orange', icon: '🔥' },
+            { type: 'bug', label: 'Bug Hunt', desc: 'Cari kelemahan sistem', color: 'red', icon: '🐛' },
+          ].map(t => (
+            <div key={t.type} className={`rounded-lg bg-${t.color}-100 p-2 text-center`}>
+              <p className="text-lg">{t.icon}</p>
+              <p className={`text-[10px] font-extrabold text-${t.color}-700`}>{t.label}</p>
+              <p className="text-[8px] font-bold text-slate-400">{t.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Test Scripts */}
