@@ -1093,7 +1093,7 @@ function DevelopmentScreen({ player, teamId, role, store, onUpdate, timer, onExi
 }
 
 /* ─── PHASE 3: BUILD ─── */
-function BuildScreen({ teamId, store, onDeploy, onExit }) {
+function BuildScreen({ teamId, store, onDeploy, onExit, timerWarning, onDismissWarning }) {
   const teamData = store.teams[teamId]
   const reqOk = teamData.requirements?.validated
   const rulesOk = teamData.rules?.validated
@@ -1105,6 +1105,18 @@ function BuildScreen({ teamId, store, onDeploy, onExit }) {
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-amber-200 via-orange-100 to-yellow-200">
+      {timerWarning && (
+        <div className="animate-pop-in fixed inset-x-4 top-4 z-50 mx-auto max-w-xl rounded-2xl border-2 border-red-400 bg-red-50 p-4 shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl" aria-hidden="true">🚨</span>
+            <div className="flex-1">
+              <p className="text-sm font-extrabold uppercase tracking-wide text-red-600">Deploy Gagal!</p>
+              <p className="mt-1 text-base font-bold text-red-800 sm:text-lg">Masih ada role yang belum simpan jawaban. Minta mereka segera menekan "Simpan Jawaban"!</p>
+            </div>
+            <button type="button" onClick={onDismissWarning} className="rounded-full bg-red-200 px-3 py-1 text-xs font-extrabold text-red-700 hover:bg-red-300">✕</button>
+          </div>
+        </div>
+      )}
       <TopBar onExit={onExit} right={<TeamBadge teamId={teamId} compact />} title="Build & Integrasi" />
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-6">
         <div className="animate-pop-in flex w-full max-w-xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-8">
@@ -1116,25 +1128,30 @@ function BuildScreen({ teamId, store, onDeploy, onExit }) {
 
           <div className="w-full space-y-2">
             {[
-              { label: '📊 PC1: Analisis Masalah', ok: reqOk, hint: 'Analyst harus simpan jawaban' },
-              { label: '⚙️ PC2: Aturan & Parameter', ok: rulesOk, hint: 'Strategist harus simpan jawaban' },
-              { label: '🔗 PC3: Flowchart Logika', ok: flowOk, hint: 'Algorist harus simpan jawaban' },
-              { label: '🎨 PC4: Menu & Data', ok: menuOk, hint: 'Simulator harus simpan jawaban' },
+              { label: '📊 PC1: Analisis Masalah', ok: reqOk, hint: 'Analyst harus simpan jawaban', role: 'analyst' },
+              { label: '⚙️ PC2: Aturan & Parameter', ok: rulesOk, hint: 'Strategist harus simpan jawaban', role: 'strategist' },
+              { label: '🔗 PC3: Flowchart Logika', ok: flowOk, hint: 'Algorist harus simpan jawaban', role: 'algorist' },
+              { label: '🎨 PC4: Menu & Data', ok: menuOk, hint: 'Simulator harus simpan jawaban', role: 'simulator' },
             ].map((item, i) => (
-              <div key={i} className={`flex items-center justify-between rounded-xl border-2 p-3 ${item.ok ? 'border-green-300 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
+              <div key={i} className={`flex items-center justify-between rounded-xl border-2 p-3 ${item.ok ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}>
                 <div>
                   <span className="text-sm font-extrabold text-slate-700">{item.label}</span>
-                  {!item.ok && <p className="text-[10px] font-bold text-amber-600">{item.hint}</p>}
+                  {!item.ok && <p className="text-[10px] font-bold text-red-600">❌ {item.hint}</p>}
                 </div>
-                <span className={`text-lg ${item.ok ? 'text-green-500' : 'text-amber-400'}`}>{item.ok ? '✅' : '⏳'}</span>
+                <span className={`text-lg ${item.ok ? 'text-green-500' : 'text-red-400'}`}>{item.ok ? '✅' : '❌'}</span>
               </div>
             ))}
           </div>
 
           {!allReady && (
-            <p className="text-[10px] font-bold text-amber-600 sm:text-xs">
-              ⚠️ Semua role harus menekan "Simpan Jawaban" sebelum deploy.
-            </p>
+            <div className="w-full rounded-2xl border-2 border-red-300 bg-red-50 p-3">
+              <p className="text-xs font-extrabold text-red-600 sm:text-sm">
+                ⚠️ TIDAK BISA DEPLOY! Semua role harus menekan "Simpan Jawaban" terlebih dahulu.
+              </p>
+              <p className="mt-1 text-[10px] font-bold text-red-500 sm:text-xs">
+                Kembali ke halaman modul masing-masing dan tekan tombol simpan.
+              </p>
+            </div>
           )}
 
           <button
@@ -1479,16 +1496,36 @@ export default function KantinGame({ onExit }) {
     return () => channel.removeEventListener('message', listener)
   }, [])
 
+  const [timerWarning, setTimerWarning] = useState(false)
+
   useEffect(() => {
     if (screen === 'briefing' || screen === 'development' || screen === 'build' || screen === 'stresstest') {
       timerRef.current = setInterval(() => {
         setTimer(prev => {
+          if (prev <= 60 && prev > 59 && screen === 'development') {
+            setTimerWarning(true)
+            sndAlarm()
+          }
           if (prev <= 1) {
             clearInterval(timerRef.current)
-            if (screen === 'briefing') setScreen('development')
-            else if (screen === 'development') setScreen('build')
-            else if (screen === 'build') setScreen('stresstest')
-            else if (screen === 'stresstest') setScreen('leaderboard')
+            if (screen === 'briefing') {
+              setScreen('development')
+            } else if (screen === 'development') {
+              setScreen('build')
+            } else if (screen === 'build') {
+              const teamData = store.teams[teamId]
+              const allValidated = teamData.requirements?.validated && teamData.rules?.validated && teamData.flowchart?.validated && teamData.menu?.validated
+              if (!allValidated) {
+                setTimerWarning(true)
+                sndError()
+                return 60
+              }
+              setScreen('stresstest')
+              setTimer(PHASE_DURATIONS.test)
+            } else if (screen === 'stresstest') {
+              setScreen('leaderboard')
+            }
+            setTimerWarning(false)
             return 0
           }
           return prev - 1
@@ -1496,7 +1533,7 @@ export default function KantinGame({ onExit }) {
       }, 1000)
       return () => clearInterval(timerRef.current)
     }
-  }, [screen])
+  }, [screen, store, teamId])
 
   function broadcast(updated) {
     if (typeof BroadcastChannel !== 'undefined') {
@@ -1557,8 +1594,24 @@ export default function KantinGame({ onExit }) {
   if (screen === 'login') return <LoginScreen onJoin={handleJoin} onExit={onExit} />
   if (screen === 'roleSelect') return <RoleSelectScreen player={player} teamId={teamId} onSelect={handleRoleSelect} onExit={onExit} />
   if (screen === 'briefing') return <BriefingScreen player={player} teamId={teamId} role={role} timer={timer} onReady={() => { setTimer(PHASE_DURATIONS.develop); setScreen('development') }} onExit={onExit} />
-  if (screen === 'development') return <DevelopmentScreen player={player} teamId={teamId} role={role} store={store} onUpdate={handleUpdate} timer={timer} onExit={onExit} />
-  if (screen === 'build') return <BuildScreen teamId={teamId} store={store} onDeploy={handleDeploy} onExit={onExit} />
+  if (screen === 'development') return (
+    <>
+      {timerWarning && (
+        <div className="animate-pop-in fixed inset-x-4 top-4 z-50 mx-auto max-w-xl rounded-2xl border-2 border-amber-400 bg-amber-50 p-4 shadow-2xl sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl" aria-hidden="true">⏰</span>
+            <div className="flex-1">
+              <p className="text-sm font-extrabold uppercase tracking-wide text-amber-600">Waktu Habis 1 Menit Lagi!</p>
+              <p className="mt-1 text-base font-bold text-amber-800 sm:text-lg">Segera tekan "Simpan Jawaban" sebelum waktu habis!</p>
+            </div>
+            <button type="button" onClick={() => setTimerWarning(false)} className="rounded-full bg-amber-200 px-3 py-1 text-xs font-extrabold text-amber-700 hover:bg-amber-300">✕</button>
+          </div>
+        </div>
+      )}
+      <DevelopmentScreen player={player} teamId={teamId} role={role} store={store} onUpdate={handleUpdate} timer={timer} onExit={onExit} />
+    </>
+  )
+  if (screen === 'build') return <BuildScreen teamId={teamId} store={store} onDeploy={handleDeploy} onExit={onExit} timerWarning={timerWarning} onDismissWarning={() => setTimerWarning(false)} />
   if (screen === 'stresstest') return <StressTestScreen player={player} teamId={teamId} role={role} store={store} onUpdate={handleUpdate} timer={timer} onExit={onExit} />
   if (screen === 'leaderboard') return <LeaderboardScreen store={store} onExit={onExit} onRestart={handleRestart} />
 
