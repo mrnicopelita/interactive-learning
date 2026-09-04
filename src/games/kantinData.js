@@ -3,6 +3,19 @@ export const TEAMS = {
   B: { name: 'Tim Beta', emoji: '🔵', color: 'blue', size: 5 },
 }
 
+export const STUDENTS = [
+  { name: 'BEBBI NURDUDU APRILIA LAHAY', team: 'A' },
+  { name: 'CHRIS SAMMON SIBURIAN', team: 'A' },
+  { name: 'GISELVIN QUEENSHA', team: 'A' },
+  { name: 'AVARA SHEELA KETAREN', team: 'B' },
+  { name: 'BELVIANIA ALENA SINAGA', team: 'B' },
+  { name: 'KARSTEN RAYNELL BRAHMANA', team: 'A' },
+  { name: 'JOSE ALVARO RIDENSON SIMBOLON', team: 'B' },
+  { name: 'MIKHAULI GRISELDA SIREGAR', team: 'A' },
+  { name: 'ADIPATI MUHAMMAD AR RASYID HADININGRAT', team: 'B' },
+  { name: 'ABIGAIL SUGIARTO LEE', team: 'B' },
+]
+
 export const ROLES = [
   { id: 'analyst', name: 'System Analyst', icon: '📊', module: 'Modul Dekomposisi', desc: 'Menganalisis masalah kantin dan menentukan metrik objektif' },
   { id: 'strategist', name: 'Solution Strategist', icon: '⚙️', module: 'Modul Abstraksi', desc: 'Mengatur aturan antrean dan filter variabel' },

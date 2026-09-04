@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 import {
-  TEAMS, ROLES, MENU_ITEMS, QUEUE_CATEGORIES,
+  TEAMS, ROLES, MENU_ITEMS, QUEUE_CATEGORIES, STUDENTS,
   DEFAULT_FLOWCHART_NODES, DEFAULT_FLOWCHART_CONNECTIONS,
   CUSTOMER_PRESETS, TEST_SCRIPTS, PROBLEMS_TEMPLATE, OBJECTIVE_METRICS,
   SCORING_WEIGHTS, PHASE_DURATIONS,
@@ -163,8 +163,8 @@ function BugAlert({ bug, onDismiss }) {
 
 /* ─── LOGIN SCREEN ─── */
 function LoginScreen({ onJoin, onExit }) {
-  const [name, setName] = useState('')
-  const [team, setTeam] = useState(null)
+  const [selectedName, setSelectedName] = useState('')
+  const student = selectedName ? STUDENTS.find(s => s.name === selectedName) : null
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-amber-200 via-orange-100 to-yellow-200">
@@ -186,36 +186,32 @@ function LoginScreen({ onJoin, onExit }) {
           </div>
 
           <label className="flex w-full flex-col gap-2 text-left">
-            <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase">Nama Siswa</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ketik nama kamu..."
-              className="w-full rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-lg font-bold text-slate-700 outline-none focus:border-amber-500 sm:text-xl"
-            />
+            <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase">Pilih Nama Kamu</span>
+            <select
+              value={selectedName}
+              onChange={(e) => { sndClick(); setSelectedName(e.target.value) }}
+              className="w-full rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-center text-lg font-bold text-slate-700 outline-none focus:border-amber-500 sm:text-xl"
+            >
+              <option value="">— Pilih Siswa —</option>
+              {STUDENTS.map(s => (
+                <option key={s.name} value={s.name}>{s.name}</option>
+              ))}
+            </select>
           </label>
 
-          <div className="flex w-full flex-col gap-3">
-            <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase">Pilih Tim</span>
-            <div className="flex gap-3">
-              {Object.entries(TEAMS).map(([id, team]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => { sndClick(); setTeam(id) }}
-                  className={`flex-1 rounded-2xl border-3 px-4 py-3 text-lg font-extrabold transition sm:text-xl ${team === id ? `border-${TEAM_STYLE[id].chip} bg-gradient-to-r ${TEAM_STYLE[id].grad} text-white scale-105 shadow-lg` : 'border-slate-200 bg-white text-slate-600 hover:scale-105'}`}
-                >
-                  {team.emoji} {team.name}
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-sm font-bold text-slate-400">Tim:</span>
+            {student ? (
+              <TeamBadge teamId={student.team} />
+            ) : (
+              <span className="text-sm font-bold text-slate-300">—</span>
+            )}
           </div>
 
           <button
             type="button"
-            disabled={!name.trim() || !team}
-            onClick={() => { sndClick(); onJoin(name.trim(), team) }}
+            disabled={!student}
+            onClick={() => { sndClick(); onJoin(student.name, student.team) }}
             className="w-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
           >
             Masuk ke Kantin 🍽️
