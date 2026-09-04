@@ -823,8 +823,8 @@ function AlgoristPanel({ data, onChange, locked }) {
 
 /* ─── SIMULATOR PANEL ─── */
 function SimulatorPanel({ data, onChange }) {
-  const [menuItems] = useState(data?.menuItems || MENU_ITEMS)
-  const [presets] = useState(data?.presets || CUSTOMER_PRESETS)
+  const [menuItems, setMenuItems] = useState(data?.menuItems || MENU_ITEMS)
+  const [presets, setPresets] = useState(data?.presets || CUSTOMER_PRESETS)
   const [saved, setSaved] = useState(!!data?.menuItems)
   const [errors, setErrors] = useState([])
 
@@ -851,6 +851,38 @@ function SimulatorPanel({ data, onChange }) {
     }
   }
 
+  function updateMenuItem(id, field, value) {
+    setMenuItems(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item))
+    setSaved(false)
+  }
+
+  function addMenuItem() {
+    const id = `item-${Date.now()}`
+    setMenuItems(prev => [...prev, { id, name: 'Menu Baru', price: 0, prepTime: 10, category: 'snack', stock: 0 }])
+    setSaved(false)
+  }
+
+  function removeMenuItem(id) {
+    setMenuItems(prev => prev.filter(item => item.id !== id))
+    setSaved(false)
+  }
+
+  function addPreset() {
+    const id = `c-${Date.now()}`
+    setPresets(prev => [...prev, { id, name: 'Siswa Baru', items: [], payment: 'tunai', amount: 0, desc: 'Preset baru' }])
+    setSaved(false)
+  }
+
+  function removePreset(id) {
+    setPresets(prev => prev.filter(p => p.id !== id))
+    setSaved(false)
+  }
+
+  function updatePreset(id, field, value) {
+    setPresets(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
+    setSaved(false)
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {/* Mission Brief */}
@@ -872,26 +904,47 @@ function SimulatorPanel({ data, onChange }) {
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-extrabold text-white">1</span>
           <p className="text-xs font-extrabold uppercase tracking-wide text-orange-600 sm:text-sm">Daftar Menu Kantin</p>
         </div>
-        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Data ini akan digunakan oleh sistem saat memproses pesanan.</p>
-        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Edit harga dan stok setiap item. Data ini akan digunakan oleh sistem saat memproses pesanan.</p>
+        <div className="space-y-2">
           {menuItems.map(item => {
             const ok = item.price > 0 && item.stock > 0
             return (
-              <div key={item.id} className={`flex items-center gap-2 rounded-xl border p-2 ${ok ? 'border-green-200 bg-white' : 'border-red-200 bg-red-50'}`}>
-                <div className="flex-1">
+              <div key={item.id} className={`rounded-xl border-2 p-3 ${ok ? 'border-green-200 bg-white' : 'border-red-200 bg-red-50'}`}>
+                <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <p className="text-xs font-extrabold text-slate-700">{item.name}</p>
                     {ok ? <span className="text-xs text-green-500">✅</span> : <span className="text-xs text-red-500">⚠️</span>}
                   </div>
-                  <p className="text-[10px] font-bold text-slate-400">Rp {item.price.toLocaleString()} · {item.prepTime}s · Stok: {item.stock}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold ${item.category === 'berat' ? 'bg-amber-100 text-amber-700' : item.category === 'minuman' ? 'bg-sky-100 text-sky-700' : 'bg-purple-100 text-purple-700'}`}>
+                    {item.category}
+                  </span>
                 </div>
-                <span className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold ${item.category === 'berat' ? 'bg-amber-100 text-amber-700' : item.category === 'minuman' ? 'bg-sky-100 text-sky-700' : 'bg-purple-100 text-purple-700'}`}>
-                  {item.category}
-                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-slate-400">Harga (Rp)</span>
+                    <input type="number" value={item.price}
+                      onChange={(e) => updateMenuItem(item.id, 'price', Number(e.target.value))}
+                      className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-bold text-slate-400">Stok</span>
+                    <input type="number" value={item.stock}
+                      onChange={(e) => updateMenuItem(item.id, 'stock', Number(e.target.value))}
+                      className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
+                    />
+                  </label>
+                </div>
+                <button type="button" onClick={() => { sndClick(); removeMenuItem(item.id) }}
+                  className="mt-1 text-[9px] font-bold text-red-400 hover:text-red-600">✕ Hapus</button>
               </div>
             )
           })}
         </div>
+        <button type="button" onClick={() => { sndClick(); addMenuItem() }}
+          className="mt-2 w-full rounded-full border-2 border-dashed border-orange-300 bg-white px-4 py-2 text-xs font-extrabold text-orange-500 transition hover:bg-orange-50">
+          + Tambah Menu Baru
+        </button>
       </div>
 
       {/* Customer Presets */}
@@ -900,18 +953,49 @@ function SimulatorPanel({ data, onChange }) {
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-extrabold text-white">2</span>
           <p className="text-xs font-extrabold uppercase tracking-wide text-orange-600 sm:text-sm">Preset Pelanggan</p>
         </div>
-        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Data ini menjadi dummy pelanggan saat simulasi berjalan.</p>
-        <div className="space-y-1.5">
+        <p className="mb-3 text-[10px] font-bold text-slate-500 sm:text-xs">Edit data siswa untuk simulasi. Data ini menjadi dummy pelanggan saat simulasi berjalan.</p>
+        <div className="space-y-2">
           {presets.map(p => (
-            <div key={p.id} className="rounded-xl border border-orange-200 bg-white p-2">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-extrabold text-slate-700">{p.name}</p>
-                <span className="text-[10px] font-bold text-slate-400">{p.payment === 'pas' ? '💰 Uang Pas' : p.payment === 'transfer' ? '📱 Transfer' : '💵 Tunai'}</span>
+            <div key={p.id} className="rounded-xl border-2 border-orange-200 bg-white p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <input type="text" value={p.name}
+                  onChange={(e) => updatePreset(p.id, 'name', e.target.value)}
+                  className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-xs font-extrabold text-slate-700 outline-none focus:border-orange-400"
+                />
+                <select value={p.payment}
+                  onChange={(e) => updatePreset(p.id, 'payment', e.target.value)}
+                  className="rounded-lg border border-slate-200 px-2 py-1 text-[10px] font-bold text-slate-600 outline-none focus:border-orange-400"
+                >
+                  <option value="tunai">💵 Tunai</option>
+                  <option value="pas">💰 Uang Pas</option>
+                  <option value="transfer">📱 Transfer</option>
+                </select>
               </div>
-              <p className="text-[10px] font-bold text-slate-500">{p.desc}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex flex-col gap-0.5">
+                  <span className="text-[9px] font-bold text-slate-400">Uang Dibawa (Rp)</span>
+                  <input type="number" value={p.amount}
+                    onChange={(e) => updatePreset(p.id, 'amount', Number(e.target.value))}
+                    className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
+                  />
+                </label>
+                <label className="flex flex-col gap-0.5">
+                  <span className="text-[9px] font-bold text-slate-400">Keterangan</span>
+                  <input type="text" value={p.desc}
+                    onChange={(e) => updatePreset(p.id, 'desc', e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 px-2 py-1 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
+                  />
+                </label>
+              </div>
+              <button type="button" onClick={() => { sndClick(); removePreset(p.id) }}
+                className="mt-1 text-[9px] font-bold text-red-400 hover:text-red-600">✕ Hapus</button>
             </div>
           ))}
         </div>
+        <button type="button" onClick={() => { sndClick(); addPreset() }}
+          className="mt-2 w-full rounded-full border-2 border-dashed border-orange-300 bg-white px-4 py-2 text-xs font-extrabold text-orange-500 transition hover:bg-orange-50">
+          + Tambah Preset Baru
+        </button>
       </div>
 
       {/* Validation Errors */}
