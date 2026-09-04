@@ -7,7 +7,7 @@ export const MISSION_TEAMS = {
     codename: 'Orion Test Trajectory',
     emoji: '🛰️',
     mission: 'Verify shield temperatures & unmanned flight telemetry.',
-    size: 6,
+    size: 4,
   },
   'artemis-2': {
     name: 'Artemis 2',
@@ -21,26 +21,22 @@ export const MISSION_TEAMS = {
     codename: 'Lunar South Pole Landing',
     emoji: '🌙',
     mission: 'Calibrate Starship HLS descent thrusters and oxygen reserves.',
-    size: 5,
+    size: 3,
   },
 }
 
 export const STUDENTS_DATA = {
-  Lionel:   { team: 'artemis-1', row: 3,  data: [14, 22, 22, 18, 14] },
-  Griffino: { team: 'artemis-1', row: 4,  data: [18, 14, 18, 24, 14] },
-  Jephtah:  { team: 'artemis-1', row: 5,  data: [20, 16, 20, 25, 16] },
-  Timothy:  { team: 'artemis-1', row: 6,  data: [12, 30, 12, 15, 12] },
-  Sarah:    { team: 'artemis-1', row: 7,  data: [15, 25, 15, 20, 25] },
-  Axel:     { team: 'artemis-1', row: 8,  data: [17, 21, 21, 17, 21] },
-  Melody:   { team: 'artemis-2', row: 13, data: [22, 18, 22, 25, 18] },
-  Luna:     { team: 'artemis-2', row: 14, data: [15, 19, 15, 22, 19] },
-  Angel:    { team: 'artemis-2', row: 15, data: [30, 25, 25, 20, 25] },
-  Abigail:  { team: 'artemis-2', row: 16, data: [15, 31, 15, 20, 15] },
-  Jill:     { team: 'artemis-3', row: 21, data: [16, 16, 20, 16, 22] },
-  Jaden:    { team: 'artemis-3', row: 22, data: [25, 21, 25, 18, 21] },
-  Aireen:   { team: 'artemis-3', row: 23, data: [12, 15, 15, 18, 15] },
-  Queency:  { team: 'artemis-3', row: 24, data: [18, 22, 22, 18, 22] },
-  Nael:     { team: 'artemis-3', row: 25, data: [20, 24, 20, 20, 24] },
+  'Alvin Ale Pierre Migasa':       { team: 'artemis-1', row: 3,  data: [22.4, 18.2, 22.4, 26.3, 20.7] },
+  'Jason Aquilla':                 { team: 'artemis-1', row: 4,  data: [31.0, 27.5, 31.0, 24.8, 31.0] },
+  'Jonathan Oliver Sumantri':      { team: 'artemis-1', row: 5,  data: [15.2, 19.6, 15.2, 22.1, 17.4] },
+  'Kalinka Raisa Hadisoeganda':    { team: 'artemis-1', row: 6,  data: [28.4, 28.4, 21.6, 23.9, 25.2] },
+  'Luis Antonio August Loprang':   { team: 'artemis-2', row: 13, data: [19.5, 24.1, 19.5, 27.3, 22.0] },
+  'Moreno Nelson Chioda':          { team: 'artemis-2', row: 14, data: [26.2, 26.2, 26.2, 23.1, 25.8] },
+  'Robel Enzo':                    { team: 'artemis-2', row: 15, data: [14.7, 18.9, 20.5, 18.9, 16.4] },
+  'Russel Cornelis Spielberg Isakh': { team: 'artemis-2', row: 16, data: [32.1, 28.6, 32.1, 25.0, 30.2] },
+  'Zachary Jemuel Marvelian':      { team: 'artemis-3', row: 21, data: [23.6, 19.8, 23.6, 27.4, 21.2] },
+  'Javas Satya Wicaksana':         { team: 'artemis-3', row: 22, data: [18.4, 18.4, 24.7, 22.9, 18.4] },
+  'Kimy Kimory Manuela Cee':       { team: 'artemis-3', row: 23, data: [12.8, 17.5, 17.5, 20.9, 15.1] },
 }
 
 export const SENSOR_NAMES = ['Radiation', 'O₂', 'Temp', 'Thruster', 'PSI']
