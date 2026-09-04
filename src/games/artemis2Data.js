@@ -3,21 +3,21 @@ export const GOOGLE_SHEET_URL =
 
 export const MISSION_TEAMS = {
   'artemis2-1': {
-    name: 'Artemis II',
+    name: 'Orion',
     codename: 'Crewed Lunar Flyby',
     emoji: '🧑‍🚀',
-    mission: 'Verify crewed trajectory & life support telemetry for the Artemis II crewed mission.',
+    mission: 'Verify crewed trajectory & life support telemetry for the crewed mission.',
     size: 3,
   },
   'artemis2-2': {
-    name: 'Artemis II',
+    name: 'Discovery',
     codename: 'Deep Space Gateway',
     emoji: '🪐',
     mission: 'Calibrate deep-space nav beacons for the orbital insertion burn.',
     size: 2,
   },
   'artemis2-3': {
-    name: 'Artemis II',
+    name: 'Voyager',
     codename: 'Lunar Orbit Rendezvous',
     emoji: '🌕',
     mission: 'Synchronize docking telemetry for the lunar orbit rendezvous window.',
