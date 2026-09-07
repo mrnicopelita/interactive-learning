@@ -7,9 +7,12 @@ import {
   SENSOR_NAMES,
   METRICS,
 } from './artemisData.js'
+import { supabase } from '../lib/supabase.js'
 
 const STORAGE_KEY = 'artemis-telemetry-v2'
 const CHANNEL_NAME = 'artemis-telemetry'
+const REMOTE_TABLE = 'artemis_telemetry'
+const REMOTE_KEY = 'artemis-telemetry-v2'
 
 const TEAM_STYLE = {
   'artemis-1': {
@@ -82,6 +85,35 @@ function loadStore() {
     /* ignore */
   }
   return { ...DEFAULT_STORE }
+}
+
+function mergeStores(local, remote) {
+  if (!remote) return local
+  return {
+    submits: { ...local.submits, ...(remote.submits || {}) },
+    teams: { ...local.teams, ...(remote.teams || {}) },
+  }
+}
+
+async function pushRemoteStore(store) {
+  if (!supabase) return
+  try {
+    const { error } = await supabase
+      .from(REMOTE_TABLE)
+      .upsert(
+        {
+          game_key: REMOTE_KEY,
+          store,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'game_key' },
+      )
+    if (error && typeof console !== 'undefined') {
+      console.warn('Artemis sync push failed:', error.message)
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 function sum(list) {
@@ -1442,10 +1474,49 @@ export default function ArtemisGame({ onExit }) {
     if (typeof BroadcastChannel === 'undefined') return undefined
     const channel = new BroadcastChannel(CHANNEL_NAME)
     const listener = (e) => {
-      if (e.data?.type === 'store' && e.data.store) setStore(e.data.store)
+      if (e.data?.type === 'store' && e.data.store) {
+        setStore((prev) => mergeStores(prev, e.data.store))
+      }
     }
     channel.addEventListener('message', listener)
     return () => channel.removeEventListener('message', listener)
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return undefined
+
+    const channel = supabase
+      .channel('artemis-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: REMOTE_TABLE,
+          filter: `game_key=eq.${REMOTE_KEY}`,
+        },
+        (payload) => {
+          const storeNow = payload.new?.store
+          if (storeNow) setStore((prev) => mergeStores(prev, storeNow))
+        },
+      )
+      .subscribe()
+
+    supabase
+      .from(REMOTE_TABLE)
+      .select('store')
+      .eq('game_key', REMOTE_KEY)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.store) setStore((prev) => mergeStores(prev, data.store))
+      })
+      .catch(() => {
+        /* ignore */
+      })
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const allCleared = Object.keys(MISSION_TEAMS).every(
@@ -1493,6 +1564,7 @@ export default function ArtemisGame({ onExit }) {
         },
       }
       broadcast(next)
+      pushRemoteStore(next)
       return next
     })
   }
@@ -1524,13 +1596,17 @@ export default function ArtemisGame({ onExit }) {
       }
       if (perfect && !alreadyCleared) sndAlarm()
       broadcast(next)
+      pushRemoteStore(next)
       return next
     })
   }
 
   function handleReset() {
     if (!window.confirm('Reset all mission telemetry data?')) return
-    setStore({ ...DEFAULT_STORE })
+    const fresh = { ...DEFAULT_STORE }
+    setStore(fresh)
+    broadcast(fresh)
+    pushRemoteStore(fresh)
     setScreen('login')
     setPlayer(null)
     launchRef.current = false
@@ -1549,7 +1625,10 @@ export default function ArtemisGame({ onExit }) {
   }
 
   function restart() {
-    setStore({ ...DEFAULT_STORE })
+    const fresh = { ...DEFAULT_STORE }
+    setStore(fresh)
+    broadcast(fresh)
+    pushRemoteStore(fresh)
     setPlayer(null)
     setScreen('login')
     launchRef.current = false
