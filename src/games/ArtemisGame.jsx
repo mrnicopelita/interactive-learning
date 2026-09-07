@@ -49,16 +49,24 @@ const INTRO_LINES = [
     id: 'PERHATIAN SEMUA PENGENDALI PENERBANGAN…',
   },
   {
-    en: "SOLAR ACTIVITY REPORT: a coronal mass ejection from the Sun has just struck NASA's Deep Space Network.",
-    id: 'LAPORAN AKTIVITAS MATAHARI: lontaran massa korona baru saja menghantam Jaringan Luar Angkasa Dalam milik NASA.',
+    en: 'REPORT: Today is 7 AUGUST 2027. Artemis 1 and Artemis 2 have flown — BOTH MISSIONS SUCCESSFUL. The final target is the Moon landing: ARTEMIS 3, launching on 1 OCTOBER 2027.',
+    id: 'LAPORAN: Hari ini 7 AGUSTUS 2027. Artemis 1 dan Artemis 2 telah terbang — KEDUA MISI SUKSES. Target terakhir adalah pendaratan di Bulan: ARTEMIS 3, diluncurkan pada 1 OKTOBER 2027.',
   },
   {
-    en: 'Three years of Artemis telemetry — Orion Test, Crewed Lunar Flyby, and the South Pole Landing — arrived scrambled into one massive unsorted data stream.',
-    id: 'Data telemetri tiga misi Artemis — Orion Test, Terbang Lintas Berawak, dan Pendaratan Kutub Selatan — tiba teracak dalam satu aliran data raksasa yang belum diurutkan.',
+    en: 'THE COUNTDOWN IS LIVE. Every engineer must finish their work and hand in their found numbers before the Artemis 3 launch window opens.',
+    id: 'HITUNG MUNDUR SUDAH BERJALAN. Setiap teknisi harus menyelesaikan pekerjaannya dan menyerahkan angka temuannya sebelum jendela peluncuran Artemis 3 terbuka.',
   },
   {
-    en: 'NO MISSION CONTROL CAN CLEAR ORION FOR ORBITAL INSERTION until every core telemetry metric is computed and verified live.',
-    id: 'Mission Control TIDAK BISA menyiapkan Orion untuk masuk orbit sampai seluruh metrik telemetri inti dihitung dan diverifikasi.',
+    en: 'ARTEMIS 3 IS ON THE PAD. Every engineering team must compute the 6 core values — SUM, AVERAGE, MIN, MAX, MODE and MEDIAN — and relay them to Mission Control.',
+    id: 'ARTEMIS 3 SUDAH DI LANDASAN. Setiap tim teknik harus menghitung 6 nilai inti — SUM, AVERAGE, MIN, MAX, MODE, dan MEDIAN — lalu mengirimkannya ke Mission Control.',
+  },
+  {
+    en: 'The Artemis 1 team computes its numbers for Artemis 3. The Artemis 2 team does the same. And the Artemis 3 team computes the numbers for its own descent systems.',
+    id: 'Tim Artemis 1 menghitung angkanya untuk Artemis 3. Tim Artemis 2 melakukan hal yang sama. Dan tim Artemis 3 menghitung angka untuk sistem pendaratannya sendiri.',
+  },
+  {
+    en: 'NO MISSION CONTROL CAN CLEAR ARTEMIS 3 FOR LIFTOFF until every core telemetry metric is computed and verified live.',
+    id: 'Mission Control TIDAK BISA mengizinkan Artemis 3 lepas landas sampai seluruh metrik telemetri inti dihitung dan diverifikasi.',
   },
   {
     en: 'TEAM ASSIGNMENTS DECODED. {name}, report to your station. The launch window is open… but not for long.',
@@ -315,7 +323,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="flex items-center gap-2">
             <span className="animate-alert-pulse h-3 w-3 rounded-full bg-red-500" aria-hidden="true" />
             <span className="animate-alert-pulse font-mono text-[11px] font-extrabold tracking-widest text-red-400 sm:text-sm">
-              ⚠ SOLAR FLARE WARNING · PERINGATAN LETAUSAN MATAHARI
+              ⚠ ARTEMIS 3 LAUNCH SEQUENCE · URUTAN PELUNCURAN ARTEMIS 3
             </span>
           </div>
           <button
@@ -368,8 +376,8 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   </span>
                 </div>
                 <p className="font-mono text-sm font-bold text-slate-300 sm:text-base">
-                  {player}, the fleet is counting on you. Go to your station! ·{' '}
-                  {player}, seluruh armada mengandalkanmu. Segera ke posisimu!
+                  {player}, Artemis 3 is waiting on your numbers. Go to your station! ·{' '}
+                  {player}, Artemis 3 menunggu angkamu. Segera ke posisimu!
                 </p>
                 <button
                   type="button"
@@ -480,10 +488,10 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
 
           <div className="w-full rounded-2xl border border-amber-300 bg-amber-50 p-4 text-left">
             <p className="text-sm font-bold text-amber-700 sm:text-base">
-              ⚠️ <span className="uppercase">Mission Alert:</span> A solar flare scrambled
-              the telemetry stream! You must verify the 6 flight parameters in Row{' '}
-              <b>#{student.row}</b> of the Central Google Sheet before the launch window
-              closes.
+              ⚠️ <span className="uppercase">Mission Alert:</span> Today is 7 August 2027 —
+              Artemis 3 lifts off on <b>1 October 2027</b>. Artemis 1 and Artemis 2 are
+              already complete. Verify the 6 flight parameters in Row <b>#{student.row}</b>{' '}
+              of the Central Google Sheet and relay them before the launch window closes.
             </p>
           </div>
 
@@ -507,7 +515,8 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
             Go to the <span className="text-indigo-600">‘Raw Telemetry Dump’</span> tab,
             find <span className="text-sky-600">{mission.name}</span> Row{' '}
             <span className="text-sky-600">{student.row}</span>, and calculate your 6
-            values with Google Sheets formulas.
+            values with Google Sheets formulas. Your verified numbers are handed to
+            Mission Control for the Artemis 3 launch.
           </p>
 
           <div className="w-full rounded-2xl bg-indigo-50 p-4 text-left">
@@ -521,7 +530,8 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
                 3️⃣ Compute <b>SUM</b>, <b>AVERAGE</b>, <b>MIN</b>, <b>MAX</b>,{' '}
                 <b>MODE</b> & <b>MEDIAN</b> in the sheet.
               </li>
-              <li>4️⃣ Return here and transmit your values to Mission Control.</li>
+              <li>4️⃣ Your numbers become part of the Artemis 3 launch profile.</li>
+              <li>5️⃣ Return here and transmit your values to Mission Control.</li>
             </ol>
           </div>
 
@@ -703,7 +713,7 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
                 Telemetry <span className="text-sky-600">Terminal</span>
               </h2>
               <p className="mt-1 text-sm font-bold text-slate-500 sm:text-base">
-                Enter your verified sensor totals to clear the Orion capsule for launch.
+                Enter your computed totals — these numbers help clear Artemis 3 for launch.
               </p>
             </div>
 
@@ -720,7 +730,7 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
                 className="animate-pop-in rounded-2xl border-2 border-red-400 bg-red-50 p-3 sm:p-4"
               >
                 <p className="text-base font-extrabold text-red-600 sm:text-lg">
-                  🚨 TRANSMISSION REJECTED — {METRICS.filter((m) => states[m.key] === 'bad').length} of 6
+                  🚨 TRANSMISSION REJECTED — {METRICS.filter((m) => states[m.key] === 'bad').length} of {METRICS.length}
                   values incorrect.
                 </p>
                 <p className="mt-1 text-sm font-bold text-amber-700 sm:text-base">
@@ -765,8 +775,8 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
             </h2>
             <p className="text-base font-bold text-slate-500 sm:text-lg">
               Mission Control has verified your telemetry,{' '}
-              <span className="text-sky-600">{player}</span>. Your team is one step
-              closer to launch.
+              <span className="text-sky-600">{player}</span>. Your numbers are locked in
+              and relayed to the Artemis 3 flight computer.
             </p>
             <button
               type="button"
@@ -863,7 +873,7 @@ function BossPanel({ teamId, done, boss, onBossSubmit }) {
       </p>
       {boss ? (
         <p className="text-center text-sm font-extrabold text-emerald-500">
-          ✓ Team aggregate verified — mission cleared!
+          ✓ Team aggregate verified — numbers handed to Artemis 3!
         </p>
       ) : (
         <>
@@ -900,7 +910,7 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   const boss = store.teams[teamId]?.boss
   const cleared = !!(boss && boss.perfect)
   const status = cleared
-    ? 'MISSION CLEARED'
+    ? 'RELAYED TO ARTEMIS 3'
     : allDone
       ? 'FLIGHT DIRECTOR READY'
       : 'IN PROGRESS'
@@ -1023,7 +1033,7 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
           </h2>
           <div className="mt-2 flex items-center justify-center gap-2">
             <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-extrabold text-white">
-              🟢 Mission Cleared
+              🟢 Relayed to Artemis 3
             </span>
             <span className="rounded-full bg-sky-500 px-3 py-1 text-xs font-extrabold text-white">
               🔵 Flight Director Ready
@@ -1092,7 +1102,7 @@ function LaunchScreen({ onLaunchEnd }) {
     <div className="fixed inset-0 z-50 flex touch-manipulation flex-col items-center justify-end overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-black">
       <Stars />
       <p className="z-20 mb-4 animate-pop-in text-2xl font-extrabold tracking-widest text-white drop-shadow-lg sm:text-4xl">
-        🚀 MISSION LAUNCH IN PROGRESS
+        🚀 ARTEMIS 3 MISSION LAUNCH IN PROGRESS
       </p>
       <div className="absolute bottom-0 left-0 right-0 h-16 bg-slate-700" />
       <div className="animate-artemis-wiggle absolute bottom-16 left-1/2 z-10 -translate-x-1/2">
@@ -1153,11 +1163,11 @@ function VictoryScreen({ store, onExit, onRestart }) {
         <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
           <span className="text-6xl sm:text-7xl" aria-hidden="true">🌕</span>
           <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold text-slate-700">
-            Orion is en route to the <span className="text-sky-600">Moon!</span>
+            Artemis 3 is en route to the <span className="text-sky-600">Moon!</span>
           </h1>
           <p className="text-base font-bold text-slate-500 sm:text-lg">
-            All three teams verified their telemetry. Mission Control is green across the
-            board!
+            All three engineering teams relayed their verified numbers. The launch
+            sequence is green across the board!
           </p>
 
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
