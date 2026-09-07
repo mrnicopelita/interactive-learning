@@ -280,27 +280,17 @@ function TypeLine({ text, speed = 26, onDone }) {
 function CinematicIntro({ player, teamId, mission, onComplete }) {
   const [lineIdx, setLineIdx] = useState(0)
   const [finished, setFinished] = useState(false)
-  const [idVisible, setIdVisible] = useState(false)
 
   useEffect(() => {
     sndAlarm()
   }, [])
 
-  useEffect(() => {
-    setIdVisible(false)
-  }, [lineIdx])
-
   const lines = useMemo(
-    () =>
-      INTRO_LINES.map(({ en, id }) => ({
-        en: en.replace('{name}', player),
-        id: id.replace('{name}', player),
-      })),
+    () => INTRO_LINES.map(({ id }) => id.replace('{name}', player)),
     [player],
   )
 
   function handleLineDone() {
-    setIdVisible(true)
     if (lineIdx < lines.length - 1) {
       setTimeout(() => setLineIdx((i) => i + 1), 800)
     } else {
@@ -323,7 +313,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="flex items-center gap-2">
             <span className="animate-alert-pulse h-3 w-3 rounded-full bg-red-500" aria-hidden="true" />
             <span className="animate-alert-pulse font-mono text-[11px] font-extrabold tracking-widest text-red-400 sm:text-sm">
-              ⚠ ARTEMIS 3 LAUNCH SEQUENCE · URUTAN PELUNCURAN ARTEMIS 3
+              ⚠ URUTAN PELUNCURAN ARTEMIS 3
             </span>
           </div>
           <button
@@ -334,7 +324,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
             }}
             className="rounded-full border border-cyan-500/40 bg-cyan-950/60 px-4 py-1.5 font-mono text-xs font-bold text-cyan-300 transition hover:scale-105 hover:text-white sm:px-5 sm:text-sm"
           >
-            SKIP · LEWATI ➔
+            LEWATI ➔
           </button>
         </div>
 
@@ -342,7 +332,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="w-full max-w-3xl rounded-2xl border border-cyan-500/30 bg-black/70 shadow-[0_0_80px_rgba(34,211,238,0.12)] p-5 font-mono sm:p-8">
             <div className="mb-4 flex items-center justify-between border-b border-cyan-500/20 pb-3">
               <span className="font-mono text-[10px] font-bold tracking-widest text-cyan-500/70 sm:text-xs">
-                DSN-1 · MISSION CONTROL / PUSAT KENDALI MISI — INCOMING TRANSMISSION / TRANSMISI MASUK
+                DSN-1 · PUSAT KENDALI MISI — TRANSMISI MASUK
               </span>
               <span className="animate-alert-pulse font-mono text-[10px] font-bold text-red-400 sm:text-xs">
                 ● REC
@@ -350,20 +340,15 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
             </div>
 
             <div className="min-h-[14rem] space-y-3 font-mono sm:min-h-[16rem]">
-              {lines.slice(0, lineIdx).map((l) => (
-                <p key={l.en} className="text-xs font-bold text-cyan-600/70 sm:text-sm">
-                  {l.en}
+              {lines.slice(0, lineIdx).map((l, i) => (
+                <p key={i} className="text-xs font-bold text-cyan-600/70 sm:text-sm">
+                  {l}
                 </p>
               ))}
               <div>
                 <p className="text-lg font-extrabold leading-relaxed text-rose-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.3)] sm:text-2xl">
-                  <TypeLine key={lineIdx} text={lines[lineIdx].en} onDone={handleLineDone} />
+                  <TypeLine key={lineIdx} text={lines[lineIdx]} onDone={handleLineDone} />
                 </p>
-                {idVisible && (
-                  <p className="animate-pop-in mt-2 text-base font-bold text-slate-400 sm:text-lg">
-                    {lines[lineIdx].id}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -376,7 +361,6 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   </span>
                 </div>
                 <p className="font-mono text-sm font-bold text-slate-300 sm:text-base">
-                  {player}, Artemis 3 is waiting on your numbers. Go to your station! ·{' '}
                   {player}, Artemis 3 menunggu angkamu. Segera ke posisimu!
                 </p>
                 <button
@@ -387,7 +371,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   }}
                   className={`mt-1 w-full rounded-full bg-gradient-to-r ${TEAM_STYLE[teamId].grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
                 >
-                  🎧 Masuk ke Mission Control (Enter Mission Control) →
+                  🎧 Masuk ke Mission Control →
                 </button>
               </div>
             )}
@@ -655,38 +639,22 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   const readings = student.data
   const expected = useMemo(() => computeStats(readings), [readings])
   const [values, setValues] = useState({})
-  const [states, setStates] = useState({})
   const [submitted, setSubmitted] = useState(false)
-  const [flash, setFlash] = useState(false)
-  const [rejected, setRejected] = useState(false)
 
   function setValue(key, value) {
     setValues((v) => ({ ...v, [key]: value }))
-    setRejected(false)
   }
 
   function transmit() {
-    const next = {}
     let perfect = true
     for (const m of METRICS) {
       const v = parseFloat(values[m.key])
       const ok = !Number.isNaN(v) && Math.abs(v - expected[m.key]) < 0.051
-      next[m.key] = ok ? 'ok' : 'bad'
       if (!ok) perfect = false
     }
-    setStates(next)
-    if (perfect) {
-      setRejected(false)
-      setSubmitted(true)
-      sndCorrect()
-      onTransmitted(player, true)
-    } else {
-      setRejected(true)
-      setFlash(true)
-      setTimeout(() => setFlash(false), 600)
-      sndError()
-      onTransmitted(player, false)
-    }
+    setSubmitted(true)
+    sndCorrect()
+    onTransmitted(player, perfect)
   }
 
   function backToRadar() {
@@ -697,9 +665,6 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
-      {flash && (
-        <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-amber-500/30" />
-      )}
       <div className="z-10 flex w-full shrink-0 items-center justify-between px-4 pt-3 sm:px-6 sm:pt-4">
         <button
           type="button"
@@ -727,7 +692,8 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
                 Telemetry <span className="text-sky-600">Terminal</span>
               </h2>
               <p className="mt-1 text-sm font-bold text-slate-500 sm:text-base">
-                Enter your computed totals — these numbers help clear Artemis 3 for launch.
+                Enter your computed totals and transmit them. They will be verified by
+                Mission Control during the flight simulation.
               </p>
             </div>
 
@@ -738,35 +704,12 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
               row={student.row}
             />
 
-            {rejected && (
-              <div
-                role="alert"
-                className="animate-pop-in rounded-2xl border-2 border-red-400 bg-red-50 p-3 sm:p-4"
-              >
-                <p className="text-base font-extrabold text-red-600 sm:text-lg">
-                  🚨 TRANSMISSION REJECTED — {METRICS.filter((m) => states[m.key] === 'bad').length} of {METRICS.length}
-                  values incorrect.
-                </p>
-                <p className="mt-1 text-sm font-bold text-amber-700 sm:text-base">
-                  The flight computer will not accept launch telemetry with errors.
-                  Re-check your calculations for{' '}
-                  <b>
-                    {METRICS.filter((m) => states[m.key] === 'bad')
-                      .map((m) => m.label)
-                      .join(', ')}
-                  </b>{' '}
-                  against Row {student.row} in Google Sheets, then transmit again.
-                </p>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {METRICS.map((m) => (
                 <MetricInput
                   key={m.key}
                   metric={m}
                   formula={m.sheet(student.row)}
-                  state={states[m.key]}
                   value={values[m.key] || ''}
                   onChange={(v) => setValue(m.key, v)}
                 />
@@ -784,13 +727,13 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
         ) : (
           <div className="animate-pop-in flex w-full max-w-lg flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
             <span className="text-6xl" aria-hidden="true">📡</span>
-            <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-emerald-600">
-              Transmission Received!
+            <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-sky-600">
+              Transmission Sent!
             </h2>
             <p className="text-base font-bold text-slate-500 sm:text-lg">
-              Mission Control has verified your telemetry,{' '}
-              <span className="text-sky-600">{player}</span>. Your numbers are locked in
-              and relayed to the Artemis 3 flight computer.
+              Your numbers are logged, <span className="text-sky-600">{player}</span>.
+              Mission Control will verify them during the flight simulation ahead of the
+              1 October 2027 launch.
             </p>
             <button
               type="button"
