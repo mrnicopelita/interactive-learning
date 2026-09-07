@@ -468,6 +468,7 @@ function LoginScreen({ onStart, onExit }) {
 function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
+  const [sheetOpened, setSheetOpened] = useState(false)
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
@@ -497,7 +498,7 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
 
           <div className="w-full rounded-2xl bg-slate-900 p-4 text-left font-mono text-sm text-slate-300 sm:text-base">
             <p className="mb-1 font-bold uppercase tracking-wide text-cyan-400">
-              {player} · Flight Record
+              {player} · Relay Record · Artemis 3 Launch Support
             </p>
             <p>
               <span className="text-slate-500">Team:</span>{' '}
@@ -507,6 +508,12 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
               <span className="text-slate-500">· Sensors:</span>{' '}
               <span className="font-bold text-emerald-400">
                 [{student.data.join(', ')}]
+              </span>
+            </p>
+            <p className="mt-1">
+              <span className="text-slate-500">Relay to:</span>{' '}
+              <span className="font-bold text-amber-300">
+                Artemis 3 · liftoff 1 Oct 2027
               </span>
             </p>
           </div>
@@ -540,6 +547,7 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
               type="button"
               onClick={() => {
                 sndClick()
+                setSheetOpened(true)
                 onOpenSheet()
               }}
               className={`flex-1 rounded-full bg-gradient-to-r ${style.grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
@@ -548,15 +556,21 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
             </button>
             <button
               type="button"
+              disabled={!sheetOpened}
               onClick={() => {
                 sndClick()
                 onContinue()
               }}
-              className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 sm:text-2xl"
+              className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
             >
               Continue to Terminal →
             </button>
           </div>
+          {!sheetOpened && (
+            <p className="animate-alert-pulse text-xs font-extrabold text-amber-600 sm:text-sm">
+              🔒 Open the shared Google Sheet first to unlock the telemetry terminal.
+            </p>
+          )}
         </div>
       </main>
     </div>
@@ -792,6 +806,172 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   )
 }
 
+function SimulationFailureScreen({ store, onRetry, onExit }) {
+  const [phase, setPhase] = useState('ignition')
+
+  useEffect(() => {
+    sndAlarm()
+    const t1 = setTimeout(() => setPhase('lift'), 1200)
+    const t2 = setTimeout(() => {
+      setPhase('crash')
+      sndError()
+    }, 4200)
+    const t3 = setTimeout(() => setPhase('report'), 5800)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  }, [])
+
+  const report = Object.keys(MISSION_TEAMS).map((tid) => {
+    const team = MISSION_TEAMS[tid]
+    const members = rosterFor(tid)
+    return {
+      team,
+      wrong: members.filter((s) => {
+        const r = store.submits[s.name]
+        return r && !r.perfect
+      }),
+      missing: members.filter((s) => !store.submits[s.name]),
+      bossDone: !!store.teams[tid]?.clearedAt,
+    }
+  })
+  const totalThreat =
+    report.reduce((n, r) => n + r.wrong.length + r.missing.length, 0) +
+    report.filter((r) => !r.bossDone).length
+
+  return (
+    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-red-950 via-slate-900 to-black">
+      <Stars />
+      <div className="scanlines pointer-events-none absolute inset-0 z-10" aria-hidden="true" />
+      {phase === 'crash' && (
+        <div className="animate-flash-red pointer-events-none absolute inset-0 z-20 bg-red-500/40" />
+      )}
+      <div className="z-30 flex w-full shrink-0 items-center justify-between px-4 pt-3 sm:px-6 sm:pt-4">
+        <button
+          type="button"
+          onClick={onExit}
+          className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-sm font-extrabold text-indigo-700 shadow transition hover:scale-105 sm:px-4 sm:py-2 sm:text-lg"
+        >
+          <span aria-hidden="true">←</span> Exit
+        </button>
+        <div className="text-center">
+          <p className="animate-alert-pulse text-[10px] font-extrabold uppercase tracking-widest text-red-300 sm:text-xs">
+            ARTEMIS 3 · FLIGHT SIMULATION
+          </p>
+          <p className="text-xs font-bold text-white/60 sm:text-sm">
+            Countdown · 1 Oct 2027 launch window
+          </p>
+        </div>
+        <div className="w-16 sm:w-24" />
+      </div>
+
+      <main className="z-30 flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden px-4 py-4">
+        {phase !== 'report' ? (
+          <div className="flex w-full max-w-2xl flex-col items-center">
+            <p
+              className={`text-center font-mono text-lg font-extrabold uppercase tracking-widest sm:text-2xl ${
+                phase === 'crash' ? 'animate-alert-pulse text-red-400' : 'text-red-300'
+              }`}
+            >
+              {phase === 'ignition' && '⚡ INITIATING PREFLIGHT SIMULATION…'}
+              {phase === 'lift' && '🚨 LIFTOFF — BUT THE TELEMETRY LOOKS WRONG!'}
+              {phase === 'crash' && '💥 LAUNCH FAILURE — SHIP LOST'}
+            </p>
+            <div className="relative mt-6 flex h-72 w-full items-end justify-center sm:h-96">
+              <div
+                className={`absolute bottom-16 left-1/2 z-10 -translate-x-1/2 ${
+                  phase === 'ignition' ? 'animate-artemis-wiggle' : 'animate-artemis-veer'
+                }`}
+              >
+                <img src="/images/rocket.svg" alt="" className="h-48 w-48 sm:h-64 sm:w-64" />
+              </div>
+              {phase === 'crash' && (
+                <div
+                  className="animate-boom absolute bottom-16 left-1/2 z-20 -translate-x-1/2 text-8xl sm:text-9xl"
+                  aria-hidden="true"
+                >
+                  💥
+                </div>
+              )}
+              {phase === 'ignition' && (
+                <div className="pointer-events-none absolute bottom-16 left-1/2 z-0 flex -translate-x-1/2 gap-10">
+                  {['puff-1', 'puff-2', 'puff-3'].map((p, i) => (
+                    <div
+                      key={p}
+                      className="animate-smoke-puff h-6 w-6 rounded-full bg-white/60"
+                      style={{ animationDelay: `${i * 300}ms` }}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-slate-700" />
+            </div>
+          </div>
+        ) : (
+          <div className="animate-pop-in flex w-full max-w-2xl flex-col gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-8">
+            <span className="text-center text-5xl" aria-hidden="true">🚨</span>
+            <h2 className="text-center text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-red-600">
+              MISSION FAILURE
+            </h2>
+            <p className="text-center text-base font-bold text-slate-600 sm:text-lg">
+              The flight computer rejected {totalThreat} unreliable value
+              {totalThreat === 1 ? '' : 's'}. Artemis 3 veered off course and was lost.
+              Fix every number, then run the simulation again.
+            </p>
+            <div className="space-y-3">
+              {report.map(({ team, wrong, missing, bossDone }) => (
+                <div key={team.name} className="rounded-2xl border border-red-200 bg-red-50 p-3 sm:p-4">
+                  <p className="mb-1 text-sm font-extrabold text-red-500 sm:text-base">
+                    {team.emoji} {team.name}
+                  </p>
+                  {wrong.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ✗ Wrong numbers:{' '}
+                      <span className="text-red-600">{wrong.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
+                  {missing.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ◌ Missing numbers:{' '}
+                      <span className="text-red-600">{missing.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
+                  {!bossDone && (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ⚠ Flight Director aggregate not verified
+                    </p>
+                  )}
+                  {!wrong.length && !missing.length && bossDone && (
+                    <p className="text-xs font-bold text-emerald-600 sm:text-sm">✓ Numbers locked in</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={onRetry}
+                className="flex-1 rounded-full bg-red-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+              >
+                ↺ Recalculate & Retry
+              </button>
+              <button
+                type="button"
+                onClick={onExit}
+                className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 sm:text-2xl"
+              >
+                Back to Games 🎮
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
 function BossMetricInput({ metric, state, value, onChange }) {
   const isOk = state === 'ok'
   const isBad = state === 'bad'
@@ -936,17 +1116,28 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
 
       <div className="flex flex-wrap gap-1.5">
         {members.map((s) => {
-          const ok = store.submits[s.name]?.perfect
+          const rec = store.submits[s.name]
+          const ok = rec?.perfect
+          const bad = rec && !rec.perfect
           return (
             <span
               key={s.name}
+              title={
+                ok
+                  ? 'Correct numbers received'
+                  : bad
+                    ? 'Incorrect numbers — waiting for the correct value'
+                    : 'Numbers not yet submitted'
+              }
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold transition ${
                 ok
                   ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-500'
+                  : bad
+                    ? 'animate-pulse bg-red-100 text-red-600'
+                    : 'bg-slate-100 text-slate-500'
               }`}
             >
-              {ok ? '✓ ' : ''}
+              {ok ? '✓ ' : bad ? '✗ ' : '◌ '}
               {s.name}
             </span>
           )
@@ -981,9 +1172,24 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   )
 }
 
-function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubmit, onReset, onExit, muted, onToggleMuted }) {
+function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
+
+  const wrongNames = []
+  const missingNames = []
+  for (const teamId of Object.keys(MISSION_TEAMS)) {
+    for (const s of rosterFor(teamId)) {
+      const record = store.submits[s.name]
+      if (!record) missingNames.push(s.name)
+      else if (!record.perfect) wrongNames.push(s.name)
+    }
+  }
+  const notClearedTeams = Object.keys(MISSION_TEAMS).filter(
+    (t) => !store.teams[t]?.clearedAt,
+  )
+  const hasThreat =
+    wrongNames.length > 0 || missingNames.length > 0 || notClearedTeams.length > 0
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
@@ -1024,6 +1230,42 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
       </div>
 
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-start gap-4 overflow-y-auto px-4 py-4 sm:gap-6 sm:px-6 sm:py-6">
+        {hasThreat && (
+          <div className="animate-pop-in w-full max-w-5xl rounded-2xl border-2 border-red-400 bg-red-950/70 p-4 text-left shadow-[0_0_30px_rgba(248,113,113,0.25)]">
+            <p className="animate-alert-pulse text-base font-extrabold text-red-300 sm:text-lg">
+              🚨 RED ALERT — ARTEMIS 3 TELEMETRY NOT SAFE FOR LAUNCH
+            </p>
+            <div className="mt-2 space-y-1 text-xs font-bold text-red-100 sm:text-sm">
+              {wrongNames.length > 0 && (
+                <p>
+                  ✗ Incorrect numbers received from:{' '}
+                  <span className="text-white">{wrongNames.join(', ')}</span> — these could
+                  send the ship off course.
+                </p>
+              )}
+              {missingNames.length > 0 && (
+                <p>
+                  ◌ Missing numbers from:{' '}
+                  <span className="text-white">{missingNames.join(', ')}</span> — the flight
+                  computer cannot run without them.
+                </p>
+              )}
+              {notClearedTeams.length > 0 && (
+                <p>
+                  ⚠ Flight Director aggregate not verified for:{' '}
+                  <span className="text-white">
+                    {notClearedTeams.map((t) => MISSION_TEAMS[t].name).join(', ')}
+                  </span>
+                </p>
+              )}
+              <p>
+                Launching now could <span className="text-red-300">CRASH Artemis 3</span>.
+                Fix every number before the 1 October 2027 launch window.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="w-full max-w-5xl text-center">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-cyan-400 sm:text-xs">
             Real-time Telemetry Status
@@ -1063,6 +1305,23 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
             className={`rounded-full bg-gradient-to-r ${style.grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
           >
             📡 Open My Telemetry Terminal
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sndClick()
+              window.open(GOOGLE_SHEET_URL, '_blank', 'noopener')
+            }}
+            className="rounded-full bg-emerald-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-emerald-600 sm:text-2xl"
+          >
+            🔗 Open Google Sheet
+          </button>
+          <button
+            type="button"
+            onClick={onSimulate}
+            className="rounded-full bg-red-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-red-600 sm:text-2xl"
+          >
+            🚨 Run Flight Simulation
           </button>
           <button
             type="button"
@@ -1334,6 +1593,11 @@ export default function ArtemisGame({ onExit }) {
     launchRef.current = false
   }
 
+  function handleSimulate() {
+    sndClick()
+    setScreen(allCleared ? 'launch' : 'failure')
+  }
+
   function toggleMuted() {
     setMutedState((m) => {
       muted = !m
@@ -1356,6 +1620,15 @@ export default function ArtemisGame({ onExit }) {
   }
   if (screen === 'victory') {
     return <VictoryScreen store={store} onExit={onExit} onRestart={restart} />
+  }
+  if (screen === 'failure') {
+    return (
+      <SimulationFailureScreen
+        store={store}
+        onRetry={() => setScreen('radar')}
+        onExit={onExit}
+      />
+    )
   }
   if (screen === 'login') {
     return (
@@ -1414,6 +1687,7 @@ export default function ArtemisGame({ onExit }) {
       }}
       onOpenTerminal={() => setScreen('terminal')}
       onBossSubmit={handleBossSubmit}
+      onSimulate={handleSimulate}
       onReset={handleReset}
       onExit={onExit}
       muted={mutedState}

@@ -320,6 +320,45 @@ body {
   animation: artemis-wiggle 0.08s linear infinite;
 }
 
+@keyframes artemis-veer {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translateX(-6vw) translateY(-24vh) rotate(-10deg) scale(1.05);
+  }
+  55% {
+    transform: translateX(-18vw) translateY(-18vh) rotate(-32deg) scale(1);
+  }
+  100% {
+    transform: translateX(-34vw) translateY(42vh) rotate(-170deg) scale(0.3);
+    opacity: 0.85;
+  }
+}
+
+.animate-artemis-veer {
+  animation: artemis-veer 3.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes boom-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.animate-boom {
+  animation: boom-burst 1.1s ease-out both;
+}
+
 @keyframes smoke-puff {
   0% {
     transform: scale(0.3);

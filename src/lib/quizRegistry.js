@@ -32,7 +32,7 @@ export const QUIZ_REGISTRY = [
   {
     id: 'artemis',
     title: 'Operation Artemis',
-    tagline: 'Mission Control: compute telemetry and launch Orion to the Moon!',
+    tagline: 'Mission Control: relay the numbers that launch Artemis 3 to the Moon!',
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {
