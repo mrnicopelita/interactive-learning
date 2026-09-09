@@ -36,15 +36,9 @@ export const QUIZ_REGISTRY = [
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {
-    id: 'artemis2',
-    title: 'Operation Artemis II',
-    tagline: 'Mission Control: compute telemetry for the Artemis II lunar mission!',
-    images: ['/images/rocket.svg', '/images/smartwatch.svg'],
-  },
-  {
-    id: 'artemis-3',
-    title: 'Operation Artemis III',
-    tagline: 'Grade 8 supply run: compute extended telemetry and launch Orion!',
+    id: 'artemis-g8',
+    title: 'Operation Artemis G8',
+    tagline: 'Grade 8 Mission Control: relay the numbers that launch Artemis 3 to the Moon!',
     images: ['/images/rocket.svg', '/images/monitor.svg'],
   },
   {
@@ -58,6 +52,12 @@ export const QUIZ_REGISTRY = [
     title: 'Krisis 15 Menit',
     tagline: 'Build a canteen automation system under 15 minutes!',
     images: ['/images/kantin.svg', '/images/robot.svg'],
+  },
+  {
+    id: 'kelinci-lompat',
+    title: 'Kelinci Lompat Spasi',
+    tagline: 'Press SPACE to jump! Collect carrots and reach the golden carrot!',
+    images: ['/images/kelinci.svg', '/images/golden-carrot.svg'],
   },
   {
     id: 'exam',

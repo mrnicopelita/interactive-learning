@@ -6,10 +6,13 @@ import {
   STUDENTS_DATA,
   SENSOR_NAMES,
   METRICS,
-} from './artemis3Data.js'
+} from './artemisG8Data.js'
+import { supabase } from '../lib/supabase.js'
 
-const STORAGE_KEY = 'artemis-3-telemetry-v2'
-const CHANNEL_NAME = 'artemis-3-telemetry'
+const STORAGE_KEY = 'artemis-g8-telemetry-v1'
+const CHANNEL_NAME = 'artemis-g8-telemetry'
+const REMOTE_TABLE = 'artemis_telemetry'
+const REMOTE_KEY = 'artemis-g8-telemetry-v1'
 
 const TEAM_STYLE = {
   'artemis-1': {
@@ -49,16 +52,24 @@ const INTRO_LINES = [
     id: 'PERHATIAN SEMUA PENGENDALI PENERBANGAN…',
   },
   {
-    en: "SOLAR ACTIVITY REPORT: a coronal mass ejection from the Sun has just struck NASA's Deep Space Network.",
-    id: 'LAPORAN AKTIVITAS MATAHARI: lontaran massa korona baru saja menghantam Jaringan Luar Angkasa Dalam milik NASA.',
+    en: 'REPORT: Today is 7 AUGUST 2027. Artemis 1 and Artemis 2 have flown — BOTH MISSIONS SUCCESSFUL. The final target is the Moon landing: ARTEMIS 3, launching on 1 OCTOBER 2027.',
+    id: 'LAPORAN: Hari ini 7 AGUSTUS 2027. Artemis 1 dan Artemis 2 telah terbang — KEDUA MISI SUKSES. Target terakhir adalah pendaratan di Bulan: ARTEMIS 3, diluncurkan pada 1 OKTOBER 2027.',
   },
   {
-    en: 'Three years of Artemis telemetry — Orion Test, Crewed Lunar Flyby, and the South Pole Landing — arrived scrambled into one massive unsorted data stream.',
-    id: 'Data telemetri tiga misi Artemis — Orion Test, Terbang Lintas Berawak, dan Pendaratan Kutub Selatan — tiba teracak dalam satu aliran data raksasa yang belum diurutkan.',
+    en: 'THE COUNTDOWN IS LIVE. Every engineer must finish their work and hand in their found numbers before the Artemis 3 launch window opens.',
+    id: 'HITUNG MUNDUR SUDAH BERJALAN. Setiap teknisi harus menyelesaikan pekerjaannya dan menyerahkan angka temuannya sebelum jendela peluncuran Artemis 3 terbuka.',
   },
   {
-    en: 'NO MISSION CONTROL CAN CLEAR ORION FOR ORBITAL INSERTION until every core telemetry metric is computed and verified live.',
-    id: 'Mission Control TIDAK BISA menyiapkan Orion untuk masuk orbit sampai seluruh metrik telemetri inti dihitung dan diverifikasi.',
+    en: 'ARTEMIS 3 IS ON THE PAD. Every engineering team must compute the 6 core values — SUM, AVERAGE, MIN, MAX, MODE and MEDIAN — and relay them to Mission Control.',
+    id: 'ARTEMIS 3 SUDAH DI LANDASAN. Setiap tim teknik harus menghitung 6 nilai inti — SUM, AVERAGE, MIN, MAX, MODE, dan MEDIAN — lalu mengirimkannya ke Mission Control.',
+  },
+  {
+    en: 'The Artemis 1 team computes its numbers for Artemis 3. The Artemis 2 team does the same. And the Artemis 3 team computes the numbers for its own descent systems.',
+    id: 'Tim Artemis 1 menghitung angkanya untuk Artemis 3. Tim Artemis 2 melakukan hal yang sama. Dan tim Artemis 3 menghitung angka untuk sistem pendaratannya sendiri.',
+  },
+  {
+    en: 'NO MISSION CONTROL CAN CLEAR ARTEMIS 3 FOR LIFTOFF until every core telemetry metric is computed and verified live.',
+    id: 'Mission Control TIDAK BISA mengizinkan Artemis 3 lepas landas sampai seluruh metrik telemetri inti dihitung dan diverifikasi.',
   },
   {
     en: 'TEAM ASSIGNMENTS DECODED. {name}, report to your station. The launch window is open… but not for long.',
@@ -74,6 +85,35 @@ function loadStore() {
     /* ignore */
   }
   return { ...DEFAULT_STORE }
+}
+
+function mergeStores(local, remote) {
+  if (!remote) return local
+  return {
+    submits: { ...local.submits, ...(remote.submits || {}) },
+    teams: { ...local.teams, ...(remote.teams || {}) },
+  }
+}
+
+async function pushRemoteStore(store) {
+  if (!supabase) return
+  try {
+    const { error } = await supabase
+      .from(REMOTE_TABLE)
+      .upsert(
+        {
+          game_key: REMOTE_KEY,
+          store,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'game_key' },
+      )
+    if (error && typeof console !== 'undefined') {
+      console.warn('Artemis sync push failed:', error.message)
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 function sum(list) {
@@ -272,27 +312,17 @@ function TypeLine({ text, speed = 26, onDone }) {
 function CinematicIntro({ player, teamId, mission, onComplete }) {
   const [lineIdx, setLineIdx] = useState(0)
   const [finished, setFinished] = useState(false)
-  const [idVisible, setIdVisible] = useState(false)
 
   useEffect(() => {
     sndAlarm()
   }, [])
 
-  useEffect(() => {
-    setIdVisible(false)
-  }, [lineIdx])
-
   const lines = useMemo(
-    () =>
-      INTRO_LINES.map(({ en, id }) => ({
-        en: en.replace('{name}', player),
-        id: id.replace('{name}', player),
-      })),
+    () => INTRO_LINES.map(({ id }) => id.replace('{name}', player)),
     [player],
   )
 
   function handleLineDone() {
-    setIdVisible(true)
     if (lineIdx < lines.length - 1) {
       setTimeout(() => setLineIdx((i) => i + 1), 800)
     } else {
@@ -315,7 +345,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="flex items-center gap-2">
             <span className="animate-alert-pulse h-3 w-3 rounded-full bg-red-500" aria-hidden="true" />
             <span className="animate-alert-pulse font-mono text-[11px] font-extrabold tracking-widest text-red-400 sm:text-sm">
-              ⚠ SOLAR FLARE WARNING · PERINGATAN LETAUSAN MATAHARI
+              ⚠ URUTAN PELUNCURAN ARTEMIS 3
             </span>
           </div>
           <button
@@ -326,7 +356,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
             }}
             className="rounded-full border border-cyan-500/40 bg-cyan-950/60 px-4 py-1.5 font-mono text-xs font-bold text-cyan-300 transition hover:scale-105 hover:text-white sm:px-5 sm:text-sm"
           >
-            SKIP · LEWATI ➔
+            LEWATI ➔
           </button>
         </div>
 
@@ -334,7 +364,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
           <div className="w-full max-w-3xl rounded-2xl border border-cyan-500/30 bg-black/70 shadow-[0_0_80px_rgba(34,211,238,0.12)] p-5 font-mono sm:p-8">
             <div className="mb-4 flex items-center justify-between border-b border-cyan-500/20 pb-3">
               <span className="font-mono text-[10px] font-bold tracking-widest text-cyan-500/70 sm:text-xs">
-                DSN-1 · MISSION CONTROL / PUSAT KENDALI MISI — INCOMING TRANSMISSION / TRANSMISI MASUK
+                DSN-1 · PUSAT KENDALI MISI — TRANSMISI MASUK
               </span>
               <span className="animate-alert-pulse font-mono text-[10px] font-bold text-red-400 sm:text-xs">
                 ● REC
@@ -342,20 +372,15 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
             </div>
 
             <div className="min-h-[14rem] space-y-3 font-mono sm:min-h-[16rem]">
-              {lines.slice(0, lineIdx).map((l) => (
-                <p key={l.en} className="text-xs font-bold text-cyan-600/70 sm:text-sm">
-                  {l.en}
+              {lines.slice(0, lineIdx).map((l, i) => (
+                <p key={i} className="text-xs font-bold text-cyan-600/70 sm:text-sm">
+                  {l}
                 </p>
               ))}
               <div>
                 <p className="text-lg font-extrabold leading-relaxed text-rose-300 drop-shadow-[0_0_14px_rgba(251,191,36,0.3)] sm:text-2xl">
-                  <TypeLine key={lineIdx} text={lines[lineIdx].en} onDone={handleLineDone} />
+                  <TypeLine key={lineIdx} text={lines[lineIdx]} onDone={handleLineDone} />
                 </p>
-                {idVisible && (
-                  <p className="animate-pop-in mt-2 text-base font-bold text-slate-400 sm:text-lg">
-                    {lines[lineIdx].id}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -368,8 +393,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   </span>
                 </div>
                 <p className="font-mono text-sm font-bold text-slate-300 sm:text-base">
-                  {player}, the fleet is counting on you. Go to your station! ·{' '}
-                  {player}, seluruh armada mengandalkanmu. Segera ke posisimu!
+                  {player}, Artemis 3 menunggu angkamu. Segera ke posisimu!
                 </p>
                 <button
                   type="button"
@@ -379,7 +403,7 @@ function CinematicIntro({ player, teamId, mission, onComplete }) {
                   }}
                   className={`mt-1 w-full rounded-full bg-gradient-to-r ${TEAM_STYLE[teamId].grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
                 >
-                  🎧 Masuk ke Mission Control (Enter Mission Control) →
+                  🎧 Masuk ke Mission Control →
                 </button>
               </div>
             )}
@@ -403,10 +427,10 @@ function LoginScreen({ onStart, onExit }) {
           <span className="text-5xl sm:text-6xl" aria-hidden="true">🛰️</span>
           <div>
             <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
-              Operation <span className="text-sky-600">Artemis III</span>
+              Operation <span className="text-sky-600">Artemis G8</span>
             </h1>
             <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
-              Telemetry Control · Mission Control Center
+              Telemetry Control · Grade 8 Mission Control Center
             </p>
           </div>
 
@@ -460,6 +484,7 @@ function LoginScreen({ onStart, onExit }) {
 function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
+  const [sheetOpened, setSheetOpened] = useState(false)
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
@@ -480,16 +505,16 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
 
           <div className="w-full rounded-2xl border border-amber-300 bg-amber-50 p-4 text-left">
             <p className="text-sm font-bold text-amber-700 sm:text-base">
-              ⚠️ <span className="uppercase">Mission Alert:</span> A solar flare scrambled
-              the telemetry stream! You must verify the 6 flight parameters in Row{' '}
-              <b>#{student.row}</b> of the Central Google Sheet before the launch window
-              closes.
+              ⚠️ <span className="uppercase">Mission Alert:</span> Today is 7 August 2027 —
+              Artemis 3 lifts off on <b>1 October 2027</b>. Artemis 1 and Artemis 2 are
+              already complete. Verify the 6 flight parameters in Row <b>#{student.row}</b>{' '}
+              of the Central Google Sheet and relay them before the launch window closes.
             </p>
           </div>
 
           <div className="w-full rounded-2xl bg-slate-900 p-4 text-left font-mono text-sm text-slate-300 sm:text-base">
             <p className="mb-1 font-bold uppercase tracking-wide text-cyan-400">
-              {player} · Flight Record
+              {player} · Relay Record · Artemis 3 Launch Support
             </p>
             <p>
               <span className="text-slate-500">Team:</span>{' '}
@@ -501,13 +526,20 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
                 [{student.data.join(', ')}]
               </span>
             </p>
+            <p className="mt-1">
+              <span className="text-slate-500">Relay to:</span>{' '}
+              <span className="font-bold text-amber-300">
+                Artemis 3 · liftoff 1 Oct 2027
+              </span>
+            </p>
           </div>
 
           <p className="max-w-xl text-base font-bold text-slate-600 sm:text-lg">
             Go to the <span className="text-indigo-600">‘Raw Telemetry Dump’</span> tab,
             find <span className="text-sky-600">{mission.name}</span> Row{' '}
             <span className="text-sky-600">{student.row}</span>, and calculate your 6
-            values with Google Sheets formulas.
+            values with Google Sheets formulas. Your verified numbers are handed to
+            Mission Control for the Artemis 3 launch.
           </p>
 
           <div className="w-full rounded-2xl bg-indigo-50 p-4 text-left">
@@ -521,7 +553,8 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
                 3️⃣ Compute <b>SUM</b>, <b>AVERAGE</b>, <b>MIN</b>, <b>MAX</b>,{' '}
                 <b>MODE</b> & <b>MEDIAN</b> in the sheet.
               </li>
-              <li>4️⃣ Return here and transmit your values to Mission Control.</li>
+              <li>4️⃣ Your numbers become part of the Artemis 3 launch profile.</li>
+              <li>5️⃣ Return here and transmit your values to Mission Control.</li>
             </ol>
           </div>
 
@@ -530,6 +563,7 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
               type="button"
               onClick={() => {
                 sndClick()
+                setSheetOpened(true)
                 onOpenSheet()
               }}
               className={`flex-1 rounded-full bg-gradient-to-r ${style.grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
@@ -538,15 +572,21 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
             </button>
             <button
               type="button"
+              disabled={!sheetOpened}
               onClick={() => {
                 sndClick()
                 onContinue()
               }}
-              className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 sm:text-2xl"
+              className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
             >
               Continue to Terminal →
             </button>
           </div>
+          {!sheetOpened && (
+            <p className="animate-alert-pulse text-xs font-extrabold text-amber-600 sm:text-sm">
+              🔒 Open the shared Google Sheet first to unlock the telemetry terminal.
+            </p>
+          )}
         </div>
       </main>
     </div>
@@ -631,38 +671,22 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   const readings = student.data
   const expected = useMemo(() => computeStats(readings), [readings])
   const [values, setValues] = useState({})
-  const [states, setStates] = useState({})
   const [submitted, setSubmitted] = useState(false)
-  const [flash, setFlash] = useState(false)
-  const [rejected, setRejected] = useState(false)
 
   function setValue(key, value) {
     setValues((v) => ({ ...v, [key]: value }))
-    setRejected(false)
   }
 
   function transmit() {
-    const next = {}
     let perfect = true
     for (const m of METRICS) {
       const v = parseFloat(values[m.key])
       const ok = !Number.isNaN(v) && Math.abs(v - expected[m.key]) < 0.051
-      next[m.key] = ok ? 'ok' : 'bad'
       if (!ok) perfect = false
     }
-    setStates(next)
-    if (perfect) {
-      setRejected(false)
-      setSubmitted(true)
-      sndCorrect()
-      onTransmitted(player, true)
-    } else {
-      setRejected(true)
-      setFlash(true)
-      setTimeout(() => setFlash(false), 600)
-      sndError()
-      onTransmitted(player, false)
-    }
+    setSubmitted(true)
+    sndCorrect()
+    onTransmitted(player, perfect)
   }
 
   function backToRadar() {
@@ -673,9 +697,6 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
-      {flash && (
-        <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-amber-500/30" />
-      )}
       <div className="z-10 flex w-full shrink-0 items-center justify-between px-4 pt-3 sm:px-6 sm:pt-4">
         <button
           type="button"
@@ -703,7 +724,8 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
                 Telemetry <span className="text-sky-600">Terminal</span>
               </h2>
               <p className="mt-1 text-sm font-bold text-slate-500 sm:text-base">
-                Enter your verified sensor totals to clear the Orion capsule for launch.
+                Enter your computed totals and transmit them. They will be verified by
+                Mission Control during the flight simulation.
               </p>
             </div>
 
@@ -714,35 +736,12 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
               row={student.row}
             />
 
-            {rejected && (
-              <div
-                role="alert"
-                className="animate-pop-in rounded-2xl border-2 border-red-400 bg-red-50 p-3 sm:p-4"
-              >
-                <p className="text-base font-extrabold text-red-600 sm:text-lg">
-                  🚨 TRANSMISSION REJECTED — {METRICS.filter((m) => states[m.key] === 'bad').length} of 6
-                  values incorrect.
-                </p>
-                <p className="mt-1 text-sm font-bold text-amber-700 sm:text-base">
-                  The flight computer will not accept launch telemetry with errors.
-                  Re-check your calculations for{' '}
-                  <b>
-                    {METRICS.filter((m) => states[m.key] === 'bad')
-                      .map((m) => m.label)
-                      .join(', ')}
-                  </b>{' '}
-                  against Row {student.row} in Google Sheets, then transmit again.
-                </p>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {METRICS.map((m) => (
                 <MetricInput
                   key={m.key}
                   metric={m}
                   formula={m.sheet(student.row)}
-                  state={states[m.key]}
                   value={values[m.key] || ''}
                   onChange={(v) => setValue(m.key, v)}
                 />
@@ -760,13 +759,13 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
         ) : (
           <div className="animate-pop-in flex w-full max-w-lg flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
             <span className="text-6xl" aria-hidden="true">📡</span>
-            <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-emerald-600">
-              Transmission Received!
+            <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-sky-600">
+              Transmission Sent!
             </h2>
             <p className="text-base font-bold text-slate-500 sm:text-lg">
-              Mission Control has verified your telemetry,{' '}
-              <span className="text-sky-600">{player}</span>. Your team is one step
-              closer to launch.
+              Your numbers are logged, <span className="text-sky-600">{player}</span>.
+              Mission Control will verify them during the flight simulation ahead of the
+              1 October 2027 launch.
             </p>
             <button
               type="button"
@@ -775,6 +774,172 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
             >
               View Team Dashboard →
             </button>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
+function SimulationFailureScreen({ store, onRetry, onExit }) {
+  const [phase, setPhase] = useState('ignition')
+
+  useEffect(() => {
+    sndAlarm()
+    const t1 = setTimeout(() => setPhase('lift'), 1200)
+    const t2 = setTimeout(() => {
+      setPhase('crash')
+      sndError()
+    }, 4200)
+    const t3 = setTimeout(() => setPhase('report'), 5800)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  }, [])
+
+  const report = Object.keys(MISSION_TEAMS).map((tid) => {
+    const team = MISSION_TEAMS[tid]
+    const members = rosterFor(tid)
+    return {
+      team,
+      wrong: members.filter((s) => {
+        const r = store.submits[s.name]
+        return r && !r.perfect
+      }),
+      missing: members.filter((s) => !store.submits[s.name]),
+      bossDone: !!store.teams[tid]?.clearedAt,
+    }
+  })
+  const totalThreat =
+    report.reduce((n, r) => n + r.wrong.length + r.missing.length, 0) +
+    report.filter((r) => !r.bossDone).length
+
+  return (
+    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-red-950 via-slate-900 to-black">
+      <Stars />
+      <div className="scanlines pointer-events-none absolute inset-0 z-10" aria-hidden="true" />
+      {phase === 'crash' && (
+        <div className="animate-flash-red pointer-events-none absolute inset-0 z-20 bg-red-500/40" />
+      )}
+      <div className="z-30 flex w-full shrink-0 items-center justify-between px-4 pt-3 sm:px-6 sm:pt-4">
+        <button
+          type="button"
+          onClick={onExit}
+          className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-sm font-extrabold text-indigo-700 shadow transition hover:scale-105 sm:px-4 sm:py-2 sm:text-lg"
+        >
+          <span aria-hidden="true">←</span> Exit
+        </button>
+        <div className="text-center">
+          <p className="animate-alert-pulse text-[10px] font-extrabold uppercase tracking-widest text-red-300 sm:text-xs">
+            ARTEMIS 3 · FLIGHT SIMULATION
+          </p>
+          <p className="text-xs font-bold text-white/60 sm:text-sm">
+            Countdown · 1 Oct 2027 launch window
+          </p>
+        </div>
+        <div className="w-16 sm:w-24" />
+      </div>
+
+      <main className="z-30 flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden px-4 py-4">
+        {phase !== 'report' ? (
+          <div className="flex w-full max-w-2xl flex-col items-center">
+            <p
+              className={`text-center font-mono text-lg font-extrabold uppercase tracking-widest sm:text-2xl ${
+                phase === 'crash' ? 'animate-alert-pulse text-red-400' : 'text-red-300'
+              }`}
+            >
+              {phase === 'ignition' && '⚡ INITIATING PREFLIGHT SIMULATION…'}
+              {phase === 'lift' && '🚨 LIFTOFF — BUT THE TELEMETRY LOOKS WRONG!'}
+              {phase === 'crash' && '💥 LAUNCH FAILURE — SHIP LOST'}
+            </p>
+            <div className="relative mt-6 flex h-72 w-full items-end justify-center sm:h-96">
+              <div
+                className={`absolute bottom-16 left-1/2 z-10 -translate-x-1/2 ${
+                  phase === 'ignition' ? 'animate-artemis-wiggle' : 'animate-artemis-veer'
+                }`}
+              >
+                <img src="/images/rocket.svg" alt="" className="h-48 w-48 sm:h-64 sm:w-64" />
+              </div>
+              {phase === 'crash' && (
+                <div
+                  className="animate-boom absolute bottom-16 left-1/2 z-20 -translate-x-1/2 text-8xl sm:text-9xl"
+                  aria-hidden="true"
+                >
+                  💥
+                </div>
+              )}
+              {phase === 'ignition' && (
+                <div className="pointer-events-none absolute bottom-16 left-1/2 z-0 flex -translate-x-1/2 gap-10">
+                  {['puff-1', 'puff-2', 'puff-3'].map((p, i) => (
+                    <div
+                      key={p}
+                      className="animate-smoke-puff h-6 w-6 rounded-full bg-white/60"
+                      style={{ animationDelay: `${i * 300}ms` }}
+                    />
+                  ))}
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-slate-700" />
+            </div>
+          </div>
+        ) : (
+          <div className="animate-pop-in flex w-full max-w-2xl flex-col gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-8">
+            <span className="text-center text-5xl" aria-hidden="true">🚨</span>
+            <h2 className="text-center text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-red-600">
+              MISSION FAILURE
+            </h2>
+            <p className="text-center text-base font-bold text-slate-600 sm:text-lg">
+              The flight computer rejected {totalThreat} unreliable value
+              {totalThreat === 1 ? '' : 's'}. Artemis 3 veered off course and was lost.
+              Fix every number, then run the simulation again.
+            </p>
+            <div className="space-y-3">
+              {report.map(({ team, wrong, missing, bossDone }) => (
+                <div key={team.name} className="rounded-2xl border border-red-200 bg-red-50 p-3 sm:p-4">
+                  <p className="mb-1 text-sm font-extrabold text-red-500 sm:text-base">
+                    {team.emoji} {team.name}
+                  </p>
+                  {wrong.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ✗ Wrong numbers:{' '}
+                      <span className="text-red-600">{wrong.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
+                  {missing.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ◌ Missing numbers:{' '}
+                      <span className="text-red-600">{missing.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
+                  {!bossDone && (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ⚠ Flight Director aggregate not verified
+                    </p>
+                  )}
+                  {!wrong.length && !missing.length && bossDone && (
+                    <p className="text-xs font-bold text-emerald-600 sm:text-sm">✓ Numbers locked in</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={onRetry}
+                className="flex-1 rounded-full bg-red-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+              >
+                ↺ Recalculate & Retry
+              </button>
+              <button
+                type="button"
+                onClick={onExit}
+                className="flex-1 rounded-full bg-white px-8 py-3 text-xl font-extrabold text-slate-600 shadow-lg transition hover:scale-105 sm:text-2xl"
+              >
+                Back to Games 🎮
+              </button>
+            </div>
           </div>
         )}
       </main>
@@ -863,7 +1028,7 @@ function BossPanel({ teamId, done, boss, onBossSubmit }) {
       </p>
       {boss ? (
         <p className="text-center text-sm font-extrabold text-emerald-500">
-          ✓ Team aggregate verified — mission cleared!
+          ✓ Team aggregate verified — numbers handed to Artemis 3!
         </p>
       ) : (
         <>
@@ -900,7 +1065,7 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   const boss = store.teams[teamId]?.boss
   const cleared = !!(boss && boss.perfect)
   const status = cleared
-    ? 'MISSION CLEARED'
+    ? 'RELAYED TO ARTEMIS 3'
     : allDone
       ? 'FLIGHT DIRECTOR READY'
       : 'IN PROGRESS'
@@ -926,17 +1091,28 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
 
       <div className="flex flex-wrap gap-1.5">
         {members.map((s) => {
-          const ok = store.submits[s.name]?.perfect
+          const rec = store.submits[s.name]
+          const ok = rec?.perfect
+          const bad = rec && !rec.perfect
           return (
             <span
               key={s.name}
+              title={
+                ok
+                  ? 'Correct numbers received'
+                  : bad
+                    ? 'Incorrect numbers — waiting for the correct value'
+                    : 'Numbers not yet submitted'
+              }
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold transition ${
                 ok
                   ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-500'
+                  : bad
+                    ? 'animate-pulse bg-red-100 text-red-600'
+                    : 'bg-slate-100 text-slate-500'
               }`}
             >
-              {ok ? '✓ ' : ''}
+              {ok ? '✓ ' : bad ? '✗ ' : '◌ '}
               {s.name}
             </span>
           )
@@ -971,9 +1147,24 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   )
 }
 
-function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubmit, onReset, onExit, muted, onToggleMuted }) {
+function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
+
+  const wrongNames = []
+  const missingNames = []
+  for (const teamId of Object.keys(MISSION_TEAMS)) {
+    for (const s of rosterFor(teamId)) {
+      const record = store.submits[s.name]
+      if (!record) missingNames.push(s.name)
+      else if (!record.perfect) wrongNames.push(s.name)
+    }
+  }
+  const notClearedTeams = Object.keys(MISSION_TEAMS).filter(
+    (t) => !store.teams[t]?.clearedAt,
+  )
+  const hasThreat =
+    wrongNames.length > 0 || missingNames.length > 0 || notClearedTeams.length > 0
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
@@ -1014,6 +1205,42 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
       </div>
 
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-start gap-4 overflow-y-auto px-4 py-4 sm:gap-6 sm:px-6 sm:py-6">
+        {hasThreat && (
+          <div className="animate-pop-in w-full max-w-5xl rounded-2xl border-2 border-red-400 bg-red-950/70 p-4 text-left shadow-[0_0_30px_rgba(248,113,113,0.25)]">
+            <p className="animate-alert-pulse text-base font-extrabold text-red-300 sm:text-lg">
+              🚨 RED ALERT — ARTEMIS 3 TELEMETRY NOT SAFE FOR LAUNCH
+            </p>
+            <div className="mt-2 space-y-1 text-xs font-bold text-red-100 sm:text-sm">
+              {wrongNames.length > 0 && (
+                <p>
+                  ✗ Incorrect numbers received from:{' '}
+                  <span className="text-white">{wrongNames.join(', ')}</span> — these could
+                  send the ship off course.
+                </p>
+              )}
+              {missingNames.length > 0 && (
+                <p>
+                  ◌ Missing numbers from:{' '}
+                  <span className="text-white">{missingNames.join(', ')}</span> — the flight
+                  computer cannot run without them.
+                </p>
+              )}
+              {notClearedTeams.length > 0 && (
+                <p>
+                  ⚠ Flight Director aggregate not verified for:{' '}
+                  <span className="text-white">
+                    {notClearedTeams.map((t) => MISSION_TEAMS[t].name).join(', ')}
+                  </span>
+                </p>
+              )}
+              <p>
+                Launching now could <span className="text-red-300">CRASH Artemis 3</span>.
+                Fix every number before the 1 October 2027 launch window.
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="w-full max-w-5xl text-center">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-cyan-400 sm:text-xs">
             Real-time Telemetry Status
@@ -1023,7 +1250,7 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
           </h2>
           <div className="mt-2 flex items-center justify-center gap-2">
             <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-extrabold text-white">
-              🟢 Mission Cleared
+              🟢 Relayed to Artemis 3
             </span>
             <span className="rounded-full bg-sky-500 px-3 py-1 text-xs font-extrabold text-white">
               🔵 Flight Director Ready
@@ -1053,6 +1280,23 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
             className={`rounded-full bg-gradient-to-r ${style.grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
           >
             📡 Open My Telemetry Terminal
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sndClick()
+              window.open(GOOGLE_SHEET_URL, '_blank', 'noopener')
+            }}
+            className="rounded-full bg-emerald-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-emerald-600 sm:text-2xl"
+          >
+            🔗 Open Google Sheet
+          </button>
+          <button
+            type="button"
+            onClick={onSimulate}
+            className="rounded-full bg-red-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-red-600 sm:text-2xl"
+          >
+            🚨 Run Flight Simulation
           </button>
           <button
             type="button"
@@ -1092,7 +1336,7 @@ function LaunchScreen({ onLaunchEnd }) {
     <div className="fixed inset-0 z-50 flex touch-manipulation flex-col items-center justify-end overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-black">
       <Stars />
       <p className="z-20 mb-4 animate-pop-in text-2xl font-extrabold tracking-widest text-white drop-shadow-lg sm:text-4xl">
-        🚀 MISSION LAUNCH IN PROGRESS
+        🚀 ARTEMIS 3 MISSION LAUNCH IN PROGRESS
       </p>
       <div className="absolute bottom-0 left-0 right-0 h-16 bg-slate-700" />
       <div className="animate-artemis-wiggle absolute bottom-16 left-1/2 z-10 -translate-x-1/2">
@@ -1153,11 +1397,11 @@ function VictoryScreen({ store, onExit, onRestart }) {
         <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
           <span className="text-6xl sm:text-7xl" aria-hidden="true">🌕</span>
           <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold text-slate-700">
-            Orion is en route to the <span className="text-sky-600">Moon!</span>
+            Artemis 3 is en route to the <span className="text-sky-600">Moon!</span>
           </h1>
           <p className="text-base font-bold text-slate-500 sm:text-lg">
-            All three teams verified their telemetry. Mission Control is green across the
-            board!
+            All three engineering teams relayed their verified numbers. The launch
+            sequence is green across the board!
           </p>
 
           <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1211,7 +1455,7 @@ function VictoryScreen({ store, onExit, onRestart }) {
   )
 }
 
-export default function ArtemisGame({ onExit }) {
+export default function ArtemisG8Game({ onExit }) {
   const [screen, setScreen] = useState('login')
   const [player, setPlayer] = useState(null)
   const [store, setStore] = useState(loadStore)
@@ -1230,10 +1474,49 @@ export default function ArtemisGame({ onExit }) {
     if (typeof BroadcastChannel === 'undefined') return undefined
     const channel = new BroadcastChannel(CHANNEL_NAME)
     const listener = (e) => {
-      if (e.data?.type === 'store' && e.data.store) setStore(e.data.store)
+      if (e.data?.type === 'store' && e.data.store) {
+        setStore((prev) => mergeStores(prev, e.data.store))
+      }
     }
     channel.addEventListener('message', listener)
     return () => channel.removeEventListener('message', listener)
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return undefined
+
+    const channel = supabase
+      .channel('artemis-g8-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: REMOTE_TABLE,
+          filter: `game_key=eq.${REMOTE_KEY}`,
+        },
+        (payload) => {
+          const storeNow = payload.new?.store
+          if (storeNow) setStore((prev) => mergeStores(prev, storeNow))
+        },
+      )
+      .subscribe()
+
+    supabase
+      .from(REMOTE_TABLE)
+      .select('store')
+      .eq('game_key', REMOTE_KEY)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.store) setStore((prev) => mergeStores(prev, data.store))
+      })
+      .catch(() => {
+        /* ignore */
+      })
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const allCleared = Object.keys(MISSION_TEAMS).every(
@@ -1281,6 +1564,7 @@ export default function ArtemisGame({ onExit }) {
         },
       }
       broadcast(next)
+      pushRemoteStore(next)
       return next
     })
   }
@@ -1312,16 +1596,25 @@ export default function ArtemisGame({ onExit }) {
       }
       if (perfect && !alreadyCleared) sndAlarm()
       broadcast(next)
+      pushRemoteStore(next)
       return next
     })
   }
 
   function handleReset() {
     if (!window.confirm('Reset all mission telemetry data?')) return
-    setStore({ ...DEFAULT_STORE })
+    const fresh = { ...DEFAULT_STORE }
+    setStore(fresh)
+    broadcast(fresh)
+    pushRemoteStore(fresh)
     setScreen('login')
     setPlayer(null)
     launchRef.current = false
+  }
+
+  function handleSimulate() {
+    sndClick()
+    setScreen(allCleared ? 'launch' : 'failure')
   }
 
   function toggleMuted() {
@@ -1332,7 +1625,10 @@ export default function ArtemisGame({ onExit }) {
   }
 
   function restart() {
-    setStore({ ...DEFAULT_STORE })
+    const fresh = { ...DEFAULT_STORE }
+    setStore(fresh)
+    broadcast(fresh)
+    pushRemoteStore(fresh)
     setPlayer(null)
     setScreen('login')
     launchRef.current = false
@@ -1346,6 +1642,15 @@ export default function ArtemisGame({ onExit }) {
   }
   if (screen === 'victory') {
     return <VictoryScreen store={store} onExit={onExit} onRestart={restart} />
+  }
+  if (screen === 'failure') {
+    return (
+      <SimulationFailureScreen
+        store={store}
+        onRetry={() => setScreen('radar')}
+        onExit={onExit}
+      />
+    )
   }
   if (screen === 'login') {
     return (
@@ -1404,6 +1709,7 @@ export default function ArtemisGame({ onExit }) {
       }}
       onOpenTerminal={() => setScreen('terminal')}
       onBossSubmit={handleBossSubmit}
+      onSimulate={handleSimulate}
       onReset={handleReset}
       onExit={onExit}
       muted={mutedState}

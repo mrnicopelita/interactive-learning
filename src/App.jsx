@@ -5,10 +5,10 @@ import SignalLabGame from './games/SignalLabGame.jsx'
 import KeyboardGame from './games/KeyboardGame.jsx'
 import TypingGame from './games/TypingGame.jsx'
 import ArtemisGame from './games/ArtemisGame.jsx'
-import Artemis2Game from './games/Artemis2Game.jsx'
-import ArtemisGame3 from './games/ArtemisGame3.jsx'
+import ArtemisG8Game from './games/ArtemisG8Game.jsx'
 import PolisiWarnaGame from './games/PolisiWarnaGame.jsx'
 import KantinGame from './games/KantinGame.jsx'
+import KelinciLompatGame from './games/KelinciLompatGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -44,10 +44,10 @@ const GAME_COMPONENTS = {
   'keyboard': KeyboardGame,
   'typing': TypingGame,
   'artemis': ArtemisGame,
-  'artemis2': Artemis2Game,
-  'artemis-3': ArtemisGame3,
+  'artemis-g8': ArtemisG8Game,
   'polisi-warna': PolisiWarnaGame,
   'kantin-crisis': KantinGame,
+  'kelinci-lompat': KelinciLompatGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
