@@ -204,7 +204,7 @@ function SpacePrompt({ pressed, urgent, onHit }) {
       >
         <span className="absolute inset-x-4 top-1.5 h-1.5 rounded-full bg-white/40" />
         <span className="text-[clamp(1.15rem,3vw,1.75rem)] font-black leading-none text-white drop-shadow-[0_2px_0_rgba(2,6,23,0.35)]">
-          SPASI
+          SPACE
         </span>
         <span className="mt-1 flex gap-1.5">
           <span className={`h-2.5 w-9 rounded-full ${pressed ? 'bg-sky-900' : 'bg-sky-700'}`} />
@@ -476,7 +476,7 @@ export default function KelinciLompatGame({ onExit }) {
           ‹ Keluar
         </button>
         <h1 className="text-[clamp(1.35rem,4.5vw,2.5rem)] font-black leading-none text-slate-700 drop-shadow-sm">
-          <span aria-hidden="true">🐰</span> Kelinci Lompat Spasi
+          <span aria-hidden="true">🐰</span> Kelinci Lompat Space
         </h1>
         <button
           type="button"

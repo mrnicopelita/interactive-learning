@@ -55,8 +55,14 @@ export const QUIZ_REGISTRY = [
   },
   {
     id: 'kelinci-lompat',
-    title: 'Kelinci Lompat Spasi',
+    title: 'Kelinci Lompat Space',
     tagline: 'Press SPACE to jump! Collect carrots and reach the golden carrot!',
+    images: ['/images/kelinci.svg', '/images/golden-carrot.svg'],
+  },
+  {
+    id: 'kelinci-berlari',
+    title: 'POV Kelinci Berlari',
+    tagline: 'GoPro di kepala kelinci! Lompat bareng si kelinci di ladang!',
     images: ['/images/kelinci.svg', '/images/golden-carrot.svg'],
   },
   {

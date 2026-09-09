@@ -769,3 +769,135 @@ html, body {
 .animate-hore-bounce {
   animation: hore-bounce 1.6s ease-in-out infinite;
 }
+
+/* POV Kelinci Berlari (first-person rabbit runner) */
+@keyframes pov-jump {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1, 1);
+  }
+  18% {
+    transform: translateY(-9.5%) rotate(-1.6deg) scale(1.02, 0.97);
+  }
+  42% {
+    transform: translateY(-3.5%) rotate(1deg) scale(1, 1);
+  }
+  58% {
+    transform: translateY(1.2%) scale(1.01, 0.985);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1, 1);
+  }
+}
+
+.animate-pov-jump {
+  animation: pov-jump 0.62s cubic-bezier(0.28, 0.8, 0.4, 1) both;
+}
+
+@keyframes pov-splash {
+  0% {
+    opacity: 0;
+    transform: scale(0.35) rotate(-6deg);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.14) rotate(3deg);
+  }
+  35% {
+    transform: scale(1) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.06) translateY(-3vh);
+  }
+}
+
+.animate-pov-splash {
+  animation: pov-splash 0.74s ease-out both;
+}
+
+@keyframes pov-ring {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.2, 0.12);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.55, 0.4);
+  }
+}
+
+.animate-pov-ring {
+  animation: pov-ring 0.55s ease-out both;
+}
+
+@keyframes pov-siap {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.animate-pov-siap {
+  animation: pov-siap 0.5s ease-in-out infinite;
+}
+
+@keyframes pov-ear-flap {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(7deg) scaleY(1.06);
+  }
+}
+
+.animate-pov-ear-flap {
+  animation: pov-ear-flap 0.42s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+@keyframes pov-ears-jump {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-9px) rotate(10deg) scale(1.08);
+  }
+  60% {
+    transform: translateY(-3px) rotate(-4deg) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+.animate-pov-ears-jump {
+  animation: pov-ears-jump 0.62s ease-out both;
+  transform-box: fill-box;
+  transform-origin: bottom center;
+}
+
+@keyframes pov-replay-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 14px rgba(245, 158, 11, 0);
+  }
+}
+
+.animate-pov-replay {
+  animation: pov-replay-pulse 1.3s ease-in-out infinite;
+}

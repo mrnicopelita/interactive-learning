@@ -9,6 +9,7 @@ import ArtemisG8Game from './games/ArtemisG8Game.jsx'
 import PolisiWarnaGame from './games/PolisiWarnaGame.jsx'
 import KantinGame from './games/KantinGame.jsx'
 import KelinciLompatGame from './games/KelinciLompatGame.jsx'
+import PovRabbitGame from './games/PovRabbitGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -48,6 +49,7 @@ const GAME_COMPONENTS = {
   'polisi-warna': PolisiWarnaGame,
   'kantin-crisis': KantinGame,
   'kelinci-lompat': KelinciLompatGame,
+  'kelinci-berlari': PovRabbitGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
