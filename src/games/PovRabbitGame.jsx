@@ -6,7 +6,7 @@ const D_MIN = 0.12
 const D_MAX = 8
 const GAP = 6.5
 const PASS_D = 0.34
-const SIAP_D = 2.7
+const SIAP_D = 3.2
 const CARROT_SPD = 0.95
 const CENTER_K = 0.28
 const POST_K = 0.32
@@ -82,6 +82,24 @@ function playFanfare() {
   })
 }
 
+function speak(text, opts = {}) {
+  if (!('speechSynthesis' in window)) return
+  try {
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    u.lang = 'en-US'
+    u.rate = opts.rate ?? 1.05
+    u.pitch = opts.pitch ?? 1.1
+    const voice = window.speechSynthesis
+      .getVoices()
+      .find((v) => v.lang === 'en-US')
+    if (voice) u.voice = voice
+    window.speechSynthesis.speak(u)
+  } catch {
+    /* ignore speech errors */
+  }
+}
+
 const GATES = Array.from({ length: MAX_JUMPS }, (_, i) => D_MAX + i * GAP)
 const GOLD_GATE = GATES[MAX_JUMPS - 1] + GAP * 1.45
 const TOTAL_Z = GOLD_GATE + 2
@@ -89,7 +107,7 @@ const TOTAL_Z = GOLD_GATE + 2
 const CARROT_AT = Array.from({ length: MAX_JUMPS }, (_, i) => GATES[i] + GAP * 0.52)
 
 const OBSTACLE_ASPECT = [1, 0.75, 0.55, 0.55]
-const OBSTACLE_BASE = 0.3
+const OBSTACLE_BASE = 0.45
 const CARROT_BASE = 0.13
 
 function mod(n, m) {
@@ -246,6 +264,7 @@ export default function PovRabbitGame({ onExit }) {
     (i) => {
       passedRef.current.add(i)
       playBoing()
+      speak('Jump!', { rate: 1.15, pitch: 1.25 })
       setJumps((j) => j + 1)
       setJumpFx((k) => k + 1)
       setEarJump(true)
@@ -271,6 +290,10 @@ export default function PovRabbitGame({ onExit }) {
   useEffect(() => {
     pausedRef.current = paused
   }, [paused])
+
+  useEffect(() => {
+    if (siap && phase === 'run') speak('Ready!', { rate: 1.0, pitch: 1.0 })
+  }, [siap, phase])
 
   useEffect(() => {
     const stage = stageRef.current
@@ -361,7 +384,7 @@ export default function PovRabbitGame({ onExit }) {
           if (visible) {
             const s = CARROT_SPD / d
             const ti = i % 4
-            const sizePx = Math.max(84, h * OBSTACLE_BASE) * s
+            const sizePx = Math.max(100, h * OBSTACLE_BASE) * s
             const x = w / 2 + LANES[i] * w * (CENTER_K / d)
             const y = yOf(d)
             el.style.display = 'block'
@@ -450,6 +473,7 @@ export default function PovRabbitGame({ onExit }) {
 
   function restart() {
     worldZRef.current = 0
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     passedRef.current.clear()
     collectedRef.current.clear()
     cueIdxRef.current = -1
