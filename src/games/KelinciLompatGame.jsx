@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
-const MAX_JUMPS = 8
+const MAX_JUMPS = 5
 const RABBIT_X = 0.24
 const OBSTACLE_GAP = 1.45
 const FIRST_OBSTACLE = 1.2
-const FINISH_MULT = 12.25
+const FINISH_MULT = 7.9
 const GRAVITY = 1200
 const JUMP_V = 700
 const CARROT_PRE = [0.45, 0.85]
@@ -495,7 +495,7 @@ export default function KelinciLompatGame({ onExit }) {
             {Array.from({ length: MAX_JUMPS }, (_, i) => (
               <span
                 key={i}
-                className={`text-xl sm:text-2xl ${i < jumps ? 'animate-pop-in' : 'opacity-30 grayscale'}`}
+                className={`text-2xl sm:text-3xl ${i < jumps ? 'animate-pop-in' : 'opacity-30 grayscale'}`}
                 aria-hidden="true"
               >
                 🥕
@@ -595,7 +595,7 @@ export default function KelinciLompatGame({ onExit }) {
               <span
                 key={i}
                 className="animate-carrot-bob absolute select-none"
-                style={{ left: `${cx}px`, bottom: `${ground - 6}px`, fontSize: `${Math.max(34, h * 0.09)}px`, lineHeight: 1 }}
+                style={{ left: `${cx}px`, bottom: `${ground - 6}px`, fontSize: `${Math.max(46, h * 0.13)}px`, lineHeight: 1 }}
                 aria-hidden="true"
               >
                 🥕
