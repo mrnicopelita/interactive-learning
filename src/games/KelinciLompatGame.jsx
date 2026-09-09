@@ -2,14 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 const MAX_JUMPS = 8
-const SPEED_FACTOR = 0.4
 const RABBIT_X = 0.24
 const OBSTACLE_GAP = 1.45
 const FIRST_OBSTACLE = 1.2
 const FINISH_MULT = 12.25
-const GRAVITY = 1500
-const JUMP_V = 730
+const GRAVITY = 1200
+const JUMP_V = 700
 const CARROT_PRE = [0.45, 0.85]
+
+const SPEED_LEVELS = [
+  { level: 1, label: 'Lambat', emoji: '🐢', factor: 0.24 },
+  { level: 2, label: 'Sedang', emoji: '🐇', factor: 0.32 },
+  { level: 3, label: 'Cepat', emoji: '🚀', factor: 0.4 },
+]
 
 let audioCtx = null
 
@@ -223,6 +228,7 @@ export default function KelinciLompatGame({ onExit }) {
   const [urgent, setUrgent] = useState(false)
   const [popKey, setPopKey] = useState(0)
   const [sparkles, setSparkles] = useState([])
+  const [speedLevel, setSpeedLevel] = useState(1)
   const stageRef = useRef(null)
   const worldRef = useRef(null)
   const rabbitRef = useRef(null)
@@ -236,6 +242,12 @@ export default function KelinciLompatGame({ onExit }) {
   const popAtRef = useRef(0)
   const urgentRef = useRef(false)
   const winFiredRef = useRef(false)
+  const speedRef = useRef(1)
+
+  const changeSpeed = useCallback((lvl) => {
+    speedRef.current = lvl
+    setSpeedLevel(lvl)
+  }, [])
 
   const addSparkle = useCallback((emoji, x, y) => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
@@ -314,8 +326,9 @@ export default function KelinciLompatGame({ onExit }) {
       const winScroll = (FINISH_MULT - RABBIT_X) * w
 
       if (phaseRef.current !== 'win') {
+        const speed = SPEED_LEVELS.find((s) => s.level === speedRef.current) || SPEED_LEVELS[0]
         if (scrollRef.current < winScroll) {
-          scrollRef.current = Math.min(winScroll, scrollRef.current + SPEED_FACTOR * w * dt)
+          scrollRef.current = Math.min(winScroll, scrollRef.current + speed.factor * w * dt)
         }
         yRef.current += vyRef.current * dt
         vyRef.current += GRAVITY * dt
@@ -373,7 +386,7 @@ export default function KelinciLompatGame({ onExit }) {
         const rot = airborne ? -14 : 0
         const sx = airborne ? 1.08 : 1
         const sy = airborne ? 0.92 : 1
-        rabbitRef.current.style.transform = `translate(-50%, ${-yRef.current}px) rotate(${rot}deg) scale(${sx}, ${sy})`
+        rabbitRef.current.style.transform = `translate(-50%, ${yRef.current}px) rotate(${rot}deg) scale(${sx}, ${sy})`
         rabbitInnerRef.current.classList.toggle('animate-kelinci-bob', !airborne)
       }
       raf = requestAnimationFrame(tick)
@@ -496,9 +509,33 @@ export default function KelinciLompatGame({ onExit }) {
             🥕 x {picked.size}
           </span>
         </div>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xs font-extrabold tracking-wide text-amber-800 uppercase sm:text-sm">Kecepatan</span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {SPEED_LEVELS.map((sl) => (
+              <button
+                key={sl.level}
+                type="button"
+                onClick={() => changeSpeed(sl.level)}
+                className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-black shadow transition sm:px-4 sm:py-2 sm:text-base ${
+                  speedLevel === sl.level
+                    ? 'scale-105 bg-amber-400 text-white shadow-[0_3px_0_#b45309] ring-2 ring-amber-300'
+                    : 'bg-white/90 text-amber-700 hover:scale-105'
+                }`}
+              >
+                <span aria-hidden="true">{sl.emoji}</span>
+                {sl.level}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div ref={stageRef} className="relative min-h-0 flex-1 overflow-hidden">
+      <div
+        ref={stageRef}
+        className="relative min-h-0 flex-1 overflow-hidden"
+        onPointerDown={() => jump()}
+      >
         <span
           aria-hidden="true"
           className="animate-floaty pointer-events-none absolute right-3 top-2 z-[1] select-none text-5xl opacity-90 drop-shadow-[0_0_14px_rgba(250,204,21,0.8)] sm:text-7xl"
