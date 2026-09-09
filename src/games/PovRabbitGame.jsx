@@ -82,17 +82,33 @@ function playFanfare() {
   })
 }
 
+const FEMALE_HINTS = [
+  /female|woman|girl/i,
+  /samantha|susan|karen|moira|tessa|fiona|veena|zira|aria|salli|jenny|amira/i,
+  /michelle|sonia|serena|millie|hayley|linda|julie|grover\.?s?/i,
+  /google us english|google uk english|natural|online|neural/i,
+]
+
+function pickFemaleVoice() {
+  if (!('speechSynthesis' in window)) return null
+  const english = window.speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang))
+  for (const hint of FEMALE_HINTS) {
+    const hit = english.find((v) => hint.test(v.name))
+    if (hit) return hit
+  }
+  return english[0] || null
+}
+
 function speak(text, opts = {}) {
   if (!('speechSynthesis' in window)) return
   try {
     window.speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'en-US'
-    u.rate = opts.rate ?? 1.05
-    u.pitch = opts.pitch ?? 1.1
-    const voice = window.speechSynthesis
-      .getVoices()
-      .find((v) => v.lang === 'en-US')
+    u.volume = 1
+    u.rate = opts.rate ?? 1.28
+    u.pitch = opts.pitch ?? 1.4
+    const voice = opts.voice || pickFemaleVoice()
     if (voice) u.voice = voice
     window.speechSynthesis.speak(u)
   } catch {
@@ -264,7 +280,7 @@ export default function PovRabbitGame({ onExit }) {
     (i) => {
       passedRef.current.add(i)
       playBoing()
-      speak('Jump!', { rate: 1.15, pitch: 1.25 })
+      speak('Jump!', { rate: 1.45, pitch: 1.6 })
       setJumps((j) => j + 1)
       setJumpFx((k) => k + 1)
       setEarJump(true)
@@ -292,7 +308,15 @@ export default function PovRabbitGame({ onExit }) {
   }, [paused])
 
   useEffect(() => {
-    if (siap && phase === 'run') speak('Ready!', { rate: 1.0, pitch: 1.0 })
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.getVoices()
+    const onVoices = () => window.speechSynthesis.getVoices()
+    window.speechSynthesis.addEventListener('voiceschanged', onVoices)
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', onVoices)
+  }, [])
+
+  useEffect(() => {
+    if (siap && phase === 'run') speak('Ready!', { rate: 1.25, pitch: 1.35 })
   }, [siap, phase])
 
   useEffect(() => {
