@@ -15,9 +15,9 @@ const LANES = [-0.2, -0.07, 0.16, 0.07, -0.16, 0.22, -0.04, 0.12, -0.22, 0.17]
 const POST_LANE = 0.46
 
 const SPEED_LEVELS = [
-  { level: 1, label: 'Lambat', emoji: '🐢', factor: 3.3 },
-  { level: 2, label: 'Sedang', emoji: '🐇', factor: 4.5 },
-  { level: 3, label: 'Cepat', emoji: '🚀', factor: 6.1 },
+  { level: 1, label: 'Lambat', emoji: '🐢', factor: 2.2 },
+  { level: 2, label: 'Sedang', emoji: '🐇', factor: 3.0 },
+  { level: 3, label: 'Cepat', emoji: '🚀', factor: 3.9 },
 ]
 
 let audioCtx = null
@@ -89,6 +89,8 @@ const TOTAL_Z = GOLD_GATE + 2
 const CARROT_AT = Array.from({ length: MAX_JUMPS }, (_, i) => GATES[i] + GAP * 0.52)
 
 const OBSTACLE_ASPECT = [1, 0.75, 0.55, 0.55]
+const OBSTACLE_BASE = 0.3
+const CARROT_BASE = 0.13
 
 function mod(n, m) {
   return ((n % m) + m) % m
@@ -207,6 +209,7 @@ export default function PovRabbitGame({ onExit }) {
   const speedRef = useRef(2)
   const pausedRef = useRef(false)
   const landTimersRef = useRef([])
+  const bounceRef = useRef({ active: false, t: 0 })
 
   const changeSpeed = useCallback((lvl) => {
     speedRef.current = lvl
@@ -247,12 +250,7 @@ export default function PovRabbitGame({ onExit }) {
       setJumpFx((k) => k + 1)
       setEarJump(true)
       setTimeout(() => setEarJump(false), 620)
-      const el = sceneRef.current
-      if (el) {
-        el.classList.remove('animate-pov-jump')
-        void el.offsetWidth
-        el.classList.add('animate-pov-jump')
-      }
+      bounceRef.current = { active: true, t: 0 }
       const t = setTimeout(() => setLandFx((k) => k + 1), 250)
       landTimersRef.current.push(t)
     },
@@ -305,12 +303,30 @@ export default function PovRabbitGame({ onExit }) {
       const maxD = D_MAX + 0.5
       const z = worldZRef.current
 
+      const b = bounceRef.current
+      if (b.active) {
+        b.t += dt
+        const DUR = 0.62
+        const scene = sceneRef.current
+        if (scene) {
+          if (b.t >= DUR) {
+            b.active = false
+            scene.style.transform = 'translateY(0px)'
+          } else {
+            const p = b.t / DUR
+            const lift = Math.sin(p * Math.PI) * h * 0.09
+            const rot = Math.sin(p * Math.PI * 2) * 1.1
+            scene.style.transform = `translateY(${-lift}px) rotate(${rot}deg)`
+          }
+        }
+      }
+
       for (let i = 0; i < stripCount; i++) {
         const el = stripRefs.current.get(i)
         if (!el) continue
         const d = mod((i * (D_MAX - D_MIN)) / stripCount - z - D_MIN, D_MAX - D_MIN) + D_MIN
         const y = horizon + fieldSpan * (1 - Math.min(1, d / D_MAX))
-        const thin = 2 + 9 * (1 - d / D_MAX)
+        const thin = Math.max(2, 3 + h * 0.012 * (1 - d / D_MAX))
         el.style.top = `${y - thin / 2}px`
         el.style.height = `${thin}px`
         el.style.opacity = `${0.18 + 0.5 * (1 - d / D_MAX)}`
@@ -325,12 +341,13 @@ export default function PovRabbitGame({ onExit }) {
         const y = horizon + fieldSpan * (1 - Math.min(1, d / D_MAX))
         const s = Math.min(1.6, CARROT_SPD / d)
         const x = w / 2 + side * POST_LANE * w * (POST_K / d)
+        const postW = Math.max(6, w * 0.028 * s)
         el.style.display = 'block'
         el.style.transform = 'translate(-50%, -100%)'
         el.style.left = `${x}px`
         el.style.top = `${y}px`
-        el.style.width = `${Math.max(5, 26 * s)}px`
-        el.style.height = `${Math.max(9, 62 * s)}px`
+        el.style.width = `${postW}px`
+        el.style.height = `${postW * 2.6}px`
         el.style.opacity = `${0.4 + 0.6 * (1 - d / D_MAX)}`
         el.style.zIndex = Math.round((D_MAX - d) * 10)
       }
@@ -344,7 +361,7 @@ export default function PovRabbitGame({ onExit }) {
           if (visible) {
             const s = CARROT_SPD / d
             const ti = i % 4
-            const sizePx = Math.max(64, h * 0.2) * s
+            const sizePx = Math.max(84, h * OBSTACLE_BASE) * s
             const x = w / 2 + LANES[i] * w * (CENTER_K / d)
             const y = yOf(d)
             el.style.display = 'block'
@@ -389,7 +406,7 @@ export default function PovRabbitGame({ onExit }) {
             el.style.display = 'block'
             el.style.left = `${x}px`
             el.style.top = `${y}px`
-            el.style.fontSize = `${Math.max(36, h * 0.11) * s}px`
+            el.style.fontSize = `${Math.max(40, h * CARROT_BASE) * s}px`
             el.style.opacity = `${0.55 + 0.45 * (1 - d / D_MAX)}`
             el.style.zIndex = Math.round((D_MAX - d) * 10)
           } else {
@@ -412,7 +429,7 @@ export default function PovRabbitGame({ onExit }) {
           goldRef.current.style.display = 'block'
           goldRef.current.style.left = `${w / 2}px`
           goldRef.current.style.top = `${y}px`
-          goldRef.current.style.width = `${Math.max(70, h * 0.24) * s}px`
+          goldRef.current.style.width = `${Math.max(84, h * 0.28) * s}px`
           goldRef.current.style.opacity = `${0.55 + 0.45 * (1 - d / D_MAX)}`
           goldRef.current.style.zIndex = Math.round((D_MAX - d) * 10)
         } else {
@@ -440,6 +457,7 @@ export default function PovRabbitGame({ onExit }) {
     winFiredRef.current = false
     landTimersRef.current.forEach(clearTimeout)
     landTimersRef.current = []
+    bounceRef.current = { active: false, t: 0 }
     setJumps(0)
     setPicked(0)
     setSiap(false)
@@ -563,7 +581,7 @@ export default function PovRabbitGame({ onExit }) {
       </div>
 
       <div ref={stageRef} className="relative min-h-0 flex-1 overflow-hidden">
-        <div ref={sceneRef} className="animate-pov-jump absolute inset-0 will-change-transform">
+        <div ref={sceneRef} className="absolute inset-0 will-change-transform">
           <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-emerald-300" />
 
           <div className="absolute left-0 right-0 top-0" style={{ height: `${horizon}px` }}>
@@ -703,10 +721,10 @@ export default function PovRabbitGame({ onExit }) {
             key={`splash-${jumpFx}`}
             className="animate-pov-splash pointer-events-none absolute left-1/2 top-[38%] z-50 flex -translate-x-1/2 flex-col items-center"
           >
-            <span className="text-[clamp(3rem,11vw,6rem)] font-black leading-none text-white drop-shadow-[0_6px_0_rgba(2,6,23,0.3)]">
+            <span className="text-[clamp(3.5rem,12vw,8rem)] font-black leading-none text-white drop-shadow-[0_6px_0_rgba(2,6,23,0.3)]">
               LOMPAT!
             </span>
-            <span className="text-[clamp(2rem,7vw,3.5rem)]" aria-hidden="true">
+            <span className="text-[clamp(2.2rem,7.5vw,4.5rem)]" aria-hidden="true">
               🐰⬆️
             </span>
           </div>

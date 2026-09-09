@@ -771,28 +771,6 @@ html, body {
 }
 
 /* POV Kelinci Berlari (first-person rabbit runner) */
-@keyframes pov-jump {
-  0% {
-    transform: translateY(0) rotate(0deg) scale(1, 1);
-  }
-  18% {
-    transform: translateY(-9.5%) rotate(-1.6deg) scale(1.02, 0.97);
-  }
-  42% {
-    transform: translateY(-3.5%) rotate(1deg) scale(1, 1);
-  }
-  58% {
-    transform: translateY(1.2%) scale(1.01, 0.985);
-  }
-  100% {
-    transform: translateY(0) rotate(0deg) scale(1, 1);
-  }
-}
-
-.animate-pov-jump {
-  animation: pov-jump 0.62s cubic-bezier(0.28, 0.8, 0.4, 1) both;
-}
-
 @keyframes pov-splash {
   0% {
     opacity: 0;
