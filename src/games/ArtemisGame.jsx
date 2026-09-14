@@ -6,6 +6,7 @@ import {
   STUDENTS_DATA,
   SENSOR_NAMES,
   METRICS,
+  LOGIC_METRICS,
 } from './artemisData.js'
 import { supabase } from '../lib/supabase.js'
 
@@ -43,6 +44,7 @@ const TEAM_STYLE = {
 
 const DEFAULT_STORE = {
   submits: {},
+  logic: {},
   teams: {},
 }
 
@@ -91,6 +93,7 @@ function mergeStores(local, remote) {
   if (!remote) return local
   return {
     submits: { ...local.submits, ...(remote.submits || {}) },
+    logic: { ...local.logic, ...(remote.logic || {}) },
     teams: { ...local.teams, ...(remote.teams || {}) },
   }
 }
@@ -150,6 +153,12 @@ function computeStats(list) {
     mode: mode(list),
     median: median(list),
   }
+}
+
+function computeLogic(list) {
+  return Object.fromEntries(
+    LOGIC_METRICS.map((m) => [m.key, m.check(list)]),
+  )
 }
 
 function teamCombined(teamId) {
@@ -666,7 +675,7 @@ function SensorStrip({ readings, player, teamId, row }) {
   )
 }
 
-function TerminalScreen({ player, mission, onBack, onTransmitted }) {
+function TerminalScreen({ player, mission, onBack, onTransmitted, onContinueLogic }) {
   const student = STUDENTS_DATA[player]
   const readings = student.data
   const expected = useMemo(() => computeStats(readings), [readings])
@@ -774,6 +783,129 @@ function TerminalScreen({ player, mission, onBack, onTransmitted }) {
             >
               View Team Dashboard →
             </button>
+            <button
+              type="button"
+              onClick={onContinueLogic}
+              className="w-full rounded-full bg-indigo-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-indigo-600 sm:text-2xl"
+            >
+              🧠 Continue to Logic Relay →
+            </button>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
+function LogicTerminalScreen({ player, mission, onBack, onTransmitted }) {
+  const student = STUDENTS_DATA[player]
+  const readings = student.data
+  const expected = useMemo(() => computeLogic(readings), [readings])
+  const [values, setValues] = useState({})
+  const [submitted, setSubmitted] = useState(false)
+
+  function setValue(key, value) {
+    setValues((v) => ({ ...v, [key]: value }))
+  }
+
+  function transmit() {
+    let perfect = true
+    for (const m of LOGIC_METRICS) {
+      const v = parseFloat(values[m.key])
+      const ok = !Number.isNaN(v) && v === expected[m.key]
+      if (!ok) perfect = false
+    }
+    setSubmitted(true)
+    sndCorrect()
+    onTransmitted(player, perfect)
+  }
+
+  function backToRadar() {
+    sndClick()
+    onBack()
+  }
+
+  return (
+    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
+      <Stars />
+      <div className="z-10 flex w-full shrink-0 items-center justify-between px-4 pt-3 sm:px-6 sm:pt-4">
+        <button
+          type="button"
+          onClick={backToRadar}
+          className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-sm font-extrabold text-indigo-700 shadow transition hover:scale-105 sm:px-4 sm:py-2 sm:text-lg"
+        >
+          <span aria-hidden="true">←</span> Dashboard
+        </button>
+        <div className="text-center">
+          <p className="text-[10px] font-extrabold text-fuchsia-400 uppercase sm:text-xs">
+            Phase 2 · {mission.codename}
+          </p>
+          <p className="text-xs font-bold text-white/60 sm:text-sm">
+            Logic Relay Terminal · {player} · Row {student.logicRow}
+          </p>
+        </div>
+        <div className="w-16 sm:w-24" />
+      </div>
+
+      <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-4">
+        {!submitted ? (
+          <div className="animate-pop-in flex w-full max-w-2xl flex-col gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-8">
+            <div className="text-center">
+              <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-slate-700">
+                Logic <span className="text-indigo-600">Relay Terminal</span>
+              </h2>
+              <p className="mt-1 text-sm font-bold text-slate-500 sm:text-base">
+                Use <b>=IF</b> and <b>=COUNTIF</b> in Google Sheets to decide which readings
+                pass each check, then transmit the number. Verified by Mission Control
+                during the flight simulation.
+              </p>
+            </div>
+
+            <SensorStrip
+              readings={readings}
+              player={player}
+              teamId={student.team}
+              row={student.logicRow}
+            />
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {LOGIC_METRICS.map((m) => (
+                <MetricInput
+                  key={m.key}
+                  metric={m}
+                  formula={m.sheet(student.logicRow)}
+                  value={values[m.key] || ''}
+                  onChange={(v) => setValue(m.key, v)}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={transmit}
+              className="w-full rounded-full bg-fuchsia-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+            >
+              🧠 Transmit Logic Values to Mission Control
+            </button>
+          </div>
+        ) : (
+          <div className="animate-pop-in flex w-full max-w-lg flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
+            <span className="text-6xl" aria-hidden="true">🧠</span>
+            <h2 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-indigo-600">
+              Logic Values Sent!
+            </h2>
+            <p className="text-base font-bold text-slate-500 sm:text-lg">
+              Your logic answers are logged, <span className="text-indigo-600">{player}</span>.
+              Mission Control will verify them during the flight simulation ahead of the
+              1 October 2027 launch.
+            </p>
+            <button
+              type="button"
+              onClick={backToRadar}
+              className="w-full rounded-full bg-fuchsia-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+            >
+              View Team Dashboard →
+            </button>
           </div>
         )}
       </main>
@@ -809,11 +941,20 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
         return r && !r.perfect
       }),
       missing: members.filter((s) => !store.submits[s.name]),
+      logicWrong: members.filter((s) => {
+        const r = store.logic[s.name]
+        return r && !r.perfect
+      }),
+      logicMissing: members.filter((s) => !store.logic[s.name]),
       bossDone: !!store.teams[tid]?.clearedAt,
     }
   })
   const totalThreat =
-    report.reduce((n, r) => n + r.wrong.length + r.missing.length, 0) +
+    report.reduce(
+      (n, r) =>
+        n + r.wrong.length + r.missing.length + r.logicWrong.length + r.logicMissing.length,
+      0,
+    ) +
     report.filter((r) => !r.bossDone).length
 
   return (
@@ -896,7 +1037,7 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
               Fix every number, then run the simulation again.
             </p>
             <div className="space-y-3">
-              {report.map(({ team, wrong, missing, bossDone }) => (
+              {report.map(({ team, wrong, missing, logicWrong, logicMissing, bossDone }) => (
                 <div key={team.name} className="rounded-2xl border border-red-200 bg-red-50 p-3 sm:p-4">
                   <p className="mb-1 text-sm font-extrabold text-red-500 sm:text-base">
                     {team.emoji} {team.name}
@@ -913,14 +1054,32 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
                       <span className="text-red-600">{missing.map((s) => s.name).join(', ')}</span>
                     </p>
                   ) : null}
+                  {logicWrong.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ✗ Wrong logic values:{' '}
+                      <span className="text-red-600">{logicWrong.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
+                  {logicMissing.length ? (
+                    <p className="text-xs font-bold text-slate-600 sm:text-sm">
+                      ◌ Missing logic values:{' '}
+                      <span className="text-red-600">{logicMissing.map((s) => s.name).join(', ')}</span>
+                    </p>
+                  ) : null}
                   {!bossDone && (
                     <p className="text-xs font-bold text-slate-600 sm:text-sm">
                       ⚠ Flight Director aggregate not verified
                     </p>
                   )}
-                  {!wrong.length && !missing.length && bossDone && (
-                    <p className="text-xs font-bold text-emerald-600 sm:text-sm">✓ Numbers locked in</p>
-                  )}
+                  {!wrong.length &&
+                    !missing.length &&
+                    !logicWrong.length &&
+                    !logicMissing.length &&
+                    bossDone && (
+                      <p className="text-xs font-bold text-emerald-600 sm:text-sm">
+                        ✓ Numbers locked in
+                      </p>
+                    )}
                 </div>
               ))}
             </div>
@@ -1062,13 +1221,17 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   const members = rosterFor(teamId)
   const doneCount = members.filter((s) => store.submits[s.name]?.perfect).length
   const allDone = doneCount === team.size
+  const logicDoneCount = members.filter((s) => store.logic[s.name]?.perfect).length
+  const logicAllDone = logicDoneCount === team.size
   const boss = store.teams[teamId]?.boss
   const cleared = !!(boss && boss.perfect)
   const status = cleared
     ? 'RELAYED TO ARTEMIS 3'
-    : allDone
-      ? 'FLIGHT DIRECTOR READY'
-      : 'IN PROGRESS'
+    : !allDone
+      ? 'PHASE 1 IN PROGRESS'
+      : !logicAllDone
+        ? 'PHASE 2 IN PROGRESS'
+        : 'FLIGHT DIRECTOR READY'
 
   return (
     <div
@@ -1080,7 +1243,11 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
         <TeamBadge teamId={teamId} compact />
         <span
           className={`rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-white sm:text-xs ${
-            cleared ? 'bg-emerald-500' : allDone ? `bg-gradient-to-r ${style.grad}` : 'bg-slate-400'
+            cleared
+              ? 'bg-emerald-500'
+              : logicAllDone && allDone
+                ? `bg-gradient-to-r ${style.grad}`
+                : 'bg-slate-400'
           }`}
         >
           {status}
@@ -1089,34 +1256,74 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
 
       <p className="text-xs font-bold text-slate-400 sm:text-sm">{team.codename}</p>
 
-      <div className="flex flex-wrap gap-1.5">
-        {members.map((s) => {
-          const rec = store.submits[s.name]
-          const ok = rec?.perfect
-          const bad = rec && !rec.perfect
-          return (
-            <span
-              key={s.name}
-              title={
-                ok
-                  ? 'Correct numbers received'
-                  : bad
-                    ? 'Incorrect numbers — waiting for the correct value'
-                    : 'Numbers not yet submitted'
-              }
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold transition ${
-                ok
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : bad
-                    ? 'animate-pulse bg-red-100 text-red-600'
-                    : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              {ok ? '✓ ' : bad ? '✗ ' : '◌ '}
-              {s.name}
-            </span>
-          )
-        })}
+      <div>
+        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-400 sm:text-xs">
+          Phase 1 · Telemetry
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {members.map((s) => {
+            const rec = store.submits[s.name]
+            const ok = rec?.perfect
+            const bad = rec && !rec.perfect
+            return (
+              <span
+                key={s.name}
+                title={
+                  ok
+                    ? 'Correct numbers received'
+                    : bad
+                      ? 'Incorrect numbers — waiting for the correct value'
+                      : 'Numbers not yet submitted'
+                }
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold transition ${
+                  ok
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : bad
+                      ? 'animate-pulse bg-red-100 text-red-600'
+                      : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {ok ? '✓ ' : bad ? '✗ ' : '◌ '}
+                {s.name}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wide text-indigo-400 sm:text-xs">
+          Phase 2 · Logic Relay
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {members.map((s) => {
+            const rec = store.logic[s.name]
+            const ok = rec?.perfect
+            const bad = rec && !rec.perfect
+            return (
+              <span
+                key={s.name}
+                title={
+                  ok
+                    ? 'Correct logic values received'
+                    : bad
+                      ? 'Incorrect logic values — waiting for the correct answer'
+                      : 'Logic values not yet submitted'
+                }
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold transition ${
+                  ok
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : bad
+                      ? 'animate-pulse bg-pink-100 text-pink-600'
+                      : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {ok ? '✓ ' : bad ? '✗ ' : '◌ '}
+                {s.name}
+              </span>
+            )
+          })}
+        </div>
       </div>
 
       <div className="w-full">
@@ -1125,19 +1332,33 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
             Team Readiness
           </span>
           <span className="text-[10px] font-extrabold text-slate-500 sm:text-xs">
-            {doneCount} / {team.size}
+            {doneCount} / {team.size} · Logic {logicDoneCount} / {team.size}
           </span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
           <div
             className={`h-full rounded-full bg-gradient-to-r ${style.grad} transition-all duration-700`}
             style={{ width: `${(doneCount / team.size) * 100}%` }}
           />
         </div>
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-[10px] font-extrabold uppercase tracking-wide text-indigo-400 sm:text-xs">
+            Logic Readiness
+          </span>
+          <span className="text-[10px] font-extrabold text-slate-500 sm:text-xs">
+            {logicDoneCount} / {team.size}
+          </span>
+        </div>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 transition-all duration-700"
+            style={{ width: `${(logicDoneCount / team.size) * 100}%` }}
+          />
+        </div>
       </div>
 
       <BossPanel
-        key={`${teamId}-${doneCount}`}
+        key={`${teamId}-${doneCount}-${logicDoneCount}`}
         teamId={teamId}
         done={allDone}
         boss={boss}
@@ -1147,24 +1368,33 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   )
 }
 
-function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
+function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogic, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
 
   const wrongNames = []
   const missingNames = []
+  const logicWrongNames = []
+  const logicMissingNames = []
   for (const teamId of Object.keys(MISSION_TEAMS)) {
     for (const s of rosterFor(teamId)) {
       const record = store.submits[s.name]
       if (!record) missingNames.push(s.name)
       else if (!record.perfect) wrongNames.push(s.name)
+      const logicRecord = store.logic[s.name]
+      if (!logicRecord) logicMissingNames.push(s.name)
+      else if (!logicRecord.perfect) logicWrongNames.push(s.name)
     }
   }
   const notClearedTeams = Object.keys(MISSION_TEAMS).filter(
     (t) => !store.teams[t]?.clearedAt,
   )
   const hasThreat =
-    wrongNames.length > 0 || missingNames.length > 0 || notClearedTeams.length > 0
+    wrongNames.length > 0 ||
+    missingNames.length > 0 ||
+    logicWrongNames.length > 0 ||
+    logicMissingNames.length > 0 ||
+    notClearedTeams.length > 0
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
@@ -1225,6 +1455,20 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
                   computer cannot run without them.
                 </p>
               )}
+              {logicWrongNames.length > 0 && (
+                <p>
+                  ✗ Incorrect logic values from:{' '}
+                  <span className="text-white">{logicWrongNames.join(', ')}</span> — the
+                  flight computer cannot trust their IF/COUNTIF checks.
+                </p>
+              )}
+              {logicMissingNames.length > 0 && (
+                <p>
+                  ◌ Missing logic values from:{' '}
+                  <span className="text-white">{logicMissingNames.join(', ')}</span> — the
+                  launch checks are not complete.
+                </p>
+              )}
               {notClearedTeams.length > 0 && (
                 <p>
                   ⚠ Flight Director aggregate not verified for:{' '}
@@ -1280,6 +1524,13 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onBossSubm
             className={`rounded-full bg-gradient-to-r ${style.grad} px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl`}
           >
             📡 Open My Telemetry Terminal
+          </button>
+          <button
+            type="button"
+            onClick={onOpenLogic}
+            className="rounded-full bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+          >
+            🧠 Open Logic Relay Terminal
           </button>
           <button
             type="button"
@@ -1386,8 +1637,12 @@ function VictoryScreen({ store, onExit, onRestart }) {
       const record = store.submits[s.name]
       return record && record.perfect && record.wrongAttempts === 0
     })
+    const logicPerfect = members.every((s) => {
+      const lr = store.logic[s.name]
+      return lr && lr.perfect && lr.wrongAttempts === 0
+    })
     const boss = store.teams[tid]?.boss
-    return allPerfect && boss && boss.perfect && boss.wrongAttempts === 0
+    return allPerfect && logicPerfect && boss && boss.perfect && boss.wrongAttempts === 0
   })
 
   return (
@@ -1519,9 +1774,16 @@ export default function ArtemisGame({ onExit }) {
     }
   }, [])
 
-  const allCleared = Object.keys(MISSION_TEAMS).every(
-    (tid) => store.teams[tid]?.clearedAt,
+  const statsCleared = Object.keys(STUDENTS_DATA).every(
+    (name) => store.submits[name]?.perfect,
   )
+  const logicCleared = Object.keys(STUDENTS_DATA).every(
+    (name) => store.logic[name]?.perfect,
+  )
+  const allCleared =
+    statsCleared &&
+    logicCleared &&
+    Object.keys(MISSION_TEAMS).every((tid) => store.teams[tid]?.clearedAt)
 
   useEffect(() => {
     if (allCleared && !launchRef.current) {
@@ -1553,6 +1815,32 @@ export default function ArtemisGame({ onExit }) {
         ...prev,
         submits: {
           ...prev.submits,
+          [playerName]: {
+            ...prevSubmission,
+            attempts: prevSubmission.attempts + 1,
+            wrongAttempts:
+              prevSubmission.wrongAttempts + (perfect ? 0 : 1),
+            perfect: prevSubmission.perfect || perfect,
+            at: prevSubmission.at || Date.now(),
+          },
+        },
+      }
+      broadcast(next)
+      pushRemoteStore(next)
+      return next
+    })
+  }
+
+  function handleLogicSubmit(playerName, perfect) {
+    setStore((prev) => {
+      const prevSubmission = prev.logic[playerName] || {
+        attempts: 0,
+        wrongAttempts: 0,
+      }
+      const next = {
+        ...prev,
+        logic: {
+          ...prev.logic,
           [playerName]: {
             ...prevSubmission,
             attempts: prevSubmission.attempts + 1,
@@ -1694,6 +1982,17 @@ export default function ArtemisGame({ onExit }) {
         mission={mission}
         onBack={() => setScreen('radar')}
         onTransmitted={handleIndividualSubmit}
+        onContinueLogic={() => setScreen('logic')}
+      />
+    )
+  }
+  if (screen === 'logic') {
+    return (
+      <LogicTerminalScreen
+        player={player}
+        mission={mission}
+        onBack={() => setScreen('radar')}
+        onTransmitted={handleLogicSubmit}
       />
     )
   }
@@ -1708,6 +2007,7 @@ export default function ArtemisGame({ onExit }) {
         setScreen('login')
       }}
       onOpenTerminal={() => setScreen('terminal')}
+      onOpenLogic={() => setScreen('logic')}
       onBossSubmit={handleBossSubmit}
       onSimulate={handleSimulate}
       onReset={handleReset}
