@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 import {
   GOOGLE_SHEET_URL,
+  LOGIC_SHEET_URL,
   MISSION_TEAMS,
   STUDENTS_DATA,
   SENSOR_NAMES,
@@ -789,6 +790,16 @@ function TerminalScreen({ player, mission, remainingMs, onBack, onTransmitted, o
             >
               📡 Transmit Telemetry to Mission Control
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                sndClick()
+                window.open(GOOGLE_SHEET_URL, '_blank', 'noopener')
+              }}
+              className="w-full rounded-full bg-emerald-500 px-8 py-3 text-base font-extrabold text-white shadow transition hover:scale-105 hover:bg-emerald-600 sm:text-lg"
+            >
+              📊 Open Stats Google Sheet
+            </button>
           </div>
         ) : (
           <div className="animate-pop-in flex w-full max-w-lg flex-col items-center gap-5 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
@@ -919,6 +930,16 @@ function LogicTerminalScreen({ player, mission, remainingMs, onBack, onTransmitt
               className="w-full rounded-full bg-fuchsia-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
             >
               🧠 Transmit Logic Values to Mission Control
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sndClick()
+                window.open(LOGIC_SHEET_URL, '_blank', 'noopener')
+              }}
+              className="w-full rounded-full bg-teal-500 px-8 py-3 text-base font-extrabold text-white shadow transition hover:scale-105 hover:bg-teal-600 sm:text-lg"
+            >
+              🧠 Open Logic Google Sheet
             </button>
           </div>
         ) : (
@@ -1635,7 +1656,17 @@ function RadarScreen({ player, store, remainingMs, released, onReveal, onSwitchP
             }}
             className="rounded-full bg-emerald-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-emerald-600 sm:text-2xl"
           >
-            🔗 Open Google Sheet
+            📊 Open Stats Sheet
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sndClick()
+              window.open(LOGIC_SHEET_URL, '_blank', 'noopener')
+            }}
+            className="rounded-full bg-teal-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 hover:bg-teal-600 sm:text-2xl"
+          >
+            🧠 Open Logic Sheet
           </button>
           <button
             type="button"

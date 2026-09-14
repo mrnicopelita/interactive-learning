@@ -1,4 +1,7 @@
 export const GOOGLE_SHEET_URL =
+  'https://docs.google.com/spreadsheets/d/1xafeqnXm3wl8v3h3a3qFQ4odsfIflVrbvqySyseACrA/edit?usp=sharing'
+
+export const LOGIC_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1bl1Lc84ON3d01_4tmGPGaDykHg8WKye0_24YFKSRolQ/edit?usp=sharing'
 
 export const MISSION_TEAMS = {
