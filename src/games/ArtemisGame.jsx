@@ -46,7 +46,12 @@ const DEFAULT_STORE = {
   submits: {},
   logic: {},
   teams: {},
+  revealed: false,
+  timerEnd: null,
 }
+
+const MISSION_MS = 30 * 60 * 1000
+const REVEAL_PENALTY_MS = 5 * 60 * 1000
 
 const INTRO_LINES = [
   {
@@ -95,7 +100,21 @@ function mergeStores(local, remote) {
     submits: { ...local.submits, ...(remote.submits || {}) },
     logic: { ...local.logic, ...(remote.logic || {}) },
     teams: { ...local.teams, ...(remote.teams || {}) },
+    revealed: !!(local.revealed || remote.revealed),
+    timerEnd:
+      remote.timerEnd !== undefined && remote.timerEnd !== null
+        ? remote.timerEnd
+        : local.timerEnd !== undefined
+          ? local.timerEnd
+          : null,
   }
+}
+
+function formatCountdown(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const m = Math.floor(total / 60)
+  const s = total % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
 async function pushRemoteStore(store) {
@@ -675,7 +694,7 @@ function SensorStrip({ readings, player, teamId, row }) {
   )
 }
 
-function TerminalScreen({ player, mission, onBack, onTransmitted, onContinueLogic }) {
+function TerminalScreen({ player, mission, remainingMs, onBack, onTransmitted, onContinueLogic }) {
   const student = STUDENTS_DATA[player]
   const readings = student.data
   const expected = useMemo(() => computeStats(readings), [readings])
@@ -722,7 +741,15 @@ function TerminalScreen({ player, mission, onBack, onTransmitted, onContinueLogi
             Telemetry Terminal · {player} · Row {student.row}
           </p>
         </div>
-        <div className="w-16 sm:w-24" />
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-sm font-extrabold text-white shadow sm:text-base ${
+            remainingMs !== null && remainingMs < 5 * 60 * 1000
+              ? 'animate-alert-pulse bg-red-600'
+              : 'bg-sky-700'
+          }`}
+        >
+          ⏱ {remainingMs !== null ? formatCountdown(remainingMs) : '—:—'}
+        </span>
       </div>
 
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-4">
@@ -797,7 +824,7 @@ function TerminalScreen({ player, mission, onBack, onTransmitted, onContinueLogi
   )
 }
 
-function LogicTerminalScreen({ player, mission, onBack, onTransmitted }) {
+function LogicTerminalScreen({ player, mission, remainingMs, onBack, onTransmitted }) {
   const student = STUDENTS_DATA[player]
   const readings = student.data
   const expected = useMemo(() => computeLogic(readings), [readings])
@@ -844,7 +871,15 @@ function LogicTerminalScreen({ player, mission, onBack, onTransmitted }) {
             Logic Relay Terminal · {player} · Row {student.logicRow}
           </p>
         </div>
-        <div className="w-16 sm:w-24" />
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-sm font-extrabold text-white shadow sm:text-base ${
+            remainingMs !== null && remainingMs < 5 * 60 * 1000
+              ? 'animate-alert-pulse bg-red-600'
+              : 'bg-indigo-700'
+          }`}
+        >
+          ⏱ {remainingMs !== null ? formatCountdown(remainingMs) : '—:—'}
+        </span>
       </div>
 
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-4">
@@ -913,7 +948,7 @@ function LogicTerminalScreen({ player, mission, onBack, onTransmitted }) {
   )
 }
 
-function SimulationFailureScreen({ store, onRetry, onExit }) {
+function SimulationFailureScreen({ store, timedOut, onRetry, onExit }) {
   const [phase, setPhase] = useState('ignition')
 
   useEffect(() => {
@@ -1031,11 +1066,18 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
             <h2 className="text-center text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-red-600">
               MISSION FAILURE
             </h2>
-            <p className="text-center text-base font-bold text-slate-600 sm:text-lg">
-              The flight computer rejected {totalThreat} unreliable value
-              {totalThreat === 1 ? '' : 's'}. Artemis 3 veered off course and was lost.
-              Fix every number, then run the simulation again.
-            </p>
+            {timedOut ? (
+              <p className="text-center text-base font-bold text-amber-700 sm:text-lg">
+                ⏱ The 30-minute launch window closed before every number was verified.
+                Reset the mission to start a fresh countdown.
+              </p>
+            ) : (
+              <p className="text-center text-base font-bold text-slate-600 sm:text-lg">
+                The flight computer rejected {totalThreat} unreliable value
+                {totalThreat === 1 ? '' : 's'}. Artemis 3 veered off course and was lost.
+                Fix every number, then run the simulation again.
+              </p>
+            )}
             <div className="space-y-3">
               {report.map(({ team, wrong, missing, logicWrong, logicMissing, bossDone }) => (
                 <div key={team.name} className="rounded-2xl border border-red-200 bg-red-50 p-3 sm:p-4">
@@ -1044,8 +1086,8 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
                   </p>
                   {wrong.length ? (
                     <p className="text-xs font-bold text-slate-600 sm:text-sm">
-                      ✗ Wrong numbers:{' '}
-                      <span className="text-red-600">{wrong.map((s) => s.name).join(', ')}</span>
+                      ✗ {wrong.length} incorrect number
+                      {wrong.length === 1 ? '' : 's'} — identity classified
                     </p>
                   ) : null}
                   {missing.length ? (
@@ -1056,8 +1098,8 @@ function SimulationFailureScreen({ store, onRetry, onExit }) {
                   ) : null}
                   {logicWrong.length ? (
                     <p className="text-xs font-bold text-slate-600 sm:text-sm">
-                      ✗ Wrong logic values:{' '}
-                      <span className="text-red-600">{logicWrong.map((s) => s.name).join(', ')}</span>
+                      ✗ {logicWrong.length} incorrect logic value
+                      {logicWrong.length === 1 ? '' : 's'} — identity classified
                     </p>
                   ) : null}
                   {logicMissing.length ? (
@@ -1215,7 +1257,7 @@ function BossPanel({ teamId, done, boss, onBossSubmit }) {
   )
 }
 
-function TeamCard({ teamId, store, onBossSubmit, isYou }) {
+function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
   const team = MISSION_TEAMS[teamId]
   const style = TEAM_STYLE[teamId]
   const members = rosterFor(teamId)
@@ -1225,6 +1267,14 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   const logicAllDone = logicDoneCount === team.size
   const boss = store.teams[teamId]?.boss
   const cleared = !!(boss && boss.perfect)
+  const statsWrongCount = members.filter((s) => {
+    const r = store.submits[s.name]
+    return r && !r.perfect
+  }).length
+  const logicWrongCount = members.filter((s) => {
+    const r = store.logic[s.name]
+    return r && !r.perfect
+  }).length
   const status = cleared
     ? 'RELAYED TO ARTEMIS 3'
     : !allDone
@@ -1265,6 +1315,7 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
             const rec = store.submits[s.name]
             const ok = rec?.perfect
             const bad = rec && !rec.perfect
+            if (bad && !revealed) return null
             return (
               <span
                 key={s.name}
@@ -1288,6 +1339,14 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
               </span>
             )
           })}
+          {!revealed && statsWrongCount > 0 && (
+            <span
+              title="Incorrect numbers received — identity classified until the Flight Director releases it"
+              className="animate-pulse inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-extrabold text-red-600"
+            >
+              ✗ {statsWrongCount} wrong
+            </span>
+          )}
         </div>
       </div>
 
@@ -1300,6 +1359,7 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
             const rec = store.logic[s.name]
             const ok = rec?.perfect
             const bad = rec && !rec.perfect
+            if (bad && !revealed) return null
             return (
               <span
                 key={s.name}
@@ -1323,6 +1383,14 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
               </span>
             )
           })}
+          {!revealed && logicWrongCount > 0 && (
+            <span
+              title="Incorrect logic values received — identity classified until the Flight Director releases it"
+              className="animate-pulse inline-flex items-center gap-1 rounded-full bg-pink-100 px-2.5 py-1 text-xs font-extrabold text-pink-600"
+            >
+              ✗ {logicWrongCount} wrong
+            </span>
+          )}
         </div>
       </div>
 
@@ -1368,9 +1436,11 @@ function TeamCard({ teamId, store, onBossSubmit, isYou }) {
   )
 }
 
-function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogic, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
+function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchPlayer, onOpenTerminal, onOpenLogic, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
+  const isDirector = player === 'Jaden'
+  const countdownLow = remainingMs !== null && remainingMs < 5 * 60 * 1000
 
   const wrongNames = []
   const missingNames = []
@@ -1416,6 +1486,14 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogi
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-mono text-sm font-extrabold text-white shadow sm:text-base ${
+              countdownLow ? 'animate-alert-pulse bg-red-600' : 'bg-sky-700'
+            }`}
+            title="Time left before the launch window closes"
+          >
+            ⏱ {remainingMs !== null ? formatCountdown(remainingMs) : '—:—'}
+          </span>
           <button
             type="button"
             onClick={onToggleMuted}
@@ -1441,13 +1519,21 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogi
               🚨 RED ALERT — ARTEMIS 3 TELEMETRY NOT SAFE FOR LAUNCH
             </p>
             <div className="mt-2 space-y-1 text-xs font-bold text-red-100 sm:text-sm">
-              {wrongNames.length > 0 && (
-                <p>
-                  ✗ Incorrect numbers received from:{' '}
-                  <span className="text-white">{wrongNames.join(', ')}</span> — these could
-                  send the ship off course.
-                </p>
-              )}
+              {wrongNames.length > 0 &&
+                (revealed ? (
+                  <p>
+                    ✗ Incorrect numbers received from:{' '}
+                    <span className="text-white">{wrongNames.join(', ')}</span> — these could
+                    send the ship off course.
+                  </p>
+                ) : (
+                  <p>
+                    ✗ {wrongNames.length} flight specialist
+                    {wrongNames.length === 1 ? '' : 's'} sent incorrect numbers — identities
+                    <span className="text-white"> classified</span> until the Flight Director
+                    releases them.
+                  </p>
+                ))}
               {missingNames.length > 0 && (
                 <p>
                   ◌ Missing numbers from:{' '}
@@ -1455,13 +1541,20 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogi
                   computer cannot run without them.
                 </p>
               )}
-              {logicWrongNames.length > 0 && (
-                <p>
-                  ✗ Incorrect logic values from:{' '}
-                  <span className="text-white">{logicWrongNames.join(', ')}</span> — the
-                  flight computer cannot trust their IF/COUNTIF checks.
-                </p>
-              )}
+              {logicWrongNames.length > 0 &&
+                (revealed ? (
+                  <p>
+                    ✗ Incorrect logic values from:{' '}
+                    <span className="text-white">{logicWrongNames.join(', ')}</span> — the
+                    flight computer cannot trust their IF/COUNTIF checks.
+                  </p>
+                ) : (
+                  <p>
+                    ✗ {logicWrongNames.length} flight specialist
+                    {logicWrongNames.length === 1 ? '' : 's'} sent incorrect logic values —
+                    identities <span className="text-white">classified</span> until released.
+                  </p>
+                ))}
               {logicMissingNames.length > 0 && (
                 <p>
                   ◌ Missing logic values from:{' '}
@@ -1481,6 +1574,18 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogi
                 Launching now could <span className="text-red-300">CRASH Artemis 3</span>.
                 Fix every number before the 1 October 2027 launch window.
               </p>
+              {isDirector && !revealed && (wrongNames.length > 0 || logicWrongNames.length > 0) && (
+                <button
+                  type="button"
+                  onClick={onReveal}
+                  className="animate-alert-pulse mt-2 rounded-full bg-amber-400 px-5 py-2 text-sm font-extrabold text-slate-900 shadow-lg transition hover:scale-105 hover:bg-amber-300 sm:text-base"
+                >
+                  🔓 Flight Director: Release Wrong-Answer Names (−5 min)
+                </button>
+              )}
+              {revealed && (
+                <p className="text-amber-300">🔓 Identities released — this does not change any numbers.</p>
+              )}
             </div>
           </div>
         )}
@@ -1511,6 +1616,7 @@ function RadarScreen({ player, store, onSwitchPlayer, onOpenTerminal, onOpenLogi
               key={teamId}
               teamId={teamId}
               store={store}
+              revealed={revealed}
               onBossSubmit={onBossSubmit}
               isYou={teamId === student.team}
             />
@@ -1715,7 +1821,41 @@ export default function ArtemisGame({ onExit }) {
   const [player, setPlayer] = useState(null)
   const [store, setStore] = useState(loadStore)
   const [mutedState, setMutedState] = useState(false)
+  const [now, setNow] = useState(() => Date.now())
   const launchRef = useRef(false)
+  const [timedOut, setTimedOut] = useState(false)
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const remainingMs = store.timerEnd ? Math.max(0, store.timerEnd - now) : null
+
+  function startTimer() {
+    setStore((prev) => {
+      if (prev.timerEnd) return prev
+      const next = { ...prev, timerEnd: Date.now() + MISSION_MS }
+      broadcast(next)
+      pushRemoteStore(next)
+      return next
+    })
+  }
+
+  useEffect(() => {
+    if (
+      remainingMs !== null &&
+      remainingMs <= 0 &&
+      !timedOut &&
+      screen !== 'launch' &&
+      screen !== 'victory' &&
+      screen !== 'failure'
+    ) {
+      setTimedOut(true)
+      sndError()
+      setScreen('failure')
+    }
+  }, [remainingMs, screen, timedOut])
 
   useEffect(() => {
     try {
@@ -1889,10 +2029,27 @@ export default function ArtemisGame({ onExit }) {
     })
   }
 
+  function handleReveal() {
+    if (player !== 'Jaden' || store.revealed) return
+    sndAlarm()
+    setStore((prev) => {
+      const current = prev.timerEnd ?? Date.now() + MISSION_MS
+      const next = {
+        ...prev,
+        revealed: true,
+        timerEnd: current - REVEAL_PENALTY_MS,
+      }
+      broadcast(next)
+      pushRemoteStore(next)
+      return next
+    })
+  }
+
   function handleReset() {
     if (!window.confirm('Reset all mission telemetry data?')) return
     const fresh = { ...DEFAULT_STORE }
     setStore(fresh)
+    setTimedOut(false)
     broadcast(fresh)
     pushRemoteStore(fresh)
     setScreen('login')
@@ -1915,6 +2072,7 @@ export default function ArtemisGame({ onExit }) {
   function restart() {
     const fresh = { ...DEFAULT_STORE }
     setStore(fresh)
+    setTimedOut(false)
     broadcast(fresh)
     pushRemoteStore(fresh)
     setPlayer(null)
@@ -1935,6 +2093,7 @@ export default function ArtemisGame({ onExit }) {
     return (
       <SimulationFailureScreen
         store={store}
+        timedOut={timedOut}
         onRetry={() => setScreen('radar')}
         onExit={onExit}
       />
@@ -1945,6 +2104,7 @@ export default function ArtemisGame({ onExit }) {
       <LoginScreen
         onStart={(p) => {
           setPlayer(p)
+          startTimer()
           setScreen('intro')
         }}
         onExit={onExit}
@@ -1980,6 +2140,7 @@ export default function ArtemisGame({ onExit }) {
       <TerminalScreen
         player={player}
         mission={mission}
+        remainingMs={remainingMs}
         onBack={() => setScreen('radar')}
         onTransmitted={handleIndividualSubmit}
         onContinueLogic={() => setScreen('logic')}
@@ -1991,6 +2152,7 @@ export default function ArtemisGame({ onExit }) {
       <LogicTerminalScreen
         player={player}
         mission={mission}
+        remainingMs={remainingMs}
         onBack={() => setScreen('radar')}
         onTransmitted={handleLogicSubmit}
       />
@@ -2001,6 +2163,9 @@ export default function ArtemisGame({ onExit }) {
     <RadarScreen
       player={player}
       store={store}
+      remainingMs={remainingMs}
+      revealed={store.revealed}
+      onReveal={handleReveal}
       onSwitchPlayer={() => {
         sndClick()
         setPlayer(null)
