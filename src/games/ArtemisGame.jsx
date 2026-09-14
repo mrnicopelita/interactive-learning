@@ -620,7 +620,7 @@ function BriefingScreen({ player, mission, onOpenSheet, onContinue, onExit }) {
   )
 }
 
-function MetricInput({ metric, formula, state, value, onChange }) {
+function MetricInput({ metric, state, value, onChange }) {
   const isOk = state === 'ok'
   const isBad = state === 'bad'
   return (
@@ -651,7 +651,6 @@ function MetricInput({ metric, formula, state, value, onChange }) {
         step="0.1"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={formula}
         className={`w-full rounded-xl px-3 py-2 text-center text-xl font-extrabold outline-none sm:text-2xl ${
           isOk
             ? 'bg-emerald-100 text-emerald-700'
@@ -662,7 +661,7 @@ function MetricInput({ metric, formula, state, value, onChange }) {
       />
       {isBad && (
         <p className="text-xs font-bold text-amber-600">
-          Re-check your range {formula} in Google Sheets!
+          Not quite — re-check that range in Google Sheets!
         </p>
       )}
     </label>
@@ -776,7 +775,6 @@ function TerminalScreen({ player, mission, remainingMs, onBack, onTransmitted, o
                 <MetricInput
                   key={m.key}
                   metric={m}
-                  formula={m.sheet(student.row)}
                   value={values[m.key] || ''}
                   onChange={(v) => setValue(m.key, v)}
                 />
@@ -917,7 +915,6 @@ function LogicTerminalScreen({ player, mission, remainingMs, onBack, onTransmitt
                 <MetricInput
                   key={m.key}
                   metric={m}
-                  formula={m.sheet(student.logicRow)}
                   value={values[m.key] || ''}
                   onChange={(v) => setValue(m.key, v)}
                 />
