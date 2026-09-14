@@ -46,7 +46,6 @@ const DEFAULT_STORE = {
   submits: {},
   logic: {},
   teams: {},
-  revealed: false,
   timerEnd: null,
 }
 
@@ -100,7 +99,6 @@ function mergeStores(local, remote) {
     submits: { ...local.submits, ...(remote.submits || {}) },
     logic: { ...local.logic, ...(remote.logic || {}) },
     teams: { ...local.teams, ...(remote.teams || {}) },
-    revealed: !!(local.revealed || remote.revealed),
     timerEnd:
       remote.timerEnd !== undefined && remote.timerEnd !== null
         ? remote.timerEnd
@@ -1257,7 +1255,7 @@ function BossPanel({ teamId, done, boss, onBossSubmit }) {
   )
 }
 
-function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
+function TeamCard({ teamId, store, showWrongNames, onBossSubmit, isYou }) {
   const team = MISSION_TEAMS[teamId]
   const style = TEAM_STYLE[teamId]
   const members = rosterFor(teamId)
@@ -1315,7 +1313,7 @@ function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
             const rec = store.submits[s.name]
             const ok = rec?.perfect
             const bad = rec && !rec.perfect
-            if (bad && !revealed) return null
+            if (bad && !showWrongNames) return null
             return (
               <span
                 key={s.name}
@@ -1339,7 +1337,7 @@ function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
               </span>
             )
           })}
-          {!revealed && statsWrongCount > 0 && (
+          {!showWrongNames && statsWrongCount > 0 && (
             <span
               title="Incorrect numbers received — identity classified until the Flight Director releases it"
               className="animate-pulse inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-extrabold text-red-600"
@@ -1359,7 +1357,7 @@ function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
             const rec = store.logic[s.name]
             const ok = rec?.perfect
             const bad = rec && !rec.perfect
-            if (bad && !revealed) return null
+            if (bad && !showWrongNames) return null
             return (
               <span
                 key={s.name}
@@ -1383,7 +1381,7 @@ function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
               </span>
             )
           })}
-          {!revealed && logicWrongCount > 0 && (
+          {!showWrongNames && logicWrongCount > 0 && (
             <span
               title="Incorrect logic values received — identity classified until the Flight Director releases it"
               className="animate-pulse inline-flex items-center gap-1 rounded-full bg-pink-100 px-2.5 py-1 text-xs font-extrabold text-pink-600"
@@ -1436,10 +1434,11 @@ function TeamCard({ teamId, store, revealed, onBossSubmit, isYou }) {
   )
 }
 
-function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchPlayer, onOpenTerminal, onOpenLogic, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
+function RadarScreen({ player, store, remainingMs, released, onReveal, onSwitchPlayer, onOpenTerminal, onOpenLogic, onBossSubmit, onSimulate, onReset, onExit, muted, onToggleMuted }) {
   const student = STUDENTS_DATA[player]
   const style = TEAM_STYLE[student.team]
   const isDirector = player === 'Jaden'
+  const showWrongNames = isDirector && released
   const countdownLow = remainingMs !== null && remainingMs < 5 * 60 * 1000
 
   const wrongNames = []
@@ -1519,21 +1518,14 @@ function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchP
               🚨 RED ALERT — ARTEMIS 3 TELEMETRY NOT SAFE FOR LAUNCH
             </p>
             <div className="mt-2 space-y-1 text-xs font-bold text-red-100 sm:text-sm">
-              {wrongNames.length > 0 &&
-                (revealed ? (
-                  <p>
-                    ✗ Incorrect numbers received from:{' '}
-                    <span className="text-white">{wrongNames.join(', ')}</span> — these could
-                    send the ship off course.
-                  </p>
-                ) : (
-                  <p>
-                    ✗ {wrongNames.length} flight specialist
-                    {wrongNames.length === 1 ? '' : 's'} sent incorrect numbers — identities
-                    <span className="text-white"> classified</span> until the Flight Director
-                    releases them.
-                  </p>
-                ))}
+              {wrongNames.length > 0 && (
+                <p>
+                  ✗ {wrongNames.length} flight specialist
+                  {wrongNames.length === 1 ? '' : 's'} sent incorrect numbers — identities
+                  <span className="text-white"> classified</span> until the Flight Director
+                  releases them.
+                </p>
+              )}
               {missingNames.length > 0 && (
                 <p>
                   ◌ Missing numbers from:{' '}
@@ -1541,20 +1533,13 @@ function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchP
                   computer cannot run without them.
                 </p>
               )}
-              {logicWrongNames.length > 0 &&
-                (revealed ? (
-                  <p>
-                    ✗ Incorrect logic values from:{' '}
-                    <span className="text-white">{logicWrongNames.join(', ')}</span> — the
-                    flight computer cannot trust their IF/COUNTIF checks.
-                  </p>
-                ) : (
-                  <p>
-                    ✗ {logicWrongNames.length} flight specialist
-                    {logicWrongNames.length === 1 ? '' : 's'} sent incorrect logic values —
-                    identities <span className="text-white">classified</span> until released.
-                  </p>
-                ))}
+              {logicWrongNames.length > 0 && (
+                <p>
+                  ✗ {logicWrongNames.length} flight specialist
+                  {logicWrongNames.length === 1 ? '' : 's'} sent incorrect logic values —
+                  identities <span className="text-white">classified</span> until released.
+                </p>
+              )}
               {logicMissingNames.length > 0 && (
                 <p>
                   ◌ Missing logic values from:{' '}
@@ -1574,17 +1559,21 @@ function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchP
                 Launching now could <span className="text-red-300">CRASH Artemis 3</span>.
                 Fix every number before the 1 October 2027 launch window.
               </p>
-              {isDirector && !revealed && (wrongNames.length > 0 || logicWrongNames.length > 0) && (
+              {isDirector && !released && (wrongNames.length > 0 || logicWrongNames.length > 0) && (
                 <button
                   type="button"
                   onClick={onReveal}
                   className="animate-alert-pulse mt-2 rounded-full bg-amber-400 px-5 py-2 text-sm font-extrabold text-slate-900 shadow-lg transition hover:scale-105 hover:bg-amber-300 sm:text-base"
                 >
-                  🔓 Flight Director: Release Wrong-Answer Names (−5 min)
+                  🔓 Flight Director: Disclose Wrong-Answer Names Only to You (−5 min)
                 </button>
               )}
-              {revealed && (
-                <p className="text-amber-300">🔓 Identities released — this does not change any numbers.</p>
+              {showWrongNames && (
+                <p className="text-amber-300">
+                  🔓 Wrong answers disclosed to you privately: {wrongNames.join(', ')}
+                  {wrongNames.length ? ' · ' : ''}
+                  {logicWrongNames.join(', ')}
+                </p>
               )}
             </div>
           </div>
@@ -1616,7 +1605,7 @@ function RadarScreen({ player, store, remainingMs, revealed, onReveal, onSwitchP
               key={teamId}
               teamId={teamId}
               store={store}
-              revealed={revealed}
+              showWrongNames={showWrongNames}
               onBossSubmit={onBossSubmit}
               isYou={teamId === student.team}
             />
@@ -1824,6 +1813,7 @@ export default function ArtemisGame({ onExit }) {
   const [now, setNow] = useState(() => Date.now())
   const launchRef = useRef(false)
   const [timedOut, setTimedOut] = useState(false)
+  const [released, setReleased] = useState(false)
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
@@ -2030,13 +2020,13 @@ export default function ArtemisGame({ onExit }) {
   }
 
   function handleReveal() {
-    if (player !== 'Jaden' || store.revealed) return
+    if (player !== 'Jaden' || released) return
     sndAlarm()
+    setReleased(true)
     setStore((prev) => {
       const current = prev.timerEnd ?? Date.now() + MISSION_MS
       const next = {
         ...prev,
-        revealed: true,
         timerEnd: current - REVEAL_PENALTY_MS,
       }
       broadcast(next)
@@ -2050,6 +2040,7 @@ export default function ArtemisGame({ onExit }) {
     const fresh = { ...DEFAULT_STORE }
     setStore(fresh)
     setTimedOut(false)
+    setReleased(false)
     broadcast(fresh)
     pushRemoteStore(fresh)
     setScreen('login')
@@ -2073,6 +2064,7 @@ export default function ArtemisGame({ onExit }) {
     const fresh = { ...DEFAULT_STORE }
     setStore(fresh)
     setTimedOut(false)
+    setReleased(false)
     broadcast(fresh)
     pushRemoteStore(fresh)
     setPlayer(null)
@@ -2164,7 +2156,7 @@ export default function ArtemisGame({ onExit }) {
       player={player}
       store={store}
       remainingMs={remainingMs}
-      revealed={store.revealed}
+      released={released}
       onReveal={handleReveal}
       onSwitchPlayer={() => {
         sndClick()
