@@ -50,7 +50,7 @@ const DEFAULT_STORE = {
   timerEnd: null,
 }
 
-const MISSION_MS = 30 * 60 * 1000
+const MISSION_MS = 20 * 60 * 1000
 const REVEAL_PENALTY_MS = 5 * 60 * 1000
 
 const INTRO_LINES = [
@@ -1087,7 +1087,7 @@ function SimulationFailureScreen({ store, timedOut, onRetry, onExit }) {
             </h2>
             {timedOut ? (
               <p className="text-center text-base font-bold text-amber-700 sm:text-lg">
-                ⏱ The 30-minute launch window closed before every number was verified.
+                ⏱ The 20-minute launch window closed before every number was verified.
                 Reset the mission to start a fresh countdown.
               </p>
             ) : (
@@ -1843,6 +1843,7 @@ export default function ArtemisGame({ onExit }) {
   const [mutedState, setMutedState] = useState(false)
   const [now, setNow] = useState(() => Date.now())
   const launchRef = useRef(false)
+  const timerStartedRef = useRef(false)
   const [timedOut, setTimedOut] = useState(false)
   const [released, setReleased] = useState(false)
 
@@ -1855,8 +1856,11 @@ export default function ArtemisGame({ onExit }) {
 
   function startTimer() {
     setStore((prev) => {
-      if (prev.timerEnd) return prev
-      const next = { ...prev, timerEnd: Date.now() + MISSION_MS }
+      const nowMs = Date.now()
+      const expired = !prev.timerEnd || prev.timerEnd <= nowMs
+      timerStartedRef.current = true
+      if (!expired) return prev
+      const next = { ...prev, timerEnd: nowMs + MISSION_MS }
       broadcast(next)
       pushRemoteStore(next)
       return next
@@ -1867,6 +1871,7 @@ export default function ArtemisGame({ onExit }) {
     if (
       remainingMs !== null &&
       remainingMs <= 0 &&
+      timerStartedRef.current &&
       !timedOut &&
       screen !== 'launch' &&
       screen !== 'victory' &&
@@ -1947,7 +1952,7 @@ export default function ArtemisGame({ onExit }) {
     Object.keys(MISSION_TEAMS).every((tid) => store.teams[tid]?.clearedAt)
 
   useEffect(() => {
-    if (allCleared && !launchRef.current) {
+    if (allCleared && !launchRef.current && timerStartedRef.current) {
       launchRef.current = true
       const t = setTimeout(() => setScreen('launch'), 600)
       return () => clearTimeout(t)
@@ -2072,6 +2077,7 @@ export default function ArtemisGame({ onExit }) {
     setStore(fresh)
     setTimedOut(false)
     setReleased(false)
+    timerStartedRef.current = false
     broadcast(fresh)
     pushRemoteStore(fresh)
     setScreen('login')
@@ -2096,6 +2102,7 @@ export default function ArtemisGame({ onExit }) {
     setStore(fresh)
     setTimedOut(false)
     setReleased(false)
+    timerStartedRef.current = false
     broadcast(fresh)
     pushRemoteStore(fresh)
     setPlayer(null)
