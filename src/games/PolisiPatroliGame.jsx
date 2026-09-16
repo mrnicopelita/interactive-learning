@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 const STAR_COUNT = 60
@@ -190,6 +190,7 @@ export default function PolisiPatroliGame({ onExit }) {
   const animRef = useRef(null)
   const lastTrailRef = useRef(0)
   const starBurstsRef = useRef([])
+  const [victory, setVictory] = useState(false)
 
   const generatePath = useCallback(() => {
     const canvas = canvasRef.current
@@ -407,65 +408,140 @@ export default function PolisiPatroliGame({ onExit }) {
   }, [])
 
   function onVictory() {
+    setVictory(true)
     playSirenWin()
     setTimeout(playApplause, 400)
+    setTimeout(() => playSirenWin(), 1200)
 
     const star = confetti.shapeFromText({ text: '⭐', scalar: 1.2 })
-    const colors = ['#3b82f6', '#facc15', '#ef4444', '#22c55e', '#ffffff']
+    const thumb = confetti.shapeFromText({ text: '👍', scalar: 2.2 })
+    const colors = ['#3b82f6', '#facc15', '#ef4444', '#22c55e', '#ffffff', '#f472b6', '#a78bfa']
 
+    // Wave 1 — center explosion
     confetti({
-      particleCount: 100,
-      spread: 160,
-      startVelocity: 50,
-      gravity: 0.85,
-      origin: { x: 0.9, y: 0.6 },
+      particleCount: 140,
+      spread: 170,
+      startVelocity: 55,
+      gravity: 0.8,
+      origin: { x: 0.5, y: 0.55 },
       colors,
       shapes: [star, 'circle'],
-      scalar: 1.2,
+      scalar: 1.3,
     })
-    confetti({
-      particleCount: 80,
-      spread: 140,
-      startVelocity: 45,
-      gravity: 0.9,
-      origin: { x: 0.1, y: 0.7 },
-      colors,
-      shapes: ['circle', 'square'],
-    })
+
+    // Wave 2 — left side
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 120,
+        startVelocity: 50,
+        angle: 65,
+        gravity: 0.85,
+        origin: { x: 0.0, y: 0.85 },
+        colors,
+        shapes: ['circle', 'square', star],
+      })
+    }, 150)
+
+    // Wave 3 — right side
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 120,
+        startVelocity: 50,
+        angle: 115,
+        gravity: 0.85,
+        origin: { x: 1.0, y: 0.85 },
+        colors,
+        shapes: ['circle', 'square', star],
+      })
+    }, 300)
+
+    // Wave 4 — top rain
+    setTimeout(() => {
+      confetti({
+        particleCount: 80,
+        spread: 180,
+        startVelocity: 30,
+        gravity: 0.6,
+        origin: { x: 0.5, y: 0.0 },
+        colors,
+        shapes: [star, 'circle'],
+        scalar: 1.1,
+      })
+    }, 500)
+
+    // Wave 5 — big thumbs up burst
+    setTimeout(() => {
+      confetti({
+        particleCount: 30,
+        spread: 90,
+        startVelocity: 40,
+        gravity: 0.7,
+        origin: { x: 0.5, y: 0.45 },
+        colors: ['#facc15', '#fbbf24'],
+        shapes: [thumb],
+        scalar: 2.5,
+      })
+    }, 700)
+
+    // Wave 6 — side sparkle
+    setTimeout(() => {
+      confetti({
+        particleCount: 60,
+        spread: 100,
+        startVelocity: 45,
+        origin: { x: 0.2, y: 0.3 },
+        colors,
+        shapes: [star],
+        scalar: 0.9,
+      })
+      confetti({
+        particleCount: 60,
+        spread: 100,
+        startVelocity: 45,
+        origin: { x: 0.8, y: 0.3 },
+        colors,
+        shapes: [star],
+        scalar: 0.9,
+      })
+    }, 900)
+
+    // Wave 7 — final grand finale
+    setTimeout(() => {
+      confetti({
+        particleCount: 120,
+        spread: 200,
+        startVelocity: 60,
+        gravity: 0.75,
+        origin: { x: 0.5, y: 0.5 },
+        colors,
+        shapes: [star, 'circle', 'square'],
+        scalar: 1.4,
+      })
+    }, 1200)
 
     // Spawn star burst at car position
     const car = carRef.current
     const particles = []
-    for (let i = 0; i < 20; i++) {
-      const angle = (Math.PI * 2 * i) / 20
+    for (let i = 0; i < 30; i++) {
+      const angle = (Math.PI * 2 * i) / 30
       particles.push({
         x: car.x,
         y: car.y,
-        vx: Math.cos(angle) * (2 + Math.random() * 3),
-        vy: Math.sin(angle) * (2 + Math.random() * 3) - 2,
-        r: 3 + Math.random() * 4,
+        vx: Math.cos(angle) * (2 + Math.random() * 4),
+        vy: Math.sin(angle) * (2 + Math.random() * 4) - 2,
+        r: 3 + Math.random() * 5,
         color: colors[Math.floor(Math.random() * colors.length)],
       })
     }
     starBurstsRef.current.push({ life: 1, particles })
 
-    // Siren flash effect on car
+    // Clear victory state and auto next track
     setTimeout(() => {
-      confetti({
-        particleCount: 60,
-        spread: 100,
-        startVelocity: 35,
-        origin: { x: 0.5, y: 0.3 },
-        colors,
-        shapes: [star],
-        scalar: 0.9,
-      })
-    }, 800)
-
-    // Auto next track after delay
-    setTimeout(() => {
+      setVictory(false)
       generatePath()
-    }, 3000)
+    }, 3500)
   }
 
   return (
@@ -562,11 +638,25 @@ export default function PolisiPatroliGame({ onExit }) {
           )}
         </div>
 
-        {/* Victory siren overlay */}
-        {winRef.current && (
-          <div className="pointer-events-none absolute inset-0 z-[30]">
-            <div className="absolute inset-0 animate-siren-flash" />
-          </div>
+        {/* Victory effects */}
+        {victory && (
+          <>
+            {/* Blinking color edges */}
+            <div className="pointer-events-none absolute inset-0 z-[31]">
+              <div className="absolute inset-x-0 top-0 h-3 animate-edge-blink-top" />
+              <div className="absolute inset-x-0 bottom-0 h-3 animate-edge-blink-bottom" />
+              <div className="absolute inset-y-0 left-0 w-3 animate-edge-blink-left" />
+              <div className="absolute inset-y-0 right-0 w-3 animate-edge-blink-right" />
+            </div>
+            {/* Big thumbs up */}
+            <div className="pointer-events-none absolute inset-0 z-[32] flex items-center justify-center">
+              <span className="animate-thumbs-up text-[min(30vw,14rem)] drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]">👍</span>
+            </div>
+            {/* Siren flash overlay */}
+            <div className="pointer-events-none absolute inset-0 z-[30]">
+              <div className="absolute inset-0 animate-siren-flash" />
+            </div>
+          </>
         )}
       </div>
 
@@ -590,17 +680,48 @@ export default function PolisiPatroliGame({ onExit }) {
           70% { transform: scale(1.15); }
           100% { transform: scale(1); opacity: 1; }
         }
+        @keyframes edge-blink-top {
+          0%, 100% { background: #ef4444; box-shadow: 0 0 20px #ef4444; }
+          25% { background: #3b82f6; box-shadow: 0 0 20px #3b82f6; }
+          50% { background: #facc15; box-shadow: 0 0 20px #facc15; }
+          75% { background: #22c55e; box-shadow: 0 0 20px #22c55e; }
+        }
+        @keyframes edge-blink-bottom {
+          0%, 100% { background: #22c55e; box-shadow: 0 0 20px #22c55e; }
+          25% { background: #facc15; box-shadow: 0 0 20px #facc15; }
+          50% { background: #3b82f6; box-shadow: 0 0 20px #3b82f6; }
+          75% { background: #ef4444; box-shadow: 0 0 20px #ef4444; }
+        }
+        @keyframes edge-blink-left {
+          0%, 100% { background: #f472b6; box-shadow: 0 0 20px #f472b6; }
+          25% { background: #a78bfa; box-shadow: 0 0 20px #a78bfa; }
+          50% { background: #facc15; box-shadow: 0 0 20px #facc15; }
+          75% { background: #3b82f6; box-shadow: 0 0 20px #3b82f6; }
+        }
+        @keyframes edge-blink-right {
+          0%, 100% { background: #a78bfa; box-shadow: 0 0 20px #a78bfa; }
+          25% { background: #f472b6; box-shadow: 0 0 20px #f472b6; }
+          50% { background: #22c55e; box-shadow: 0 0 20px #22c55e; }
+          75% { background: #facc15; box-shadow: 0 0 20px #facc15; }
+        }
+        @keyframes thumbs-up {
+          0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+          40% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+          60% { transform: scale(0.95) rotate(-2deg); }
+          80% { transform: scale(1.1) rotate(1deg); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
         .animate-floaty { animation: floaty 6s ease-in-out infinite; }
         .animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
-        .animate-siren-flash { animation: siren-flash 0.4s ease-in-out infinite; }
+        .animate-siren-flash { animation: siren-flash 0.35s ease-in-out infinite; }
         .animate-pop-in { animation: pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .animate-edge-blink-top { animation: edge-blink-top 0.4s linear infinite; }
+        .animate-edge-blink-bottom { animation: edge-blink-bottom 0.4s linear infinite; }
+        .animate-edge-blink-left { animation: edge-blink-left 0.4s linear infinite; }
+        .animate-edge-blink-right { animation: edge-blink-right 0.4s linear infinite; }
+        .animate-thumbs-up { animation: thumbs-up 0.8s cubic-bezier(0.34,1.56,0.64,1) both; }
         .siren-red { animation: siren-flash 0.3s ease-in-out infinite; }
         .siren-blue { animation: siren-flash 0.3s ease-in-out infinite 0.15s; }
-        @keyframes pop-in {
-          0% { transform: scale(0); opacity: 0; }
-          70% { transform: scale(1.15); }
-          100% { transform: scale(1); opacity: 1; }
-        }
       `}</style>
     </div>
   )
