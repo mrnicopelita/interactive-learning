@@ -11,6 +11,7 @@ import KantinGame from './games/KantinGame.jsx'
 import KelinciLompatGame from './games/KelinciLompatGame.jsx'
 import PovRabbitGame from './games/PovRabbitGame.jsx'
 import PolisiPatroliGame from './games/PolisiPatroliGame.jsx'
+import PolisiLintasanPOVGame from './games/PolisiLintasanPOVGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -52,6 +53,7 @@ const GAME_COMPONENTS = {
   'kelinci-lompat': KelinciLompatGame,
   'kelinci-berlari': PovRabbitGame,
   'polisi-patroli': PolisiPatroliGame,
+  'polisi-lintasan-pov': PolisiLintasanPOVGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({

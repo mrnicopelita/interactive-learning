@@ -54,6 +54,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/polisi.svg', '/images/policecar.jpg'],
   },
   {
+    id: 'polisi-lintasan-pov',
+    title: 'Polisi Lintasan POV',
+    tagline: 'Miringkan tubuhmu untuk menikung! POV dari dalam mobil polisi!',
+    images: ['/images/polisi.svg', '/images/policecar.jpg'],
+  },
+  {
     id: 'kantin-crisis',
     title: 'Krisis 15 Menit',
     tagline: 'Build a canteen automation system under 15 minutes!',
