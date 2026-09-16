@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const MAX_TURNS = 10
-const GAP = 7
-const APPROACH = 3.5
+const GAP = 14
+const APPROACH = 6
 const TURN_DIRS = ['left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right']
-const TURN_POS = Array.from({ length: MAX_TURNS }, (_, i) => 10 + i * GAP)
-const WIN_Z = TURN_POS[MAX_TURNS - 1] + 8
-const SPEED = 3.2
+const TURN_POS = Array.from({ length: MAX_TURNS }, (_, i) => 15 + i * GAP)
+const WIN_Z = TURN_POS[MAX_TURNS - 1] + 10
+const SPEED = 3.5
 const STEPS = 50
 
 let audioCtx = null
