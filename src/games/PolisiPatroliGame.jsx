@@ -194,9 +194,11 @@ export default function PolisiPatroliGame({ onExit }) {
 
   const generatePath = useCallback(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
-    const w = canvas.width
-    const h = canvas.height
+    const container = containerRef.current
+    if (!canvas || !container) return
+    const rect = container.getBoundingClientRect()
+    const w = rect.width
+    const h = rect.height
     const layout = TRACK_LAYOUTS[layoutIdxRef.current % TRACK_LAYOUTS.length]
     pathRef.current = layout(w, h)
     layoutIdxRef.current++
@@ -276,16 +278,31 @@ export default function PolisiPatroliGame({ onExit }) {
 
       ctx.clearRect(0, 0, w, h)
 
-      // Draw path glow
-      if (path.length > 1) {
+        // Draw path glow
+        if (path.length > 1) {
         ctx.save()
         ctx.shadowColor = '#facc15'
-        ctx.shadowBlur = 22
+        ctx.shadowBlur = 30
         ctx.strokeStyle = '#facc15'
+        ctx.lineWidth = ON_PATH_THRESHOLD * 2 + 8
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.globalAlpha = 0.45
+        ctx.beginPath()
+        ctx.moveTo(path[0].x, path[0].y)
+        for (let i = 1; i < path.length; i++) {
+          ctx.lineTo(path[i].x, path[i].y)
+        }
+        ctx.stroke()
+        ctx.restore()
+
+        // Draw outer edge
+        ctx.save()
+        ctx.strokeStyle = '#fbbf24'
         ctx.lineWidth = ON_PATH_THRESHOLD * 2
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
-        ctx.globalAlpha = 0.35
+        ctx.globalAlpha = 0.85
         ctx.beginPath()
         ctx.moveTo(path[0].x, path[0].y)
         for (let i = 1; i < path.length; i++) {
@@ -296,11 +313,11 @@ export default function PolisiPatroliGame({ onExit }) {
 
         // Draw path road
         ctx.save()
-        ctx.strokeStyle = '#6b7280'
+        ctx.strokeStyle = '#4b5563'
         ctx.lineWidth = ON_PATH_THRESHOLD * 1.6
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
-        ctx.globalAlpha = 0.5
+        ctx.globalAlpha = 1
         ctx.beginPath()
         ctx.moveTo(path[0].x, path[0].y)
         for (let i = 1; i < path.length; i++) {
