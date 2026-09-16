@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
-const MAX_JUMPS = 10
+const MAX_TURNS = 10
 const D_MIN = 0.12
 const D_MAX = 8
 const GAP = 6.5
@@ -13,6 +13,8 @@ const POST_K = 0.32
 
 const LANES = [-0.2, -0.07, 0.16, 0.07, -0.16, 0.22, -0.04, 0.12, -0.22, 0.17]
 const POST_LANE = 0.46
+
+const TURN_DIRS = ['left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right']
 
 const SPEED_LEVELS = [
   { level: 1, label: 'Lambat', emoji: '🐢', factor: 2.2 },
@@ -119,68 +121,36 @@ function speak(text, opts = {}) {
   }
 }
 
-const GATES = Array.from({ length: MAX_JUMPS }, (_, i) => D_MAX + i * GAP)
-const GOLD_GATE = GATES[MAX_JUMPS - 1] + GAP * 1.45
+const GATES = Array.from({ length: MAX_TURNS }, (_, i) => D_MAX + i * GAP)
+const GOLD_GATE = GATES[MAX_TURNS - 1] + GAP * 1.45
 const TOTAL_Z = GOLD_GATE + 2
 
-const CARROT_AT = Array.from({ length: MAX_JUMPS }, (_, i) => GATES[i] + GAP * 0.52)
+const CARROT_AT = Array.from({ length: MAX_TURNS }, (_, i) => GATES[i] + GAP * 0.52)
 
-const OBSTACLE_ASPECT = [1, 0.75, 0.55, 0.55]
-const OBSTACLE_BASE = 0.45
+const TURN_ASPECT = [1, 0.8, 0.6, 0.6]
+const TURN_BASE = 0.5
 const CARROT_BASE = 0.13
 
 function mod(n, m) {
   return ((n % m) + m) % m
 }
 
-function PovStump() {
+function TurnSign({ dir }) {
+  const isLeft = dir === 'left'
   return (
-    <svg viewBox="0 0 80 60" aria-hidden="true" className="h-full w-full drop-shadow-[0_10px_8px_rgba(30,27,20,0.3)]">
-      <rect x="10" y="18" width="60" height="38" rx="10" fill="#7c4a21" />
-      <rect x="17" y="22" width="46" height="30" rx="8" fill="#a9742f" />
-      <ellipse cx="40" cy="18" rx="30" ry="10" fill="#c89b52" />
-      <ellipse cx="40" cy="18" rx="20" ry="6.5" fill="#e6c68f" />
-      <ellipse cx="40" cy="18" rx="10" ry="3.5" fill="#f4dfb0" />
+    <svg viewBox="0 0 100 100" aria-hidden="true" className="h-full w-full drop-shadow-[0_10px_8px_rgba(0,0,0,0.3)]">
+      <polygon points="50,5 95,50 50,95 5,50" fill="#fbbf24" stroke="#b45309" strokeWidth="4" />
+      <polygon points="50,15 85,50 50,85 15,50" fill="#f59e0b" />
+      {isLeft ? (
+        <path d="M65 50 L30 50 M35 35 L20 50 L35 65" stroke="#1a1a2e" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      ) : (
+        <path d="M35 50 L70 50 M65 35 L80 50 L65 65" stroke="#1a1a2e" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      )}
     </svg>
   )
 }
 
-function PovFence() {
-  return (
-    <svg viewBox="0 0 120 56" aria-hidden="true" className="h-full w-full drop-shadow-[0_10px_8px_rgba(30,27,20,0.3)]">
-      <rect x="8" y="10" width="8" height="44" rx="3" fill="#8a5a2b" />
-      <rect x="104" y="10" width="8" height="44" rx="3" fill="#8a5a2b" />
-      <rect x="4" y="14" width="112" height="10" rx="5" fill="#c89b52" />
-      <rect x="2" y="30" width="116" height="12" rx="6" fill="#a9742f" />
-      <rect x="4" y="16" width="110" height="6" rx="3" fill="#e6c68f" />
-    </svg>
-  )
-}
-
-function PovLog() {
-  return (
-    <svg viewBox="0 0 120 56" aria-hidden="true" className="h-full w-full drop-shadow-[0_10px_8px_rgba(30,27,20,0.3)]">
-      <ellipse cx="60" cy="30" rx="56" ry="24" fill="#7c4a21" />
-      <ellipse cx="60" cy="24" rx="56" ry="20" fill="#a9742f" />
-      <ellipse cx="60" cy="20" rx="50" ry="15" fill="#c89b52" />
-      <ellipse cx="60" cy="18" rx="42" ry="10" fill="#e6c68f" />
-      <ellipse cx="60" cy="16" rx="34" ry="6" fill="#f4dfb0" />
-    </svg>
-  )
-}
-
-function PovObstacle({ type }) {
-  if (type === 'stump') return <PovStump />
-  if (type === 'fence') return <PovFence />
-  if (type === 'log') return <PovLog />
-  return (
-    <span aria-hidden="true" style={{ fontSize: '100%', lineHeight: 1 }}>
-      🪨
-    </span>
-  )
-}
-
-function PovSiren({ side, jumping }) {
+function PovSiren({ side, active }) {
   const base = side === 'left' ? 'rotate(-10deg)' : 'rotate(10deg)'
   const color = side === 'left' ? '#ef4444' : '#3b82f6'
   return (
@@ -188,10 +158,10 @@ function PovSiren({ side, jumping }) {
       className="pointer-events-none absolute z-40"
       style={{ top: -38, left: side === 'left' ? '4%' : 'auto', right: side === 'left' ? 'auto' : '4%', width: '16%', transform: base }}
     >
-      <div className={`h-auto w-full drop-shadow-[0_6px_6px_rgba(20,15,30,0.25)] ${jumping ? 'animate-pov-ears-jump' : 'animate-pov-ear-flap'}`}>
+      <div className={`h-auto w-full drop-shadow-[0_6px_6px_rgba(20,15,30,0.25)] ${active ? 'animate-pov-ears-jump' : 'animate-pov-ear-flap'}`}>
         <svg viewBox="0 0 40 150" aria-hidden="true">
           <rect x="8" y="30" width="24" height="100" rx="12" fill="#1a1a2e" stroke="#333" strokeWidth="3" />
-          <circle cx="20" cy="45" r="14" fill={color} className="siren-light" />
+          <circle cx="20" cy="45" r="14" fill={color} className={active ? 'siren-light-fast' : 'siren-light'} />
           <circle cx="20" cy="45" r="8" fill="#fff" opacity="0.6" />
           <rect x="6" y="25" width="28" height="10" rx="3" fill="#333" />
         </svg>
@@ -249,13 +219,13 @@ function CarDashboard() {
 export default function PolisiLintasanPOVGame({ onExit }) {
   const [size, setSize] = useState(null)
   const [phase, setPhase] = useState('start')
-  const [jumps, setJumps] = useState(0)
+  const [turns, setTurns] = useState(0)
   const [picked, setPicked] = useState(0)
   const [speedLevel, setSpeedLevel] = useState(2)
   const [siap, setSiap] = useState(false)
-  const [jumpFx, setJumpFx] = useState(0)
+  const [turnFx, setTurnFx] = useState(0)
   const [landFx, setLandFx] = useState(0)
-  const [sirenJump, setSirenJump] = useState(false)
+  const [sirenActive, setSirenActive] = useState(false)
   const [paused, setPaused] = useState(false)
 
   const stageRef = useRef(null)
@@ -276,7 +246,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
   const speedRef = useRef(2)
   const pausedRef = useRef(false)
   const landTimersRef = useRef([])
-  const bounceRef = useRef({ active: false, t: 0 })
+  const tiltRef = useRef({ active: false, t: 0, dir: 'left' })
 
   const changeSpeed = useCallback((lvl) => {
     speedRef.current = lvl
@@ -309,17 +279,18 @@ export default function PolisiLintasanPOVGame({ onExit }) {
     return horizon + (h - horizon) * (1 - Math.min(1, d / D_MAX))
   }, [])
 
-  const triggerJump = useCallback(
+  const triggerTurn = useCallback(
     (i) => {
       passedRef.current.add(i)
       playSiren()
-      speak('Jump!', { rate: 1.45, pitch: 1.6 })
-      setJumps((j) => j + 1)
-      setJumpFx((k) => k + 1)
-      setSirenJump(true)
-      setTimeout(() => setSirenJump(false), 620)
-      bounceRef.current = { active: true, t: 0 }
-      const t = setTimeout(() => setLandFx((k) => k + 1), 250)
+      const dir = TURN_DIRS[i % TURN_DIRS.length]
+      speak(dir === 'left' ? 'Turn left!' : 'Turn right!', { rate: 1.3, pitch: 1.4 })
+      setTurns((j) => j + 1)
+      setTurnFx((k) => k + 1)
+      setSirenActive(true)
+      tiltRef.current = { active: true, t: 0, dir }
+      setTimeout(() => setSirenActive(false), 800)
+      const t = setTimeout(() => setLandFx((k) => k + 1), 300)
       landTimersRef.current.push(t)
     },
     [],
@@ -383,19 +354,20 @@ export default function PolisiLintasanPOVGame({ onExit }) {
       const maxD = D_MAX + 0.5
       const z = worldZRef.current
 
-      const b = bounceRef.current
-      if (b.active) {
-        b.t += dt
-        const DUR = 0.62
+      const tiltState = tiltRef.current
+      if (tiltState.active) {
+        tiltState.t += dt
+        const DUR = 0.8
         const scene = sceneRef.current
         if (scene) {
-          if (b.t >= DUR) {
-            b.active = false
-            scene.style.transform = 'translateY(0px)'
+          if (tiltState.t >= DUR) {
+            tiltState.active = false
+            scene.style.transform = 'translateY(0px) rotate(0deg)'
           } else {
-            const p = b.t / DUR
-            const lift = Math.sin(p * Math.PI) * h * 0.09
-            const rot = Math.sin(p * Math.PI * 2) * 1.1
+            const p = tiltState.t / DUR
+            const angle = tiltState.dir === 'left' ? -6 : 6
+            const rot = Math.sin(p * Math.PI) * angle
+            const lift = Math.sin(p * Math.PI) * h * 0.04
             scene.style.transform = `translateY(${-lift}px) rotate(${rot}deg)`
           }
         }
@@ -433,7 +405,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
       }
 
       let nearIdx = -1
-      for (let i = 0; i < MAX_JUMPS; i++) {
+      for (let i = 0; i < MAX_TURNS; i++) {
         const d = GATES[i] - z
         const el = obRefs.current.get(i)
         if (el) {
@@ -441,15 +413,14 @@ export default function PolisiLintasanPOVGame({ onExit }) {
           if (visible) {
             const s = CARROT_SPD / d
             const ti = i % 4
-            const sizePx = Math.max(100, h * OBSTACLE_BASE) * s
+            const sizePx = Math.max(100, h * TURN_BASE) * s
             const x = w / 2 + LANES[i] * w * (CENTER_K / d)
             const y = yOf(d)
             el.style.display = 'block'
             el.style.left = `${x}px`
             el.style.top = `${y}px`
             el.style.width = `${sizePx}px`
-            el.style.height = `${sizePx * OBSTACLE_ASPECT[ti]}px`
-            el.style.fontSize = ti === 0 ? `${sizePx}px` : ''
+            el.style.height = `${sizePx * TURN_ASPECT[ti]}px`
             el.style.opacity = `${0.5 + 0.5 * (1 - d / D_MAX)}`
             el.style.zIndex = Math.round((D_MAX - d) * 10)
           } else {
@@ -459,7 +430,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
         if (running) {
           if (!passedRef.current.has(i)) {
             if (d > 0 && d <= SIAP_D && nearIdx === -1) nearIdx = i
-            if (d <= PASS_D) triggerJump(i)
+            if (d <= PASS_D) triggerTurn(i)
           }
         }
       }
@@ -526,7 +497,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
       cancelAnimationFrame(raf)
       ro.disconnect()
     }
-  }, [triggerJump, winNow, yOf])
+  }, [triggerTurn, winNow, yOf])
 
   function restart() {
     worldZRef.current = 0
@@ -538,13 +509,13 @@ export default function PolisiLintasanPOVGame({ onExit }) {
     winFiredRef.current = false
     landTimersRef.current.forEach(clearTimeout)
     landTimersRef.current = []
-    bounceRef.current = { active: false, t: 0 }
-    setJumps(0)
+    tiltRef.current = { active: false, t: 0, dir: 'left' }
+    setTurns(0)
     setPicked(0)
     setSiap(false)
-    setJumpFx(0)
+    setTurnFx(0)
     setLandFx(0)
-    setSirenJump(false)
+    setSirenActive(false)
     setPaused(false)
     setPhase('run')
   }
@@ -591,14 +562,14 @@ export default function PolisiLintasanPOVGame({ onExit }) {
       const side = i % 2 ? 1 : -1
       const x = w / 2 + side * (w * (0.3 + (i % 4) * 0.09))
       const bottom = sh * 0.42 + (i % 3) * sh * 0.05
-      const e = ['🌼', '🌸', '🌿', '🍃', '🪻', '🌻'][i % 6]
+      const e = ['🏢', '🏠', '🌳', '🌲', '🏪', '🏬'][i % 6]
       list.push({ id: i, x, bottom, e, s: 0.7 + (i % 3) * 0.25 })
     }
     return list
   }, [size])
 
   return (
-    <div className="flex h-dvh w-full touch-manipulation select-none flex-col overflow-hidden bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-200">
+    <div className="flex h-dvh w-full touch-manipulation select-none flex-col overflow-hidden bg-gradient-to-b from-sky-300 via-sky-100 to-slate-300">
       <header className="z-30 flex w-full shrink-0 flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-5 sm:py-3">
         <button
           type="button"
@@ -621,15 +592,15 @@ export default function PolisiLintasanPOVGame({ onExit }) {
 
       <div className="z-30 flex w-full shrink-0 flex-wrap items-center justify-center gap-x-5 gap-y-1 px-2 py-1 sm:py-2">
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-extrabold tracking-wide text-sky-800 uppercase sm:text-sm">Lompatan</span>
-          <span className={`text-xl font-black text-sky-800 sm:text-2xl ${jumps > 0 ? 'animate-pop-in' : ''}`}>
-            {'🚔'.repeat(Math.max(1, Math.min(3, jumps)))} {jumps}
+          <span className="text-xs font-extrabold tracking-wide text-sky-800 uppercase sm:text-sm">Tikungan</span>
+          <span className={`text-xl font-black text-sky-800 sm:text-2xl ${turns > 0 ? 'animate-pop-in' : ''}`}>
+            {'↩️'.repeat(Math.max(1, Math.min(3, turns)))} {turns}
           </span>
         </div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs font-extrabold tracking-wide text-emerald-800 uppercase sm:text-sm">Wortel</span>
+          <span className="text-xs font-extrabold tracking-wide text-emerald-800 uppercase sm:text-sm">Donat</span>
           <span className={`text-xl font-black text-emerald-700 sm:text-2xl ${picked > 0 ? 'animate-pop-in' : ''}`}>
-            🥕 x {picked}
+            🍩 x {picked}
           </span>
         </div>
         <div className="flex flex-col items-center gap-1">
@@ -663,7 +634,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
 
       <div ref={stageRef} className="relative min-h-0 flex-1 overflow-hidden">
         <div ref={sceneRef} className="absolute inset-0 will-change-transform">
-          <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-emerald-300" />
+          <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-slate-300" />
 
           <div className="absolute left-0 right-0 top-0" style={{ height: `${horizon}px` }}>
             <span aria-hidden="true" className="animate-floaty absolute right-[6%] top-[6%] text-5xl opacity-90 drop-shadow-[0_0_16px_rgba(250,204,21,0.8)] sm:text-7xl">
@@ -685,8 +656,8 @@ export default function PolisiLintasanPOVGame({ onExit }) {
               </span>
             ))}
             <svg className="absolute bottom-0 left-0 h-24 w-full opacity-70 sm:h-32" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0 40 C 180 10, 300 80, 480 55 C 650 32, 760 90, 960 60 C 1120 38, 1240 78, 1440 45 L 1440 160 L 0 160 Z" fill="#5c8f5a" />
-              <path d="M0 110 C 220 70, 420 140, 680 100 C 900 68, 1120 130, 1440 92 L 1440 160 L 0 160 Z" fill="#3f6d46" />
+              <path d="M0 40 C 180 10, 300 80, 480 55 C 650 32, 760 90, 960 60 C 1120 38, 1240 78, 1440 45 L 1440 160 L 0 160 Z" fill="#6b7280" />
+              <path d="M0 110 C 220 70, 420 140, 680 100 C 900 68, 1120 130, 1440 92 L 1440 160 L 0 160 Z" fill="#4b5563" />
             </svg>
           </div>
 
@@ -695,7 +666,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
               className="h-full w-full"
               style={{
                 background:
-                  'linear-gradient(to bottom, #86efac 0%, #4ade80 30%, #22c55e 75%, #16a34a 100%)',
+                  'linear-gradient(to bottom, #6b7280 0%, #4b5563 30%, #374151 75%, #1f2937 100%)',
               }}
             />
           </div>
@@ -716,7 +687,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
               key={`strip-${i}`}
               ref={registerStrip(i)}
               className="absolute left-0 right-0"
-              style={{ background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0 6%, transparent 6% 12%)' }}
+              style={{ background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0 6%, transparent 6% 12%)' }}
               aria-hidden="true"
             />
           ))}
@@ -731,20 +702,20 @@ export default function PolisiLintasanPOVGame({ onExit }) {
             >
               <span
                 className="block h-full w-full rounded-sm"
-                style={{ background: 'linear-gradient(to right, #8a6a45, #a9742f 45%, #6b4c2a)' }}
+                style={{ background: 'linear-gradient(to right, #374151, #6b7280 45%, #1f2937)' }}
               />
             </span>
           ))}
 
-          {Array.from({ length: MAX_JUMPS }, (_, i) => (
+          {Array.from({ length: MAX_TURNS }, (_, i) => (
             <span
-              key={`ob-${i}`}
+              key={`turn-${i}`}
               ref={registerOb(i)}
               className="absolute"
               style={{ display: 'none' }}
               aria-hidden="true"
             >
-              <PovObstacle type={i % 4 === 0 ? 'rock' : i % 4 === 1 ? 'stump' : i % 4 === 2 ? 'fence' : 'log'} />
+              <TurnSign dir={TURN_DIRS[i % TURN_DIRS.length]} />
             </span>
           ))}
 
@@ -756,7 +727,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
               style={{ display: 'none', lineHeight: 1 }}
               aria-hidden="true"
             >
-              🥕
+              🍩
             </span>
           ))}
 
@@ -765,8 +736,8 @@ export default function PolisiLintasanPOVGame({ onExit }) {
           </span>
         </div>
 
-        <PovSiren side="left" jumping={sirenJump} />
-        <PovSiren side="right" jumping={sirenJump} />
+        <PovSiren side="left" active={sirenActive} />
+        <PovSiren side="right" active={sirenActive} />
 
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 h-[10vh] min-h-[50px]">
           <CarDashboard />
@@ -797,16 +768,16 @@ export default function PolisiLintasanPOVGame({ onExit }) {
           </div>
         )}
 
-        {jumpFx > 0 && phase === 'run' && (
+        {turnFx > 0 && phase === 'run' && (
           <div
-            key={`splash-${jumpFx}`}
+            key={`splash-${turnFx}`}
             className="animate-pov-splash pointer-events-none absolute left-1/2 top-[38%] z-50 flex -translate-x-1/2 flex-col items-center"
           >
             <span className="text-[clamp(3.5rem,12vw,8rem)] font-black leading-none text-white drop-shadow-[0_6px_0_rgba(2,6,23,0.3)]">
-              LOMPAT!
+              MIRING!
             </span>
             <span className="text-[clamp(2.2rem,7.5vw,4.5rem)]" aria-hidden="true">
-              🚔⬆️
+              🚔🔄
             </span>
           </div>
         )}
@@ -821,11 +792,11 @@ export default function PolisiLintasanPOVGame({ onExit }) {
                 GoPro di atas mobil polisi!
               </h2>
               <p className="max-w-xl text-[clamp(1rem,3vw,1.35rem)] font-bold text-emerald-800">
-                Lihat jalan dari mata mobil polisi! Saat polisi{' '}
-                <span className="text-amber-600">LOMPAT</span>, kamu juga harus lompat! 🦘
+                Lihat jalan dari mata mobil polisi! Saat ada tikungan,{' '}
+                <span className="text-amber-600">MIRING</span> ke kiri atau kanan! 🔄
               </p>
               <p className="max-w-xl text-sm font-bold text-emerald-700 sm:text-base">
-                Berdiri, tekuk lutut, lalu lompat tinggi bersama si polisi! Tangkap juga wortel-wortelnya. 🥕
+                Berdiri tegak, lalu miringkan tubuhmu mengikuti tikungan! Tangkap juga donatnya. 🍩
               </p>
             </div>
             <button
@@ -853,10 +824,10 @@ export default function PolisiLintasanPOVGame({ onExit }) {
               Kamu menemukan Lencana Emas! ⭐🎉
             </p>
             <p className="-mt-1 text-center text-sm font-extrabold text-amber-700 sm:text-base">
-              Polisi melompat {jumps} kali dan mengumpulkan {picked} wortel!
+              Polisi melewati {turns} tikungan dan mengumpulkan {picked} donat!
             </p>
             <p className="text-center text-sm font-extrabold text-amber-700 sm:text-base">
-              Kamu juga ikut lompat {jumps} kali, kan? Keren! 💪
+              Kamu juga ikut miring {turns} kali, kan? Keren! 💪
             </p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <button
@@ -890,7 +861,7 @@ export default function PolisiLintasanPOVGame({ onExit }) {
                 onClick={togglePause}
                 className="rounded-full bg-emerald-500 px-8 py-3 text-lg font-black text-white shadow-[0_5px_0_#047857] transition hover:scale-105"
               >
-                ▶️ Lanjut Lari!
+                ▶️ Lanjut!
               </button>
             </div>
           </div>
@@ -898,10 +869,11 @@ export default function PolisiLintasanPOVGame({ onExit }) {
       </div>
 
       <style>{`
-        .siren-light { animation: siren-flash 0.3s ease-in-out infinite; }
+        .siren-light { animation: siren-flash 0.5s ease-in-out infinite; }
+        .siren-light-fast { animation: siren-flash 0.15s ease-in-out infinite; }
         @keyframes siren-flash {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+          50% { opacity: 0.2; }
         }
       `}</style>
     </div>
