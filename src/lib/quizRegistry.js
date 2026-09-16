@@ -48,6 +48,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/polisi.svg', '/images/palette.svg'],
   },
   {
+    id: 'polisi-patroli',
+    title: 'Polisi Patroli Lintasan',
+    tagline: 'Glide your cursor along the road to reach the Police Station!',
+    images: ['/images/polisi.svg', '/images/policecar.jpg'],
+  },
+  {
     id: 'kantin-crisis',
     title: 'Krisis 15 Menit',
     tagline: 'Build a canteen automation system under 15 minutes!',
