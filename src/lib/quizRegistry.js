@@ -84,6 +84,18 @@ export const QUIZ_REGISTRY = [
     images: ['/images/robot.svg', '/images/cpu.svg'],
   },
   {
+    id: 'tik-quest',
+    title: 'Detective Bity: TIK Quest',
+    tagline: 'Selesaikan 9 kasus TIK, kumpulkan lencana, dan raih sertifikat Master Detective!',
+    images: ['/images/laptop.svg', '/images/smartphone.svg'],
+  },
+  {
+    id: 'terminal-protocol',
+    title: 'Terminal Protocol',
+    tagline: 'Ketik perintah terminal darurat untuk memulihkan kota dari virus NOVA-BUG!',
+    images: ['/images/monitor.svg', '/images/keyboard.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',
