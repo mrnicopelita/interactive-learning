@@ -1852,6 +1852,7 @@ function CyberQuestGame({ onExit }) {
   }
 
   function selectStage(id) {
+    setScreen('stage')
     setStageId(id)
     setStagePhase('briefing')
     setResult(null)
