@@ -78,6 +78,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/kelinci.svg', '/images/golden-carrot.svg'],
   },
   {
+    id: 'cyberquest',
+    title: 'CyberQuest: Computational World',
+    tagline: 'Bantu Kiki si Cyber-Bot pulihkan dunia digital! 10 misi berpikir komputasional.',
+    images: ['/images/robot.svg', '/images/cpu.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',
