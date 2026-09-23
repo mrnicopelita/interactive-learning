@@ -12,6 +12,7 @@ import KelinciLompatGame from './games/KelinciLompatGame.jsx'
 import PovRabbitGame from './games/PovRabbitGame.jsx'
 import PolisiPatroliGame from './games/PolisiPatroliGame.jsx'
 import PolisiLintasanPOVGame from './games/PolisiLintasanPOVGame.jsx'
+import PestaPuzzlePolisiGame from './games/PestaPuzzlePolisi.jsx'
 import CyberQuestGame from './games/CyberQuestGame.jsx'
 import TikQuestGame from './games/TikQuestGame.jsx'
 import TerminalProtocolGame from './games/TerminalProtocolGame.jsx'
@@ -57,6 +58,7 @@ const GAME_COMPONENTS = {
   'kelinci-berlari': PovRabbitGame,
   'polisi-patroli': PolisiPatroliGame,
   'polisi-lintasan-pov': PolisiLintasanPOVGame,
+  'pesta-puzzle': PestaPuzzlePolisiGame,
   'cyberquest': CyberQuestGame,
   'tik-quest': TikQuestGame,
   'terminal-protocol': TerminalProtocolGame,

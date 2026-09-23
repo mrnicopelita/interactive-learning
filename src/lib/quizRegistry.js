@@ -60,6 +60,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/polisi.svg', '/images/policecar.jpg'],
   },
   {
+    id: 'pesta-puzzle',
+    title: 'Pesta Puzzle Polisi',
+    tagline: 'Ayo susun potongan gambar polisi yang tersebar!',
+    images: ['/images/polisi.svg', '/images/policecar.jpg'],
+  },
+  {
     id: 'kantin-crisis',
     title: 'Krisis 15 Menit',
     tagline: 'Build a canteen automation system under 15 minutes!',
