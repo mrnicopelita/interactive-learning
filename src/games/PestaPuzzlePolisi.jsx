@@ -321,30 +321,444 @@ function OfficersScene() {
   )
 }
 
-/* --------------------------- level config ------------------------------ */
-const LEVEL_CONFIG = {
-  1: {
-    sceneW: 680,
-    sceneH: 400,
-    slices: [
-      { id: 'c-top', r: { x: 0, y: 0, w: 680, h: 200 } },
-      { id: 'c-bottom', r: { x: 0, y: 200, w: 680, h: 200 } },
-    ],
-    scene: <CarScene />,
-  },
-  2: {
-    sceneW: 660,
-    sceneH: 400,
-    slices: [
-      { id: 'o-left', r: { x: 0, y: 0, w: 220, h: 400 } },
-      { id: 'o-mid', r: { x: 220, y: 0, w: 220, h: 400 } },
-      { id: 'o-right', r: { x: 440, y: 0, w: 220, h: 400 } },
-    ],
-    scene: <OfficersScene />,
-  },
+/* ------------------------- art: police motorcycle ---------------------- */
+function MotorcycleScene() {
+  return (
+    <g>
+      <ellipse cx="345" cy="352" rx="175" ry="12" fill="#1e3a8a" opacity="0.13" />
+
+      {/* wheels */}
+      <circle cx="215" cy="330" r="42" fill="#23233a" stroke="#0b0b14" strokeWidth="4" />
+      <circle cx="215" cy="330" r="18" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" />
+      <circle cx="215" cy="330" r="6" fill={BLUE} />
+      <circle cx="480" cy="330" r="42" fill="#23233a" stroke="#0b0b14" strokeWidth="4" />
+      <circle cx="480" cy="330" r="18" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="3" />
+      <circle cx="480" cy="330" r="6" fill={BLUE} />
+
+      {/* engine + exhaust */}
+      <rect x="270" y="305" width="120" height="30" rx="10" fill="#20242e" stroke="#171a22" strokeWidth="3" />
+      <rect x="366" y="330" width="104" height="16" rx="8" fill="#7c8895" stroke="#5a6572" strokeWidth="3" />
+      <rect x="454" y="330" width="32" height="16" rx="6" fill="#94a3b8" />
+
+      {/* seat */}
+      <rect x="252" y="266" width="104" height="26" rx="12" fill="#20242e" stroke="#171a22" strokeWidth="3" />
+      {/* body skirt */}
+      <path d="M254 316 Q262 272 300 264 L360 262 Q390 262 400 292 L400 316 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      {/* gas tank */}
+      <path d="M348 268 L424 268 Q446 272 452 298 L444 320 L348 320 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      {/* POLRI badge on tank */}
+      <g transform="translate(398,296)">
+        <circle r="17" fill={GOLD} stroke={GOLD_D} strokeWidth="3" />
+        <path d={starPoints(0, 0, 8, 3.4)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1.4" />
+      </g>
+
+      {/* front fairing */}
+      <path d="M432 268 L506 268 Q528 280 540 308 L536 320 L432 320 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      {/* windshield */}
+      <polygon points="450,268 478,232 500,258 500,268" fill="#bfe3ff" stroke={BLUE_D} strokeWidth="2.5" />
+      {/* headlight */}
+      <ellipse cx="536" cy="300" rx="9" ry="12" fill="#ffe28a" stroke={BLUE_D} strokeWidth="2.5" />
+      {/* forks */}
+      <path d="M470 296 L480 332" stroke="#374151" strokeWidth="7" strokeLinecap="round" />
+      <path d="M446 312 L458 336" stroke="#374151" strokeWidth="6" strokeLinecap="round" />
+      {/* handlebars + mirrors */}
+      <path d="M500 262 Q528 238 548 240" stroke="#20242e" strokeWidth="6" fill="none" strokeLinecap="round" />
+      <circle cx="552" cy="240" r="8" fill="#8ea6c8" stroke="#5a6572" strokeWidth="2.5" />
+      <line x1="452" y1="262" x2="436" y2="238" stroke="#20242e" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="432" cy="236" r="7" fill="#8ea6c8" stroke="#5a6572" strokeWidth="2.5" />
+
+      {/* cute face on fairing */}
+      <ellipse cx="474" cy="290" rx="6.5" ry="8" fill="#ffffff" />
+      <circle cx="475.5" cy="290" r="3" fill="#1d1d2e" />
+      <circle cx="477" cy="289" r="1.1" fill="#ffffff" />
+      <ellipse cx="496" cy="290" rx="6.5" ry="8" fill="#ffffff" />
+      <circle cx="497.5" cy="290" r="3" fill="#1d1d2e" />
+      <circle cx="499" cy="289" r="1.1" fill="#ffffff" />
+      <path d="M480 300 Q486 306 492 300" stroke="#1d1d2e" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+      {/* light buttons */}
+      <circle cx="262" cy="244" r="7" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
+      <circle cx="278" cy="244" r="7" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
+
+      {/* kickstand */}
+      <line x1="250" y1="318" x2="243" y2="352" stroke="#5a6572" strokeWidth="5" strokeLinecap="round" />
+
+      {/* rider legs */}
+      <path d="M320 288 L300 316" stroke={NAVY_D} strokeWidth="12" strokeLinecap="round" />
+      <path d="M354 288 L402 316" stroke={NAVY_D} strokeWidth="12" strokeLinecap="round" />
+      <ellipse cx="300" cy="320" rx="12" ry="8" fill="#20242e" />
+      <ellipse cx="404" cy="320" rx="12" ry="8" fill="#20242e" />
+
+      {/* rider torso */}
+      <path d="M298 210 L372 216 Q378 250 366 284 L306 284 Q292 250 298 210 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="3" />
+      <rect x="302" y="264" width="66" height="12" rx="5" fill="#191e33" />
+      <rect x="330" y="264" width="12" height="12" fill={GOLD} />
+
+      {/* rider arms to bars */}
+      <line x1="320" y1="240" x2="448" y2="258" stroke={NAVY} strokeWidth="12" strokeLinecap="round" />
+      <line x1="362" y1="240" x2="500" y2="254" stroke={NAVY} strokeWidth="12" strokeLinecap="round" />
+      <circle cx="448" cy="258" r="7" fill={SKIN} />
+      <circle cx="500" cy="254" r="7" fill={SKIN} />
+
+      {/* rider head */}
+      <circle cx="335" cy="172" r="38" fill={SKIN} />
+      <circle cx="323" cy="168" r="4.5" fill="#1b1b21" />
+      <circle cx="348" cy="168" r="4.5" fill="#1b1b21" />
+      <circle cx="324.5" cy="166.5" r="1.6" fill="#ffffff" />
+      <circle cx="349.5" cy="166.5" r="1.6" fill="#ffffff" />
+      <path d="M332 180 Q340 188 348 180" stroke="#7c3b20" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <ellipse cx="313" cy="182" rx="5" ry="3" fill="#f7a9a9" opacity="0.65" />
+      <ellipse cx="358" cy="182" rx="5" ry="3" fill="#f7a9a9" opacity="0.65" />
+      {/* helmet */}
+      <path d="M297 178 Q295 122 335 118 Q376 122 374 178 Q358 166 336 164 Q312 166 297 178 Z" fill="#ffffff" stroke="#dbe4f0" strokeWidth="3" />
+      <path d="M330 118 L330 162" stroke={NAVY_D} strokeWidth="5" />
+      <g transform="translate(352,144)">
+        <path d={starPoints(0, 0, 7, 3)} fill={GOLD} stroke={GOLD_D} strokeWidth="1" />
+      </g>
+    </g>
+  )
 }
 
-const getCfg = (n) => LEVEL_CONFIG[n] || LEVEL_CONFIG[1]
+/* ------------------------- art: police helicopter ---------------------- */
+function HelicopterScene() {
+  return (
+    <g>
+      {/* sun */}
+      <circle cx="566" cy="78" r="26" fill="#ffd93d" stroke="#f0b400" strokeWidth="4" />
+      {Array.from({ length: 8 }).map((_, i) => {
+        const a = (i * 45) * Math.PI / 180
+        return (
+          <line
+            key={i}
+            x1={566 + 33 * Math.cos(a)}
+            y1={78 + 33 * Math.sin(a)}
+            x2={566 + 45 * Math.cos(a)}
+            y2={78 + 45 * Math.sin(a)}
+            stroke="#f0b400"
+            strokeWidth="4.5"
+            strokeLinecap="round"
+          />
+        )
+      })}
+      <circle cx="558" cy="75" r="2.5" fill="#7a4d00" />
+      <circle cx="574" cy="75" r="2.5" fill="#7a4d00" />
+      <path d="M558 86 Q566 92 574 86" stroke="#7a4d00" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+      {/* clouds */}
+      <g fill="#ffffff" opacity="0.95">
+        <circle cx="330" cy="58" r="24" />
+        <circle cx="368" cy="48" r="18" />
+        <circle cx="300" cy="52" r="16" />
+        <rect x="284" y="48" width="88" height="14" rx="7" />
+      </g>
+      <g fill="#ffffff" opacity="0.85">
+        <circle cx="120" cy="70" r="18" />
+        <circle cx="146" cy="62" r="13" />
+        <rect x="101" y="64" width="58" height="12" rx="6" />
+      </g>
+      <path d={starPoints(428, 94, 9, 4)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.3" />
+      <path d={starPoints(206, 40, 7, 3.2)} fill={GOLD} opacity="0.9" />
+
+      {/* ground */}
+      <path d="M0 356 Q120 340 250 350 Q390 364 500 352 Q580 344 660 354 L660 400 L0 400 Z" fill="#6bc98f" stroke="#4bbd7f" strokeWidth="4" />
+      <path d="M30 376 Q330 388 630 376" stroke="#e8ecf3" strokeWidth="10" fill="none" strokeDasharray="18 14" opacity="0.9" />
+      <path d="M40 348 l18 -26 l18 26 Z" fill="#2f9e63" opacity="0.85" />
+      <path d="M120 344 l16 -22 l16 22 Z" fill="#2f9e63" opacity="0.85" />
+      <path d="M576 346 l17 -24 l17 24 Z" fill="#2f9e63" opacity="0.85" />
+      <ellipse cx="330" cy="372" rx="150" ry="16" fill="#1e3a8a" opacity="0.16" />
+
+      {/* main rotor */}
+      <rect x="356" y="98" width="8" height="58" fill="#374151" />
+      <rect x="328" y="90" width="64" height="14" rx="5" fill="#20242e" stroke="#171a22" strokeWidth="2" />
+      <path d="M118 97 L552 97" stroke="#1f2937" strokeWidth="7" strokeLinecap="round" opacity="0.85" />
+      <path d="M118 102 L552 102" stroke="#94a3b8" strokeWidth="2" opacity="0.5" />
+      <circle cx="118" cy="97" r="6" fill="#334155" />
+      <circle cx="552" cy="97" r="6" fill="#334155" />
+
+      {/* tail boom */}
+      <path d="M250 210 L92 200 L92 224 L250 238 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      {/* tail fin */}
+      <path d="M112 220 L96 148 L142 190 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <g transform="translate(116,190)">
+        <path d={starPoints(0, 0, 9, 3.8)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.6" />
+      </g>
+      {/* tail rotor */}
+      <ellipse cx="86" cy="206" rx="10" ry="26" fill="#20242e" stroke="#0b0b14" strokeWidth="2" />
+      <ellipse cx="86" cy="206" rx="6" ry="18" fill="#334155" />
+      {/* tail lights */}
+      <circle cx="150" cy="230" r="6" fill="#3b82f6" stroke="#ffffff" strokeWidth="1.8" />
+      <circle cx="174" cy="232" r="6" fill="#ef4444" stroke="#ffffff" strokeWidth="1.8" />
+
+      {/* fuselage */}
+      <path d="M240 210 L420 214 Q470 216 478 248 Q482 288 452 298 L250 298 L218 292 Q208 258 240 210 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="4" />
+      <path d="M228 282 L466 282 L468 298 L220 292 Z" fill="#ffffff" />
+      {/* side window + door */}
+      <rect x="276" y="224" width="118" height="50" rx="14" fill="#d7ecff" stroke={BLUE_D} strokeWidth="3" />
+      <rect x="286" y="234" width="96" height="30" rx="10" fill="#ffffff" opacity="0.85" stroke={BLUE_D} strokeWidth="2" />
+      {/* POLRI badge on door */}
+      <g transform="translate(334,296)">
+        <circle r="15" fill={GOLD} stroke={GOLD_D} strokeWidth="3" />
+        <path d={starPoints(0, 0, 7, 3)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1.3" />
+      </g>
+      {/* windshield + face */}
+      <path d="M428 224 L482 240 Q492 264 486 288 L440 288 Q436 252 428 224 Z" fill="#bfe3ff" stroke={BLUE_D} strokeWidth="3" />
+      <ellipse cx="454" cy="254" rx="7" ry="9" fill="#ffffff" />
+      <circle cx="455" cy="254" r="3" fill="#1d1d2e" />
+      <circle cx="456" cy="253" r="1.1" fill="#ffffff" />
+      <ellipse cx="474" cy="256" rx="7" ry="9" fill="#ffffff" />
+      <circle cx="475" cy="256" r="3" fill="#1d1d2e" />
+      <circle cx="476" cy="255" r="1.1" fill="#ffffff" />
+      <path d="M456 266 Q464 273 472 266" stroke="#1d1d2e" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <ellipse cx="446" cy="272" rx="5" ry="3" fill="#ffc5c9" opacity="0.7" />
+
+      {/* skids */}
+      <path d="M262 298 L232 322" stroke="#334155" strokeWidth="7" />
+      <path d="M392 298 L420 320" stroke="#334155" strokeWidth="7" />
+      <rect x="208" y="324" width="236" height="12" rx="6" fill={GOLD} stroke={GOLD_D} strokeWidth="3" />
+      <rect x="208" y="336" width="236" height="8" rx="4" fill={BLUE_D} />
+    </g>
+  )
+}
+
+/* ------------------------- art: officer portrait ------------------------ */
+function OfficerPortraitScene() {
+  return (
+    <g>
+      {/* backdrop disc + stars */}
+      <circle cx="200" cy="205" r="176" fill="#dbe7ff" />
+      <circle cx="200" cy="205" r="158" fill="#caddff" stroke="#aecdff" strokeWidth="4" />
+      <path d={starPoints(96, 78, 9, 3.8)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.4" />
+      <path d={starPoints(312, 90, 8, 3.4)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.4" />
+      <path d={starPoints(72, 262, 7, 3)} fill={GOLD} opacity="0.9" />
+      <path d={starPoints(326, 256, 7, 3)} fill={GOLD} opacity="0.9" />
+      <path d={starPoints(200, 52, 9, 3.8)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.4" />
+
+      {/* torso */}
+      <path d="M88 360 Q88 268 135 250 L265 250 Q312 268 312 360 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="4" />
+      <path d="M168 250 L200 298 L232 250" stroke="#ffffff" strokeWidth="9" fill="none" strokeLinecap="round" />
+      <rect x="104" y="252" width="32" height="22" rx="6" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
+      <rect x="264" y="252" width="32" height="22" rx="6" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
+      <circle cx="190" cy="316" r="7" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
+      <circle cx="210" cy="316" r="7" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
+      <circle cx="190" cy="345" r="7" fill={GOLD} stroke={GOLD_D} strokeWidth="2" opacity="0.95" />
+      <circle cx="210" cy="345" r="7" fill={GOLD} stroke={GOLD_D} strokeWidth="2" opacity="0.95" />
+      {/* chest badge */}
+      <g transform="translate(200,302)">
+        <circle r="20" fill={GOLD} stroke={GOLD_D} strokeWidth="4" />
+        <path d={starPoints(0, 0, 10, 4.2)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1.6" />
+      </g>
+
+      <rect x="178" y="214" width="44" height="38" rx="14" fill={SKIN_D} />
+
+      {/* head */}
+      <circle cx="200" cy="138" r="88" fill={SKIN} />
+      <circle cx="108" cy="150" r="18" fill={SKIN} stroke={SKIN_D} strokeWidth="2" />
+      <circle cx="292" cy="150" r="18" fill={SKIN} stroke={SKIN_D} strokeWidth="2" />
+      <rect x="122" y="84" width="22" height="86" rx="10" fill={HAIR} />
+      <rect x="256" y="84" width="22" height="86" rx="10" fill={HAIR} />
+
+      {/* eyes */}
+      <ellipse cx="166" cy="132" rx="23" ry="28" fill="#ffffff" />
+      <circle cx="170" cy="134" r="12" fill="#1b1b21" />
+      <circle cx="174" cy="128" r="4" fill="#ffffff" />
+      <ellipse cx="234" cy="132" rx="23" ry="28" fill="#ffffff" />
+      <circle cx="230" cy="134" r="12" fill="#1b1b21" />
+      <circle cx="226" cy="128" r="4" fill="#ffffff" />
+      <path d="M142 96 Q166 88 190 98" stroke={HAIR} strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M210 98 Q234 88 258 96" stroke={HAIR} strokeWidth="6" fill="none" strokeLinecap="round" />
+
+      <ellipse cx="200" cy="168" rx="5" ry="7" fill={SKIN_D} />
+      <path d="M168 192 Q200 216 232 192" stroke="#7c3b20" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <ellipse cx="138" cy="178" rx="13" ry="8" fill="#f7a9a9" opacity="0.6" />
+      <ellipse cx="262" cy="178" rx="13" ry="8" fill="#f7a9a9" opacity="0.6" />
+
+      {/* cap */}
+      <path d="M128 92 Q122 44 200 38 Q278 44 272 92 L128 92 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="5" />
+      <rect x="124" y="88" width="152" height="26" rx="10" fill={NAVY_D} />
+      <g transform="translate(200,84)">
+        <circle r="16" fill={GOLD} stroke={GOLD_D} strokeWidth="4" />
+        <path d={starPoints(0, 0, 8, 3.4)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1.6" />
+      </g>
+      <path d="M132 116 Q200 106 268 116 Q200 150 132 116 Z" fill="#2b241c" />
+    </g>
+  )
+}
+
+/* ------------------------- art: police dog ------------------------------ */
+function PoliceDogScene() {
+  return (
+    <g>
+      {/* sun + clouds */}
+      <circle cx="342" cy="64" r="24" fill="#ffd93d" stroke="#f0b400" strokeWidth="4" />
+      {Array.from({ length: 8 }).map((_, i) => {
+        const a = (i * 45) * Math.PI / 180
+        return (
+          <line
+            key={i}
+            x1={342 + 31 * Math.cos(a)}
+            y1={64 + 31 * Math.sin(a)}
+            x2={342 + 42 * Math.cos(a)}
+            y2={64 + 42 * Math.sin(a)}
+            stroke="#f0b400"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
+        )
+      })}
+      <circle cx="336" cy="61" r="2.2" fill="#7a4d00" />
+      <circle cx="348" cy="61" r="2.2" fill="#7a4d00" />
+      <path d="M336 71 Q342 76 348 71" stroke="#7a4d00" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+      <g fill="#ffffff" opacity="0.95">
+        <circle cx="78" cy="58" r="20" />
+        <circle cx="106" cy="50" r="15" />
+        <rect x="56" y="52" width="58" height="12" rx="6" />
+      </g>
+
+      {/* grass */}
+      <path d="M0 330 Q120 316 240 326 Q340 334 400 322 L400 400 L0 400 Z" fill="#8fd98a" stroke="#5fbf6f" strokeWidth="4" />
+      <ellipse cx="200" cy="360" rx="118" ry="16" fill="#1e3a8a" opacity="0.14" />
+
+      {/* body */}
+      <ellipse cx="200" cy="356" rx="122" ry="58" fill="#c99b63" stroke="#a97c42" strokeWidth="3" />
+
+      {/* ears */}
+      <path d="M102 130 Q78 244 142 254 Q152 172 130 120 Z" fill="#8a5a2b" stroke="#6b4526" strokeWidth="3" />
+      <path d="M298 130 Q322 244 258 254 Q248 172 270 120 Z" fill="#8a5a2b" stroke="#6b4526" strokeWidth="3" />
+      <path d="M114 148 Q98 224 138 240 Q146 178 130 138 Z" fill="#c98f6f" />
+      <path d="M286 148 Q302 224 262 240 Q254 178 270 138 Z" fill="#c98f6f" />
+
+      {/* head */}
+      <ellipse cx="200" cy="198" rx="120" ry="112" fill="#e0b878" stroke="#c08a4f" strokeWidth="4" />
+      <path d="M118 190 Q200 240 282 190 Q274 300 200 302 Q126 300 118 190 Z" fill="#d9a35b" />
+
+      {/* brows + eyes */}
+      <path d="M138 148 Q160 136 184 144" stroke="#6b4526" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <path d="M216 144 Q240 136 262 148" stroke="#6b4526" strokeWidth="7" fill="none" strokeLinecap="round" />
+      <ellipse cx="170" cy="168" rx="15" ry="19" fill="#ffffff" />
+      <circle cx="174" cy="171" r="8" fill="#2b1d10" />
+      <circle cx="167" cy="165" r="2.5" fill="#ffffff" />
+      <ellipse cx="230" cy="168" rx="15" ry="19" fill="#ffffff" />
+      <circle cx="226" cy="171" r="8" fill="#2b1d10" />
+      <circle cx="233" cy="165" r="2.5" fill="#ffffff" />
+
+      {/* snout + nose + mouth + tongue */}
+      <ellipse cx="200" cy="246" rx="52" ry="42" fill="#f3e8cf" stroke="#d9c48f" strokeWidth="3" />
+      <ellipse cx="200" cy="220" rx="24" ry="16" fill="#22160c" />
+      <ellipse cx="193" cy="215" rx="6" ry="4" fill="#4a3a26" />
+      <path d="M176 236 Q200 252 224 236" stroke="#22160c" strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M192 246 Q192 282 200 290 Q208 282 208 246 Z" fill="#ff8fa3" stroke="#e0526f" strokeWidth="3" />
+
+      <ellipse cx="136" cy="208" rx="14" ry="9" fill="#f79c9c" opacity="0.55" />
+      <ellipse cx="264" cy="208" rx="14" ry="9" fill="#f79c9c" opacity="0.55" />
+
+      {/* police cap */}
+      <path d="M118 116 Q116 58 200 52 Q284 58 282 116 L118 116 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="5" />
+      <rect x="114" y="110" width="172" height="28" rx="12" fill={NAVY_D} />
+      <g transform="translate(200,116)">
+        <circle r="17" fill={GOLD} stroke={GOLD_D} strokeWidth="4" />
+        <path d={starPoints(0, 0, 8.5, 3.6)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1.6" />
+      </g>
+      <path d="M130 140 Q200 130 270 140 Q200 176 130 140 Z" fill="#2b241c" />
+
+      {/* collar + tag */}
+      <path d="M118 330 Q200 348 282 330 L270 360 Q200 372 130 360 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="4" />
+      <g transform="translate(200,366)">
+        <circle r="11" fill={GOLD} stroke={GOLD_D} strokeWidth="3" />
+        <path d={starPoints(0, 0, 5.5, 2.4)} fill="#ffefb0" />
+      </g>
+    </g>
+  )
+}
+
+/* ------------------------------ level config ---------------------------- */
+const LEVELS = [
+  {
+    id: 1,
+    kind: 'horz2',
+    layout: 'stack',
+    sceneW: 680,
+    sceneH: 400,
+    sliceSize: { w: 680, h: 200 },
+    scene: <CarScene />,
+  },
+  {
+    id: 2,
+    kind: 'horz2',
+    layout: 'stack',
+    sceneW: 680,
+    sceneH: 400,
+    sliceSize: { w: 680, h: 200 },
+    scene: <MotorcycleScene />,
+  },
+  {
+    id: 3,
+    kind: 'vert3',
+    layout: 'row',
+    sceneW: 660,
+    sceneH: 400,
+    sliceSize: { w: 220, h: 400 },
+    scene: <OfficersScene />,
+  },
+  {
+    id: 4,
+    kind: 'vert3',
+    layout: 'row',
+    sceneW: 660,
+    sceneH: 400,
+    sliceSize: { w: 220, h: 400 },
+    scene: <HelicopterScene />,
+  },
+  {
+    id: 5,
+    kind: 'grid4',
+    layout: 'grid',
+    sceneW: 400,
+    sceneH: 400,
+    sliceSize: { w: 200, h: 200 },
+    scene: <OfficerPortraitScene />,
+  },
+  {
+    id: 6,
+    kind: 'grid4',
+    layout: 'grid',
+    sceneW: 400,
+    sceneH: 400,
+    sliceSize: { w: 200, h: 200 },
+    scene: <PoliceDogScene />,
+  },
+]
+const LEVEL_COUNT = LEVELS.length
+
+function buildSlices(lvl) {
+  const { kind, sceneW: W, sceneH: H } = lvl
+  if (kind === 'horz2') {
+    return [
+      { id: `${lvl.id}-t`, r: { x: 0, y: 0, w: W, h: H / 2 } },
+      { id: `${lvl.id}-b`, r: { x: 0, y: H / 2, w: W, h: H / 2 } },
+    ]
+  }
+  if (kind === 'vert3') {
+    const w = W / 3
+    return [0, 1, 2].map((i) => ({
+      id: `${lvl.id}-${i + 1}`,
+      r: { x: i * w, y: 0, w, h: H },
+    }))
+  }
+  const w = W / 2
+  const h = H / 2
+  return [
+    { id: `${lvl.id}-1`, r: { x: 0, y: 0, w, h } },
+    { id: `${lvl.id}-2`, r: { x: w, y: 0, w, h } },
+    { id: `${lvl.id}-3`, r: { x: 0, y: h, w, h } },
+    { id: `${lvl.id}-4`, r: { x: w, y: h, w, h } },
+  ]
+}
+
+const getCfg = (n) => {
+  const i = Math.max(0, Math.min(LEVEL_COUNT - 1, (n | 0) - 1))
+  const lvl = LEVELS[i]
+  return { ...lvl, slices: buildSlices(lvl) }
+}
 
 function computeScale(el, cfg) {
   if (!el) return 1
@@ -495,8 +909,8 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
       playChime()
       const allLocked = cfg.slices.every((s) => (piecesRef.current[s.id] || {}).locked || s.id === meta.id)
       if (allLocked) {
-        if (levelRef.current === 1) {
-          setTimeout(() => { setLevel(2); setHint(true); playLevelUp() }, 750)
+        if (levelRef.current < LEVEL_COUNT) {
+          setTimeout(() => { setLevel(levelRef.current + 1); setHint(true); playLevelUp() }, 750)
         } else {
           setTimeout(() => { setCelebrate(true); playFanfare(); bigConfetti() }, 420)
         }
@@ -564,21 +978,19 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
         <h1 className="text-[clamp(1.5rem,4.5vw,2.6rem)] font-black leading-none text-slate-800 drop-shadow-sm">
           <span aria-hidden="true">🧩</span> Pesta Puzzle Polisi
         </h1>
-        <div className="flex items-center gap-2">
-          <span
-            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-black shadow sm:h-9 sm:w-9 ${
-              level === 1 || celebrate ? 'bg-sky-500 text-white' : 'bg-white/70 text-slate-400'
-            }`}
-          >
-            1
-          </span>
-          <span
-            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-black shadow sm:h-9 sm:w-9 ${
-              level === 2 || celebrate ? 'bg-amber-400 text-white' : 'bg-white/70 text-slate-400'
-            }`}
-          >
-            2
-          </span>
+        <div className="flex items-center gap-2" aria-label="Level">
+          {LEVELS.map((lvl) => {
+            const done = celebrate || lvl.id < level
+            const current = lvl.id === level
+            return (
+              <span
+                key={lvl.id}
+                className={`h-3 w-3 rounded-full transition sm:h-3.5 sm:w-3.5 ${
+                  done ? 'bg-amber-400' : current ? 'scale-125 bg-sky-500 ring-2 ring-white' : 'bg-white/70'
+                }`}
+              />
+            )
+          })}
         </div>
       </header>
 
@@ -627,7 +1039,15 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
               <div className="mb-3 flex items-center justify-center gap-2 text-3xl" aria-hidden="true">
                 <span className="animate-floaty inline-block" style={{ animationDuration: '3s' }}>🧩</span>
               </div>
-              <div className={level === 1 ? 'flex flex-col items-center gap-3' : 'flex flex-row items-center gap-3'}>
+              <div
+                className={
+                  cfg.layout === 'stack'
+                    ? 'flex flex-col items-center gap-3'
+                    : cfg.layout === 'row'
+                      ? 'flex flex-row items-center gap-3'
+                      : 'grid grid-cols-2 gap-3'
+                }
+              >
                 {cfg.slices.map((s) => (
                   <div
                     key={s.id}
