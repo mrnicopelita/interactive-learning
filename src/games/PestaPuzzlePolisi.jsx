@@ -365,6 +365,7 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
   const [pieces, setPieces] = useState(() => ({}))
   const [dragId, setDragId] = useState(null)
   const [celebrate, setCelebrate] = useState(false)
+  const [hint, setHint] = useState(true)
 
   const playRef = useRef(null)
   const boardRef = useRef(null)
@@ -438,6 +439,7 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
     const el = e.currentTarget.getBoundingClientRect()
     dragRef.current = { id, offX: e.clientX - el.left, offY: e.clientY - el.top, moved: false }
     setDragId(id)
+    setHint(false)
     playPop()
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
@@ -494,7 +496,7 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
       const allLocked = cfg.slices.every((s) => (piecesRef.current[s.id] || {}).locked || s.id === meta.id)
       if (allLocked) {
         if (levelRef.current === 1) {
-          setTimeout(() => { setLevel(2); playLevelUp() }, 750)
+          setTimeout(() => { setLevel(2); setHint(true); playLevelUp() }, 750)
         } else {
           setTimeout(() => { setCelebrate(true); playFanfare(); bigConfetti() }, 420)
         }
@@ -540,6 +542,7 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
 
   function playAgain() {
     setCelebrate(false)
+    setHint(true)
     dragRef.current = null
     setLevel(1)
     setDragId(null)
@@ -656,7 +659,7 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
                 role="img"
                 aria-label="Potongan puzzle"
                 onPointerDown={(e) => startDrag(e, s.id)}
-                className={`absolute ${p.locked ? 'pointer-events-none' : 'cursor-grab touch-none'} ${dragging ? 'z-[60] cursor-grabbing' : 'z-50'}`}
+                className={`absolute ${p.locked ? 'pointer-events-none' : 'pointer-events-auto cursor-grab touch-none'} ${dragging ? 'z-[60] cursor-grabbing' : 'z-50'}`}
                 style={{
                   left: p.x,
                   top: p.y,
@@ -686,6 +689,17 @@ export default function PestaPuzzlePolisiGame({ onExit }) {
             )
           })}
         </div>
+
+        {/* hint bubble */}
+        {hint && !celebrate && (
+          <div
+            key={level}
+            className="animate-pop-in pointer-events-none absolute left-1/2 top-3 z-[70] flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-slate-800/85 px-5 py-2.5 text-base font-extrabold text-white shadow-xl sm:top-4 sm:text-lg"
+          >
+            <span className="animate-floaty inline-block" style={{ animationDuration: '1.6s' }} aria-hidden="true">👆</span>
+            Seret potongan puzzle ke papan kiri!
+          </div>
+        )}
 
         {/* ------------------- celebration screen ------------------- */}
         {celebrate && (
