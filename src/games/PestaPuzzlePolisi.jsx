@@ -4,6 +4,10 @@ import confetti from 'canvas-confetti'
 /* ------------------------------- palette ------------------------------- */
 const NAVY = '#2e53b5'
 const NAVY_D = '#22418f'
+// --- Polri uniform (cokelat: PDH/PDU jas & kemeja) ---
+const UNI = '#7a4a21'
+const UNI_D = '#5c3817'
+const UNI_L = '#9c6b31'
 const BLUE = '#2563eb'
 const BLUE_D = '#1d4ed8'
 const GOLD = '#f5c518'
@@ -186,23 +190,23 @@ function OfficerArt({ girl, wave }) {
       <rect x="64" y="158" width="92" height="11" rx="4" fill="#191e33" />
       <rect x="103" y="159" width="14" height="9" rx="2" fill={GOLD} />
 
-      <rect x="64" y="104" width="92" height="80" rx="30" fill={NAVY} />
+      <rect x="64" y="104" width="92" height="80" rx="30" fill={UNI} />
       <rect x="82" y="126" width="18" height="22" rx="4" fill={GOLD} />
-      <circle cx="82" cy="135" r="3" fill={NAVY_D} />
-      <circle cx="108" cy="132" r="3" fill={NAVY_D} />
-      <circle cx="108" cy="146" r="3" fill={NAVY_D} />
+      <circle cx="82" cy="135" r="3" fill={UNI_D} />
+      <circle cx="108" cy="132" r="3" fill={UNI_D} />
+      <circle cx="108" cy="146" r="3" fill={UNI_D} />
       <path d={starPoints(99, 127, 6, 2.6)} fill="#ffefb0" stroke={GOLD_D} strokeWidth="1" />
       <path d="M70 152 h14 M136 152 h14" stroke="#1a2f6b" strokeWidth="2" opacity="0.7" />
 
       {wave === 'left' && (
         <g>
-          <line x1="74" y1="116" x2="50" y2="84" stroke={NAVY} strokeWidth="17" strokeLinecap="round" />
+          <line x1="74" y1="116" x2="50" y2="84" stroke={UNI} strokeWidth="17" strokeLinecap="round" />
           <circle cx="46" cy="81" r="9" fill={SKIN} />
         </g>
       )}
       {wave === 'right' && (
         <g>
-          <line x1="146" y1="116" x2="198" y2="84" stroke={NAVY} strokeWidth="17" strokeLinecap="round" />
+          <line x1="146" y1="116" x2="198" y2="84" stroke={UNI} strokeWidth="17" strokeLinecap="round" />
           <circle cx="201" cy="81" r="9" fill={SKIN} />
         </g>
       )}
@@ -312,9 +316,9 @@ function OfficersScene() {
       </g>
 
       {/* clasped hands */}
-      <line x1="224" y1="252" x2="316" y2="260" stroke={NAVY} strokeWidth="16" strokeLinecap="round" />
+      <line x1="224" y1="252" x2="316" y2="260" stroke={UNI} strokeWidth="16" strokeLinecap="round" />
       <circle cx="322" cy="261" r="10.5" fill={SKIN} stroke={SKIN_D} strokeWidth="2" />
-      <line x1="436" y1="252" x2="344" y2="264" stroke={NAVY} strokeWidth="16" strokeLinecap="round" />
+      <line x1="436" y1="252" x2="344" y2="264" stroke={UNI} strokeWidth="16" strokeLinecap="round" />
       <circle cx="340" cy="265" r="10.5" fill={SKIN} stroke={SKIN_D} strokeWidth="2" />
       <circle cx="331" cy="263" r="7" fill="#ffd7f0" opacity="0.25" />
     </g>
@@ -343,9 +347,9 @@ function MotorcycleScene() {
       {/* seat */}
       <rect x="252" y="266" width="104" height="26" rx="12" fill="#20242e" stroke="#171a22" strokeWidth="3" />
       {/* body skirt */}
-      <path d="M254 316 Q262 272 300 264 L360 262 Q390 262 400 292 L400 316 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <path d="M254 316 Q262 272 300 264 L360 262 Q390 262 400 292 L400 316 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="3" />
       {/* gas tank */}
-      <path d="M348 268 L424 268 Q446 272 452 298 L444 320 L348 320 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <path d="M348 268 L424 268 Q446 272 452 298 L444 320 L348 320 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="3" />
       {/* POLRI badge on tank */}
       <g transform="translate(398,296)">
         <circle r="17" fill={GOLD} stroke={GOLD_D} strokeWidth="3" />
@@ -353,7 +357,7 @@ function MotorcycleScene() {
       </g>
 
       {/* front fairing */}
-      <path d="M432 268 L506 268 Q528 280 540 308 L536 320 L432 320 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <path d="M432 268 L506 268 Q528 280 540 308 L536 320 L432 320 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="3" />
       {/* windshield */}
       <polygon points="450,268 478,232 500,258 500,268" fill="#bfe3ff" stroke={BLUE_D} strokeWidth="2.5" />
       {/* headlight */}
@@ -384,19 +388,19 @@ function MotorcycleScene() {
       <line x1="250" y1="318" x2="243" y2="352" stroke="#5a6572" strokeWidth="5" strokeLinecap="round" />
 
       {/* rider legs */}
-      <path d="M320 288 L300 316" stroke={NAVY_D} strokeWidth="12" strokeLinecap="round" />
-      <path d="M354 288 L402 316" stroke={NAVY_D} strokeWidth="12" strokeLinecap="round" />
+      <path d="M320 288 L300 316" stroke={UNI_D} strokeWidth="12" strokeLinecap="round" />
+      <path d="M354 288 L402 316" stroke={UNI_D} strokeWidth="12" strokeLinecap="round" />
       <ellipse cx="300" cy="320" rx="12" ry="8" fill="#20242e" />
       <ellipse cx="404" cy="320" rx="12" ry="8" fill="#20242e" />
 
       {/* rider torso */}
-      <path d="M298 210 L372 216 Q378 250 366 284 L306 284 Q292 250 298 210 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="3" />
+      <path d="M298 210 L372 216 Q378 250 366 284 L306 284 Q292 250 298 210 Z" fill={UNI} stroke={UNI_D} strokeWidth="3" />
       <rect x="302" y="264" width="66" height="12" rx="5" fill="#191e33" />
       <rect x="330" y="264" width="12" height="12" fill={GOLD} />
 
       {/* rider arms to bars */}
-      <line x1="320" y1="240" x2="448" y2="258" stroke={NAVY} strokeWidth="12" strokeLinecap="round" />
-      <line x1="362" y1="240" x2="500" y2="254" stroke={NAVY} strokeWidth="12" strokeLinecap="round" />
+      <line x1="320" y1="240" x2="448" y2="258" stroke={UNI} strokeWidth="12" strokeLinecap="round" />
+      <line x1="362" y1="240" x2="500" y2="254" stroke={UNI} strokeWidth="12" strokeLinecap="round" />
       <circle cx="448" cy="258" r="7" fill={SKIN} />
       <circle cx="500" cy="254" r="7" fill={SKIN} />
 
@@ -476,9 +480,9 @@ function HelicopterScene() {
       <circle cx="552" cy="97" r="6" fill="#334155" />
 
       {/* tail boom */}
-      <path d="M250 210 L92 200 L92 224 L250 238 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <path d="M250 210 L92 200 L92 224 L250 238 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="3" />
       {/* tail fin */}
-      <path d="M112 220 L96 148 L142 190 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="3" />
+      <path d="M112 220 L96 148 L142 190 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="3" />
       <g transform="translate(116,190)">
         <path d={starPoints(0, 0, 9, 3.8)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.6" />
       </g>
@@ -490,7 +494,7 @@ function HelicopterScene() {
       <circle cx="174" cy="232" r="6" fill="#ef4444" stroke="#ffffff" strokeWidth="1.8" />
 
       {/* fuselage */}
-      <path d="M240 210 L420 214 Q470 216 478 248 Q482 288 452 298 L250 298 L218 292 Q208 258 240 210 Z" fill={BLUE} stroke={BLUE_D} strokeWidth="4" />
+      <path d="M240 210 L420 214 Q470 216 478 248 Q482 288 452 298 L250 298 L218 292 Q208 258 240 210 Z" fill="#ffffff" stroke={BLUE_D} strokeWidth="4" />
       <path d="M228 282 L466 282 L468 298 L220 292 Z" fill="#ffffff" />
       {/* side window + door */}
       <rect x="276" y="224" width="118" height="50" rx="14" fill="#d7ecff" stroke={BLUE_D} strokeWidth="3" />
@@ -534,7 +538,7 @@ function OfficerPortraitScene() {
       <path d={starPoints(200, 52, 9, 3.8)} fill={GOLD} stroke={GOLD_D} strokeWidth="1.4" />
 
       {/* torso */}
-      <path d="M88 360 Q88 268 135 250 L265 250 Q312 268 312 360 Z" fill={NAVY} stroke={NAVY_D} strokeWidth="4" />
+      <path d="M88 360 Q88 268 135 250 L265 250 Q312 268 312 360 Z" fill={UNI} stroke={UNI_D} strokeWidth="4" />
       <path d="M168 250 L200 298 L232 250" stroke="#ffffff" strokeWidth="9" fill="none" strokeLinecap="round" />
       <rect x="104" y="252" width="32" height="22" rx="6" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
       <rect x="264" y="252" width="32" height="22" rx="6" fill={GOLD} stroke={GOLD_D} strokeWidth="2" />
