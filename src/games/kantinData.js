@@ -16,6 +16,21 @@ export const STUDENTS = [
   { name: 'ABIGAIL SUGIARTO LEE', team: 'B' },
 ]
 
+export const STUDENT_ROLE_MAP = {
+  // Team Alpha
+  'KARSTEN RAYNELL BRAHMANA': 'analyst',
+  'CHRIS SAMMON SIBURIAN': 'strategist',
+  'MIKHAULI GRISELDA SIREGAR': 'algorist',
+  'GISELVIN QUEENSHA': 'simulator',
+  'BEBBI NURDUDU APRILIA LAHAY': 'qa',
+  // Team Beta
+  'ABIGAIL SUGIARTO LEE': 'analyst',
+  'ADIPATI MUHAMMAD AR RASYID HADININGRAT': 'strategist',
+  'JOSE ALVARO RIDENSON SIMBOLON': 'algorist',
+  'BELVIANIA ALENA SINAGA': 'simulator',
+  'AVARA SHEELA KETAREN': 'qa',
+}
+
 export const ROLES = [
   { id: 'analyst', name: 'System Analyst', icon: '📊', module: 'Modul Dekomposisi', desc: 'Menganalisis masalah kantin dan menentukan metrik objektif' },
   { id: 'strategist', name: 'Solution Strategist', icon: '⚙️', module: 'Modul Abstraksi', desc: 'Mengatur aturan antrean dan filter variabel' },
