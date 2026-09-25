@@ -6,6 +6,7 @@ import {
   CUSTOMER_PRESETS, TEST_SCRIPTS, PROBLEMS_TEMPLATE, OBJECTIVE_METRICS,
   SCORING_WEIGHTS, PHASE_DURATIONS,
   LOG_DATA, ERROR_PATTERNS, PERFORMANCE_METRICS, CUSTOMER_SCENARIOS, QA_TEST_CASES,
+  STUDENT_ROLE_MAP,
 } from './kantinData.js'
 
 const STORAGE_KEY = 'kantin-crisis-v1'
@@ -233,7 +234,7 @@ function RoleSelectScreen({ player, teamId, onSelect, onExit }) {
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-4 py-6">
         <div className="animate-pop-in flex w-full max-w-3xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-5 shadow-lg sm:p-8">
           <h2 className="text-[clamp(1.25rem,4vw,2rem)] font-extrabold text-slate-700">
-            {player}, Pilih <span className="text-amber-600">Peran</span> Digital
+            {player} — <span className="text-amber-600">Peran Sudah Ditentukan</span>
           </h2>
           <p className="text-xs font-bold text-slate-500 sm:text-sm">Setiap PC menampilkan antarmuka yang berbeda sesuai tugasmu.</p>
 
@@ -1891,11 +1892,20 @@ export default function KantinGame({ onExit }) {
   function handleJoin(name, team) {
     setPlayer(name)
     setTeamId(team)
+    const assignedRole = STUDENT_ROLE_MAP[name]
+    if (assignedRole) {
+      setRole(assignedRole)
+    }
     setStore(prev => broadcast({
       ...prev,
-      teams: { ...prev.teams, [team]: { ...prev.teams[team], members: { ...prev.teams[team].members, [role || 'pending']: name } } }
+      teams: { ...prev.teams, [team]: { ...prev.teams[team], members: { ...prev.teams[team].members, [assignedRole || role || 'pending']: name } } }
     }))
-    setScreen('roleSelect')
+    if (assignedRole) {
+      setTimer(PHASE_DURATIONS.brief)
+      setScreen('briefing')
+    } else {
+      setScreen('roleSelect')
+    }
   }
 
   function handleRoleSelect(selectedRole) {
