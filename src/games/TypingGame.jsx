@@ -6,8 +6,105 @@ const KB_ROWS = [
   ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ]
 
-const LEVEL1_ITEMS = ['A', 'E', 'I', 'O', 'U', 'T', 'K', 'S', 'R', 'N']
-const LEVEL2_ITEMS = ['HP', 'TV', 'TIK', 'AKU', 'ITU']
+const MAX_STARS = 4
+
+const LEVELS = [
+  {
+    sub: 'Penyelamat Huruf',
+    desc: 'Rescue floating letters by pressing the right key!',
+    icon: '🎯',
+    stars: 1,
+    limit: 60,
+    pace: null,
+    items: () => ['A', 'E', 'I', 'O', 'U', 'T', 'K', 'S', 'R', 'N'],
+  },
+  {
+    sub: 'Penyeimbang Gadget',
+    desc: 'Type short words to stabilize gadgets!',
+    icon: '📱',
+    stars: 1,
+    limit: 60,
+    pace: null,
+    items: () => ['HP', 'TV', 'TIK', 'AKU', 'ITU', 'PESAN', 'BUKU', 'LAPTOP'],
+  },
+  {
+    sub: 'Pemancar Sinyal',
+    desc: 'Type HALO and your name to send a signal back to Earth!',
+    icon: '🚀',
+    stars: 2,
+    limit: 75,
+    pace: { base: 6, perChar: 2 },
+    items: (name) => ['HALO', name],
+  },
+  {
+    sub: 'Rakit Satelit',
+    desc: 'Type long space words before the signal bar runs out!',
+    icon: '🛰️',
+    stars: 2,
+    limit: 75,
+    pace: { base: 5, perChar: 1.8 },
+    items: () => ['ROBOT', 'SATELIT', 'BINTANG', 'LANGIT', 'BULAN', 'BUMI', 'ORBIT'],
+  },
+  {
+    sub: 'Misi Komunikasi',
+    desc: 'Type full messages. Press the SPACEBAR between words!',
+    icon: '📡',
+    stars: 3,
+    limit: 75,
+    pace: { base: 5, perChar: 1.5 },
+    items: () => ['DARI BUMI', 'TERIMA KASIH', 'SELAMAT DATANG'],
+  },
+  {
+    sub: 'Radar Zip',
+    desc: 'Type lowercase and mixed-case text. Upper or lower, both work!',
+    icon: '🔤',
+    stars: 3,
+    limit: 90,
+    pace: { base: 4, perChar: 1.2 },
+    items: () => ['laut', 'awan', 'Planet', 'ROCKET', 'satelit kecil', 'bintang biru'],
+  },
+  {
+    sub: 'Kode Frekuensi',
+    desc: 'Type the numbers on the top row of the keyboard!',
+    icon: '🔢',
+    stars: 4,
+    limit: 60,
+    pace: { base: 4, perChar: 1.2 },
+    items: () => ['1234', '90210', '505', '777', '24680', '13579'],
+  },
+  {
+    sub: 'Pesan Rahasia',
+    desc: 'Final mission: full messages with capitals, numbers and symbols!',
+    icon: '🗝️',
+    stars: 4,
+    limit: 100,
+    pace: { base: 7, perChar: 1.1 },
+    items: () => ['KIRIM KE 24', 'KODE 7B2', 'DARI SATELIT 9!', 'JANGAN PANIK 100%'],
+  },
+]
+
+function formatClock(seconds) {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function paceFor(level, item) {
+  const cfg = LEVELS[level]?.pace
+  if (!cfg || !item) return null
+  return (cfg.base + item.length * cfg.perChar) * 1000
+}
+
+function DifficultyStars({ value }) {
+  return (
+    <p className="text-lg leading-none sm:text-2xl" aria-label={`Tingkat kesulitan ${value} dari ${MAX_STARS}`}>
+      <span aria-hidden="true">
+        {'⭐'.repeat(value)}
+        <span className="opacity-25">{'⭐'.repeat(MAX_STARS - value)}</span>
+      </span>
+    </p>
+  )
+}
 
 const BLOCK_COLORS = [
   'from-cyan-400 to-blue-500',
@@ -29,12 +126,6 @@ const ENRICH_SIZES = [
   { label: 'S', cls: 'text-2xl' },
   { label: 'M', cls: 'text-4xl' },
   { label: 'L', cls: 'text-6xl' },
-]
-
-const LEVEL_META = [
-  { title: 'Level 1', sub: 'Penyelamat Huruf', desc: 'Rescue floating letters by pressing the right key!', icon: '🎯' },
-  { title: 'Level 2', sub: 'Penyeimbang Gadget', desc: 'Type short words to stabilize gadgets!', icon: '📱' },
-  { title: 'Level 3', sub: 'Pemancar Sinyal', desc: 'Type HALO and your name to send a signal back to Earth!', icon: '🚀' },
 ]
 
 function Stars() {
@@ -96,26 +187,66 @@ function FloatingLetter({ letter, state, color }) {
 
 function WordDisplay({ word, charIdx, color }) {
   return (
-    <div className="flex items-center justify-center gap-2 sm:gap-3">
-      {word.split('').map((ch, i) => (
-        <div
-          key={i}
-          className={`flex h-16 w-14 items-center justify-center rounded-2xl text-3xl font-black transition-all duration-200 sm:h-20 sm:w-16 sm:text-4xl ${
-            i < charIdx
-              ? 'bg-emerald-500/30 text-emerald-300'
-              : i === charIdx
-                ? `bg-gradient-to-br ${color} text-white shadow-lg ring-2 ring-white/50 animate-typing-glow`
-                : 'bg-white/10 text-white/40'
-          }`}
-        >
-          {i <= charIdx ? ch : '?'}
-        </div>
-      ))}
+    <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2.5">
+      {word.split('').map((ch, i) => {
+        if (ch === ' ') {
+          return (
+            <div
+              key={i}
+              className={`flex h-12 w-5 items-center justify-center rounded-lg text-sm font-black transition-all duration-200 sm:h-16 sm:w-7 sm:text-lg ${
+                i === charIdx
+                  ? `bg-gradient-to-br ${color} text-white shadow-lg ring-2 ring-white/50 animate-typing-glow`
+                  : 'bg-white/10 text-white/30'
+              }`}
+            >
+              <span aria-hidden="true">␣</span>
+              <span className="sr-only">space</span>
+            </div>
+          )
+        }
+        return (
+          <div
+            key={i}
+            className={`flex h-16 w-14 items-center justify-center rounded-2xl text-3xl font-black transition-all duration-200 sm:h-20 sm:w-16 sm:text-4xl ${
+              i < charIdx
+                ? 'bg-emerald-500/30 text-emerald-300'
+                : i === charIdx
+                  ? `bg-gradient-to-br ${color} text-white shadow-lg ring-2 ring-white/50 animate-typing-glow`
+                  : 'bg-white/10 text-white/40'
+            }`}
+          >
+            {i <= charIdx ? ch : '?'}
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-function VirtualKeyboard({ target, wrongKey }) {
+function PaceBar({ paceMs, total, timedOut }) {
+  if (paceMs == null || !total) return null
+  const pct = Math.max(0, Math.min(100, (paceMs / total) * 100))
+  const tone = timedOut ? 'bg-amber-400' : pct <= 30 ? 'bg-red-400' : 'bg-emerald-400'
+  return (
+    <div className="w-full max-w-sm px-4 sm:max-w-md">
+      <div
+        className={`h-3 overflow-hidden rounded-full bg-white/15 ${timedOut ? 'animate-shake' : ''}`}
+        role="progressbar"
+        aria-label="Sinyal"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(pct)}
+      >
+        <div
+          className={`h-full rounded-full transition-[width] duration-100 ease-linear ${tone}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function VirtualKeyboard({ target, wrongKey, extraKeys }) {
   return (
     <div className="pointer-events-none flex flex-col items-center gap-1.5 px-2 pb-2 pt-1 sm:gap-2 sm:px-4 sm:pb-3">
       {KB_ROWS.map((row, ri) => (
@@ -140,6 +271,36 @@ function VirtualKeyboard({ target, wrongKey }) {
           })}
         </div>
       ))}
+      {extraKeys.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <span className="px-1 text-[10px] font-extrabold tracking-wide text-white/40 uppercase sm:text-xs">
+            Karakter
+          </span>
+          {extraKeys.map((ch) => (
+            <div
+              key={ch}
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-extrabold transition-all duration-150 sm:h-11 sm:w-11 sm:text-lg ${
+                target === ch
+                  ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-110'
+                  : 'bg-white/15 text-white/80'
+              }`}
+            >
+              {ch}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="flex w-full justify-center">
+        <div
+          className={`flex h-9 w-1/2 max-w-44 items-center justify-center rounded-xl text-[10px] font-extrabold tracking-wide transition-all duration-150 sm:h-11 sm:max-w-60 sm:text-xs ${
+            target === ' '
+              ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-105'
+              : 'bg-white/10 text-white/60'
+          }`}
+        >
+          SPASI
+        </div>
+      </div>
     </div>
   )
 }
@@ -188,6 +349,10 @@ function ConfettiBurst({ trigger }) {
 
 function NameEntry({ onStart, onExit }) {
   const [name, setName] = useState('')
+  const ready = name.trim().length > 0
+  function begin(mode) {
+    if (ready) onStart(name.trim(), mode)
+  }
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
@@ -203,13 +368,7 @@ function NameEntry({ onStart, onExit }) {
         <div className="w-20 sm:w-32" />
       </div>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (name.trim()) onStart(name.trim())
-          }}
-          className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10"
-        >
+        <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
           <span className="text-5xl sm:text-6xl" aria-hidden="true">🛰️</span>
           <h1 className="text-[clamp(1.75rem,6vw,3rem)] font-extrabold leading-none text-slate-700">
             Typing <span className="text-indigo-600">Rescue</span>!
@@ -232,21 +391,44 @@ function NameEntry({ onStart, onExit }) {
               className="w-full rounded-2xl border-2 border-indigo-200 bg-indigo-50 px-4 py-3 text-center text-xl font-extrabold text-slate-700 outline-none placeholder:font-semibold placeholder:text-slate-400 focus:border-indigo-500 sm:text-2xl"
             />
           </label>
-          <button
-            type="submit"
-            disabled={!name.trim()}
-            className="w-full rounded-full bg-cyan-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
-          >
-            Start Mission! 🚀
-          </button>
-        </form>
+
+          <div className="mt-1 w-full rounded-2xl bg-indigo-50 p-3 text-left">
+            <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700 uppercase">
+              Choose your mode
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                disabled={!ready}
+                onClick={() => begin('practice')}
+                className="flex flex-col items-center gap-0.5 rounded-2xl bg-cyan-500 px-4 py-3 text-white shadow transition hover:scale-[1.03] disabled:pointer-events-none disabled:opacity-40"
+              >
+                <span className="text-lg font-extrabold sm:text-xl">Practice 🛸</span>
+                <span className="text-[11px] font-bold text-white/85 sm:text-xs">
+                  No timer. Learn at your pace.
+                </span>
+              </button>
+              <button
+                type="button"
+                disabled={!ready}
+                onClick={() => begin('perform')}
+                className="flex flex-col items-center gap-0.5 rounded-2xl bg-amber-500 px-4 py-3 text-white shadow transition hover:scale-[1.03] disabled:pointer-events-none disabled:opacity-40"
+              >
+                <span className="text-lg font-extrabold sm:text-xl">Perform ⏱️</span>
+                <span className="text-[11px] font-bold text-white/85 sm:text-xs">
+                  Countdown on. Beat the clock!
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   )
 }
 
-function LevelIntro({ level, onNext, onExit }) {
-  const info = LEVEL_META[level]
+function LevelIntro({ level, isPerform, onNext, onExit }) {
+  const info = LEVELS[level]
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
@@ -265,10 +447,16 @@ function LevelIntro({ level, onNext, onExit }) {
         <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
           <span className="text-5xl sm:text-6xl" aria-hidden="true">{info.icon}</span>
           <h1 className="text-[clamp(1.5rem,5vw,2.5rem)] font-extrabold text-slate-700">
-            {info.title}
+            Level {level + 1}
           </h1>
           <p className="text-lg font-bold text-indigo-600">{info.sub}</p>
+          <DifficultyStars value={info.stars} />
           <p className="text-sm text-slate-500 sm:text-base">{info.desc}</p>
+          {isPerform && (
+            <p className="rounded-full bg-amber-100 px-4 py-1.5 text-sm font-extrabold text-amber-700 sm:text-base">
+              <span aria-hidden="true">⏱️</span> {formatClock(info.limit)} to finish this level
+            </p>
+          )}
           <button
             type="button"
             onClick={onNext}
@@ -283,7 +471,7 @@ function LevelIntro({ level, onNext, onExit }) {
 }
 
 function LevelComplete({ level, onNext, onExit, enrichFont, setEnrichFont, enrichColor, setEnrichColor }) {
-  const isLast = level === 2
+  const isLast = level === LEVELS.length - 1
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
       <Stars />
@@ -408,6 +596,56 @@ function GameComplete({ name, onExit }) {
   )
 }
 
+function RunOver({ name, level, onRetry, onExit }) {
+  return (
+    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-900">
+      <Stars />
+      <div className="z-10 flex w-full shrink-0 items-center justify-between px-4 pt-4 sm:px-6 sm:pt-5">
+        <button
+          type="button"
+          onClick={onExit}
+          className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-lg font-extrabold text-indigo-700 shadow-lg transition hover:scale-105 sm:px-6 sm:py-3 sm:text-2xl"
+        >
+          <span aria-hidden="true" className="text-xl sm:text-3xl">←</span>
+          Games
+        </button>
+        <div className="w-20 sm:w-32" />
+      </div>
+      <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-6">
+        <div className="animate-pop-in flex w-full max-w-2xl flex-col items-center gap-4 rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-10">
+          <span className="text-6xl sm:text-7xl" aria-hidden="true">⏱️</span>
+          <h1 className="text-[clamp(1.5rem,5vw,2.5rem)] font-extrabold text-slate-700">
+            Time&apos;s Up!
+          </h1>
+          <p className="text-base font-bold text-slate-500">
+            <span className="text-cyan-600">{name}</span>, the countdown reached zero on Level{' '}
+            {level + 1} — {LEVELS[level].sub}.
+          </p>
+          <p className="text-sm font-semibold text-slate-400">
+            You reached Level {level + 1} of {LEVELS.length}. Try Practice mode to warm up first!
+          </p>
+          <div className="mt-1 flex w-full flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={onRetry}
+              className="flex-1 rounded-full bg-amber-500 px-6 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+            >
+              Try Again ↻
+            </button>
+            <button
+              type="button"
+              onClick={onExit}
+              className="flex-1 rounded-full bg-indigo-500 px-6 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+            >
+              Back to Games 🎮
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
 export default function TypingGame({ onExit }) {
   const [screen, setScreen] = useState('entry')
   const [playerName, setPlayerName] = useState('')
@@ -417,6 +655,10 @@ export default function TypingGame({ onExit }) {
   const [feedback, setFeedback] = useState(null)
   const [wrongKey, setWrongKey] = useState(null)
   const [confettiTrigger, setConfettiTrigger] = useState(0)
+  const [paceMs, setPaceMs] = useState(null)
+  const [timedOut, setTimedOut] = useState(false)
+  const [mode, setMode] = useState('practice')
+  const [timeLeft, setTimeLeft] = useState(null)
   const [enrichFont, setEnrichFont] = useState('text-4xl')
   const [enrichColor, setEnrichColor] = useState('#22d3ee')
 
@@ -425,24 +667,39 @@ export default function TypingGame({ onExit }) {
     [playerName],
   )
 
-  const levelItems = useMemo(
-    () => [LEVEL1_ITEMS, LEVEL2_ITEMS, ['HALO', cleanName]],
-    [cleanName],
+  const currentLevelItems = useMemo(
+    () => LEVELS[level]?.items(cleanName) ?? [],
+    [level, cleanName],
   )
-
-  const currentLevelItems = levelItems[level] || []
   const currentItem = currentLevelItems[itemIdx] || ''
   const target = typeof currentItem === 'string' && charIdx < currentItem.length ? currentItem[charIdx] : null
   const color = BLOCK_COLORS[itemIdx % BLOCK_COLORS.length]
 
+  const paceMax = useMemo(
+    () => (mode === 'perform' ? paceFor(level, currentItem) : null),
+    [mode, level, currentItem],
+  )
+
+  const isPerform = mode === 'perform'
+
+  const extraKeys = useMemo(() => {
+    const found = new Set()
+    for (const item of currentLevelItems) {
+      for (const ch of String(item)) {
+        if (ch !== ' ' && !/[A-Z]/i.test(ch)) found.add(ch)
+      }
+    }
+    return [...found]
+  }, [currentLevelItems])
+
   const stateRef = useRef({})
-  stateRef.current = { target, feedback, charIdx, currentItem, itemIdx, currentLevelItems, level }
+  stateRef.current = { target, feedback, charIdx, currentItem, itemIdx, currentLevelItems, level, timedOut }
 
   function processKey(pressedKey) {
     const s = stateRef.current
-    if (!s.target || s.feedback === 'correct' || s.feedback === 'wrong') return
+    if (!s.target || s.timedOut || s.feedback === 'correct' || s.feedback === 'wrong') return
     const key = pressedKey.toUpperCase()
-    if (key === s.target) {
+    if (key === s.target.toUpperCase()) {
       setFeedback('correct')
       if (s.charIdx < s.currentItem.length - 1) {
         setTimeout(() => {
@@ -485,17 +742,49 @@ export default function TypingGame({ onExit }) {
     return () => window.removeEventListener('keydown', handler)
   }, [screen])
 
-  function startLevel(lvl) {
+  useEffect(() => {
+    setPaceMs(paceMax)
+    setTimedOut(false)
+  }, [screen, level, itemIdx, paceMax])
+
+  useEffect(() => {
+    if (screen !== 'playing' || paceMs == null || timedOut || feedback) return
+    const t = setTimeout(() => {
+      setPaceMs((v) => (v == null ? null : Math.max(0, v - 100)))
+    }, 100)
+    return () => clearTimeout(t)
+  }, [screen, paceMs, timedOut, feedback])
+
+  useEffect(() => {
+    if (paceMs !== 0 || screen !== 'playing') return
+    setTimedOut(true)
+    setPaceMs(paceMax)
+    const t = setTimeout(() => setTimedOut(false), 700)
+    return () => clearTimeout(t)
+  }, [paceMs, screen, paceMax])
+
+  useEffect(() => {
+    if (screen !== 'playing' || !isPerform || timeLeft == null || timeLeft <= 0) return
+    const t = setTimeout(() => setTimeLeft((v) => Math.max(0, (v ?? 0) - 1)), 1000)
+    return () => clearTimeout(t)
+  }, [screen, isPerform, timeLeft])
+
+  useEffect(() => {
+    if (isPerform && timeLeft === 0 && screen === 'playing') setScreen('run-over')
+  }, [isPerform, timeLeft, screen])
+
+  function startLevel(lvl, m = mode) {
     setLevel(lvl)
     setItemIdx(0)
     setCharIdx(0)
     setFeedback(null)
     setWrongKey(null)
+    setTimeLeft(m === 'perform' ? LEVELS[lvl].limit : null)
     setScreen('level-intro')
   }
 
   function nextLevel() {
-    if (level < 2) {
+    if (level < LEVELS.length - 1) {
       startLevel(level + 1)
     } else {
       setScreen('game-complete')
@@ -505,16 +794,27 @@ export default function TypingGame({ onExit }) {
   if (screen === 'entry') {
     return (
       <NameEntry
-        onStart={(n) => {
+        onStart={(n, m) => {
           setPlayerName(n)
-          startLevel(0)
+          setMode(m)
+          startLevel(0, m)
         }}
         onExit={onExit}
       />
     )
   }
+  if (screen === 'run-over') {
+    return (
+      <RunOver
+        name={playerName}
+        level={level}
+        onRetry={() => startLevel(0)}
+        onExit={onExit}
+      />
+    )
+  }
   if (screen === 'level-intro') {
-    return <LevelIntro level={level} onNext={() => setScreen('playing')} onExit={onExit} />
+    return <LevelIntro level={level} isPerform={isPerform} onNext={() => setScreen('playing')} onExit={onExit} />
   }
   if (screen === 'level-complete') {
     return (
@@ -550,9 +850,27 @@ export default function TypingGame({ onExit }) {
         </button>
         <div className="text-center">
           <p className="text-[10px] font-extrabold text-cyan-400 uppercase sm:text-xs">
-            Level {level + 1} · {LEVEL_META[level].sub}
+            Level {level + 1} · {LEVELS[level].sub}
           </p>
           <p className="text-xs font-bold text-white/60">{progress}</p>
+          <div className="mt-0.5 flex items-center justify-center gap-1.5">
+            {isPerform && timeLeft != null && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-extrabold tabular-nums sm:text-sm ${
+                  timeLeft <= 15
+                    ? 'animate-shake bg-red-500 text-white'
+                    : 'bg-amber-400/90 text-slate-900'
+                }`}
+                aria-live="off"
+              >
+                <span aria-hidden="true">⏱️</span> {formatClock(timeLeft)}
+              </span>
+            )}
+            <span className="text-[11px] sm:text-sm">
+              <span aria-hidden="true">{'⭐'.repeat(LEVELS[level].stars)}</span>
+              <span className="sr-only">Kesulitan {LEVELS[level].stars} dari {MAX_STARS}</span>
+            </span>
+          </div>
         </div>
         <div className="w-16 sm:w-24" />
       </div>
@@ -572,9 +890,26 @@ export default function TypingGame({ onExit }) {
               <p className="text-lg font-extrabold text-white sm:text-xl">Try again! 🔄</p>
             </div>
           )}
-          {!feedback && target && (
+          {timedOut && (
+            <div className="animate-pop-in rounded-2xl bg-amber-500/90 px-5 py-2 shadow-md sm:px-8">
+              <p className="text-lg font-extrabold text-white sm:text-xl">Sinyal hilang, coba lagi! ⏱️</p>
+            </div>
+          )}
+          {!feedback && !timedOut && target && (
             <p className="text-sm font-bold text-cyan-300 sm:text-base">
-              Ketik huruf <span className="text-white font-black">{target}</span> di keyboard
+              {target === ' ' ? (
+                <>Tekan <span className="text-white font-black">SPASI</span> untuk spasi</>
+              ) : /[A-Z]/i.test(target) ? (
+                <>
+                  Ketik huruf{' '}
+                  <span className="font-black text-white uppercase">{target}</span> di keyboard
+                </>
+              ) : (
+                <>
+                  Ketik karakter{' '}
+                  <span className="font-black text-white">{target}</span> di keyboard
+                </>
+              )}
             </p>
           )}
         </div>
@@ -597,13 +932,15 @@ export default function TypingGame({ onExit }) {
           )}
           <ConfettiBurst trigger={confettiTrigger} />
         </div>
+
+        <PaceBar paceMs={paceMs} total={paceMax} timedOut={timedOut} />
       </div>
 
       <div className="z-10 shrink-0">
         <p className="mb-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
           ⌨️ Ketik langsung pada keyboard fisik
         </p>
-        <VirtualKeyboard target={target} wrongKey={wrongKey} />
+        <VirtualKeyboard target={target} wrongKey={wrongKey} extraKeys={extraKeys} />
       </div>
     </div>
   )
