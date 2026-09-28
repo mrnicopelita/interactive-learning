@@ -1,10 +1,79 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-const KB_ROWS = [
-  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-  ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+const KEY_UNIT = 'min(6.1vw, 6.4vh, 3.4rem)'
+
+const KEY_ROWS = [
+  [
+    { l: '1' },
+    { l: '2' },
+    { l: '3' },
+    { l: '4' },
+    { l: '5' },
+    { l: '6' },
+    { l: '7' },
+    { l: '8' },
+    { l: '9' },
+    { l: '0' },
+    { l: '-' },
+    { l: '=' },
+    { l: '⌫', w: 2 },
+  ],
+  [
+    { l: 'Tab', w: 1.5, mod: true },
+    { l: 'Q' },
+    { l: 'W' },
+    { l: 'E' },
+    { l: 'R' },
+    { l: 'T' },
+    { l: 'Y' },
+    { l: 'U' },
+    { l: 'I' },
+    { l: 'O' },
+    { l: 'P' },
+    { l: '[' },
+    { l: ']' },
+    { l: '\\', w: 1.5 },
+  ],
+  [
+    { l: 'Caps', w: 1.75, mod: true },
+    { l: 'A' },
+    { l: 'S' },
+    { l: 'D' },
+    { l: 'F' },
+    { l: 'G' },
+    { l: 'H' },
+    { l: 'J' },
+    { l: 'K' },
+    { l: 'L' },
+    { l: ';' },
+    { l: "'" },
+    { l: 'Enter', w: 2.25, mod: true },
+  ],
+  [
+    { l: 'Shift', w: 2.25, mod: true },
+    { l: 'Z' },
+    { l: 'X' },
+    { l: 'C' },
+    { l: 'V' },
+    { l: 'B' },
+    { l: 'N' },
+    { l: 'M' },
+    { l: ',' },
+    { l: '.' },
+    { l: '/' },
+    { l: 'Shift', w: 2.75, mod: true },
+  ],
+  [
+    { l: 'Ctrl', w: 1.25, mod: true },
+    { l: 'Alt', w: 1.25, mod: true },
+    { l: 'space', w: 6.25, mod: true, k: ' ' },
+    { l: 'Alt', w: 1.25, mod: true },
+    { l: 'Ctrl', w: 1.25, mod: true },
+    { l: 'Fn', w: 1.25, mod: true },
+  ],
 ]
+
+const KEYBOARD_CHARS = new Set(KEY_ROWS.flat().map((key) => (key.k ?? key.l).toUpperCase()))
 
 const MAX_STARS = 4
 
@@ -247,60 +316,70 @@ function PaceBar({ paceMs, total, timedOut }) {
 }
 
 function VirtualKeyboard({ target, wrongKey, extraKeys }) {
+  const gap = 'calc(var(--u) * 0.13)'
+  const pressed = target != null ? target.toUpperCase() : null
+  const missed = wrongKey != null ? wrongKey.toUpperCase() : null
+
   return (
-    <div className="pointer-events-none flex flex-col items-center gap-1.5 px-2 pb-2 pt-1 sm:gap-2 sm:px-4 sm:pb-3">
-      {KB_ROWS.map((row, ri) => (
-        <div key={ri} className="flex justify-center gap-1 sm:gap-1.5">
-          {row.map((letter) => {
-            const isTarget = target && letter === target.toUpperCase()
-            const isWrong = wrongKey === letter
-            return (
-              <div
-                key={letter}
-                className={`flex h-11 w-[8.5%] max-w-12 items-center justify-center rounded-xl text-sm font-extrabold transition-all duration-150 sm:h-14 sm:max-w-14 sm:text-lg ${
-                  isTarget
-                    ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-110'
-                    : isWrong
-                      ? 'bg-red-500 text-white animate-shake'
-                      : 'bg-white/15 text-white/80'
-                }`}
-              >
-                {letter}
-              </div>
-            )
-          })}
-        </div>
-      ))}
+    <div
+      className="pointer-events-none w-full touch-none select-none rounded-2xl border border-white/10 bg-slate-950/60 px-2 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_-8px_24px_rgba(0,0,0,0.45)] sm:px-3 sm:py-3"
+      style={{ '--u': KEY_UNIT, gap }}
+    >
       {extraKeys.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          <span className="px-1 text-[10px] font-extrabold tracking-wide text-white/40 uppercase sm:text-xs">
-            Karakter
+        <div className="mb-2.5 flex flex-wrap items-center justify-center gap-1.5">
+          <span className="pr-1 text-[10px] font-extrabold tracking-wide text-amber-300/70 uppercase">
+            Shift +
           </span>
           {extraKeys.map((ch) => (
             <div
               key={ch}
-              className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-extrabold transition-all duration-150 sm:h-11 sm:w-11 sm:text-lg ${
+              className={`flex items-center justify-center rounded-lg border font-extrabold transition-all duration-150 ${
                 target === ch
-                  ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-110'
-                  : 'bg-white/15 text-white/80'
+                  ? 'border-cyan-200 bg-cyan-400 text-slate-900 shadow-[0_0_14px_rgba(34,211,238,0.7)]'
+                  : 'border-white/15 bg-white/12 text-white/85'
               }`}
+              style={{
+                width: 'calc(var(--u) * 1.05)',
+                height: 'var(--u)',
+                fontSize: 'calc(var(--u) * 0.42)',
+              }}
             >
               {ch}
             </div>
           ))}
         </div>
       )}
-      <div className="flex w-full justify-center">
-        <div
-          className={`flex h-9 w-1/2 max-w-44 items-center justify-center rounded-xl text-[10px] font-extrabold tracking-wide transition-all duration-150 sm:h-11 sm:max-w-60 sm:text-xs ${
-            target === ' '
-              ? 'bg-cyan-400 text-slate-900 animate-typing-glow ring-2 ring-cyan-200 scale-105'
-              : 'bg-white/10 text-white/60'
-          }`}
-        >
-          SPASI
+
+      {KEY_ROWS.map((row, ri) => (
+        <div key={ri} className="flex justify-center" style={{ gap }}>
+          {row.map((key, ki) => {
+            const char = (key.k ?? key.l).toUpperCase()
+            const isTarget = pressed != null && pressed === char
+            const isWrong = missed != null && missed === char
+            return (
+              <div
+                key={`${key.l}-${ki}`}
+                className={`flex items-center justify-center rounded-lg border font-extrabold transition-all duration-150 ${
+                  isTarget
+                    ? 'animate-typing-glow border-cyan-200 bg-cyan-400 text-slate-900 shadow-[0_0_18px_rgba(34,211,238,0.75),0_2px_0_rgba(0,0,0,0.3)]'
+                    : isWrong
+                      ? 'animate-shake border-red-300 bg-red-500 text-white shadow-[0_2px_0_rgba(0,0,0,0.35)]'
+                      : key.mod
+                        ? 'border-white/10 bg-white/8 text-white/55 shadow-[0_2px_0_rgba(0,0,0,0.35)]'
+                        : 'border-white/15 bg-white/12 text-white/85 shadow-[0_2px_0_rgba(0,0,0,0.35)]'
+                }`}
+                style={{
+                  width: `calc(var(--u) * ${key.w ?? 1})`,
+                  height: 'var(--u)',
+                  fontSize: `calc(var(--u) * ${key.mod ? 0.22 : 0.4})`,
+                }}
+              >
+                {key.l}
+              </div>
+            )
+          })}
         </div>
-      </div>
+      ))}
     </div>
   )
 }
@@ -686,7 +765,7 @@ export default function TypingGame({ onExit }) {
     const found = new Set()
     for (const item of currentLevelItems) {
       for (const ch of String(item)) {
-        if (ch !== ' ' && !/[A-Z]/i.test(ch)) found.add(ch)
+        if (ch !== ' ' && !KEYBOARD_CHARS.has(ch.toUpperCase())) found.add(ch)
       }
     }
     return [...found]
