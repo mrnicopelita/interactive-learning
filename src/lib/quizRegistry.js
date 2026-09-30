@@ -102,6 +102,12 @@ export const QUIZ_REGISTRY = [
     images: ['/images/monitor.svg', '/images/keyboard.svg'],
   },
   {
+    id: 'misi-roket-bintang',
+    title: 'Misi Roket Bintang',
+    tagline: 'Tekan F J D K S L A untuk mengumpulkan bintang dan melepas roketnya!',
+    images: ['/images/rocket.svg', '/images/keyboard.svg'],
+  },
+  {
     id: 'exam',
     title: 'Quiz Grade 1',
     tagline: 'Answer questions and test what you know!',

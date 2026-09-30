@@ -16,6 +16,7 @@ import PestaPuzzlePolisiGame from './games/PestaPuzzlePolisi.jsx'
 import CyberQuestGame from './games/CyberQuestGame.jsx'
 import TikQuestGame from './games/TikQuestGame.jsx'
 import TerminalProtocolGame from './games/TerminalProtocolGame.jsx'
+import MisiRoketBintangGame from './games/MisiRoketBintangGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -62,6 +63,7 @@ const GAME_COMPONENTS = {
   'cyberquest': CyberQuestGame,
   'tik-quest': TikQuestGame,
   'terminal-protocol': TerminalProtocolGame,
+  'misi-roket-bintang': MisiRoketBintangGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
