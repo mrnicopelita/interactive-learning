@@ -465,20 +465,11 @@ function Shell({ children, onExit, right }) {
   )
 }
 
-function NameEntry({ onStart, onExit }) {
-  const [name, setName] = useState('')
-  const ready = name.trim().length > 0
-
+function StartScreen({ onStart, onExit }) {
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (ready) onStart(name.trim())
-          }}
-          className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9"
-        >
+        <div className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <div className="mx-auto mb-2 aspect-[120/212] h-24 w-auto sm:h-32">
             <RocketArt />
           </div>
@@ -507,30 +498,14 @@ function NameEntry({ onStart, onExit }) {
             </ul>
           </div>
 
-          <label className="mt-4 flex w-full flex-col gap-2 text-left">
-            <span className="text-sm font-extrabold tracking-wide text-slate-600 uppercase">
-              Nama kamu
-            </span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ketik namamu…"
-              autoComplete="off"
-              autoFocus
-              maxLength={12}
-              className="w-full rounded-2xl border-2 border-indigo-200 bg-indigo-50 px-4 py-3 text-center text-xl font-extrabold text-slate-700 outline-none placeholder:font-semibold placeholder:text-slate-400 focus:border-indigo-500 sm:text-2xl"
-            />
-          </label>
-
           <button
-            type="submit"
-            disabled={!ready}
-            className="mt-4 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40 sm:text-2xl"
+            type="button"
+            onClick={onStart}
+            className="mt-5 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
           >
             Mulai Main! 🚀
           </button>
-        </form>
+        </div>
       </main>
     </Shell>
   )
@@ -572,7 +547,7 @@ function MissionIntro({ round, onNext, onExit }) {
   )
 }
 
-function MissionComplete({ round, name, total, onNext, onReplay, onExit }) {
+function MissionComplete({ round, total, onNext, onReplay, onExit }) {
   const isLast = round === ROUNDS.length - 1
   return (
     <Shell onExit={onExit}>
@@ -583,7 +558,7 @@ function MissionComplete({ round, name, total, onNext, onReplay, onExit }) {
             {isLast ? 'Semua Misi Selesai!' : `${ROUNDS[round].name} Selesai!`}
           </h1>
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
-            Roket berhasil meluncur! {name}, kamu hebat! 🚀
+            Roket berhasil meluncur! Kamu hebat, Pilot! 🚀
           </p>
           <p className="mt-1 text-sm font-bold text-slate-400">
             Total bintang: <span className="text-amber-500">{total}</span> / {ROUNDS.length * SEQ_LEN}
@@ -627,7 +602,6 @@ function MissionComplete({ round, name, total, onNext, onReplay, onExit }) {
 /* ------------------------------ the game ------------------------------ */
 export default function MisiRoketBintangGame({ onExit }) {
   const [screen, setScreen] = useState('entry')
-  const [playerName, setPlayerName] = useState('')
   const [round, setRound] = useState(0)
   const [step, setStep] = useState(0)
   const [total, setTotal] = useState(0)
@@ -748,22 +722,13 @@ export default function MisiRoketBintangGame({ onExit }) {
   }
 
   if (screen === 'entry') {
-    return (
-      <NameEntry
-        onStart={(n) => {
-          setPlayerName(n)
-          startRound(0)
-        }}
-        onExit={onExit}
-      />
-    )
+    return <StartScreen onStart={() => startRound(0)} onExit={onExit} />
   }
   if (screen === 'mission-intro') return <MissionIntro round={round} onNext={() => setScreen('playing')} onExit={onExit} />
   if (screen === 'mission-complete' || screen === 'complete') {
     return (
       <MissionComplete
         round={round}
-        name={playerName}
         total={total}
         onNext={() => startRound(round + 1)}
         onReplay={replay}
