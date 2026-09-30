@@ -445,6 +445,20 @@ function makeTrail(id) {
   }))
 }
 
+/* full-menu dialog flow runs on the Enter key alone, so kids never touch the mouse */
+function useEnter(onEnter) {
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.code === 'Enter' && !e.repeat) {
+        e.preventDefault()
+        onEnter()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onEnter])
+}
+
 /* ----------------------------- screens -------------------------------- */
 function Shell({ children, onExit, right }) {
   return (
@@ -466,6 +480,8 @@ function Shell({ children, onExit, right }) {
 }
 
 function StartScreen({ onStart, onExit }) {
+  useEnter(onStart)
+
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
@@ -505,6 +521,9 @@ function StartScreen({ onStart, onExit }) {
           >
             Mulai Main! 🚀
           </button>
+          <p className="mt-2 text-xs font-extrabold text-slate-400">
+            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk mulai
+          </p>
         </div>
       </main>
     </Shell>
@@ -513,6 +532,8 @@ function StartScreen({ onStart, onExit }) {
 
 function MissionIntro({ round, onNext, onExit }) {
   const r = ROUNDS[round]
+  useEnter(onNext)
+
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
@@ -541,6 +562,9 @@ function MissionIntro({ round, onNext, onExit }) {
           >
             Siap! Go! 🚀
           </button>
+          <p className="mt-2 text-xs font-extrabold text-slate-400">
+            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk lanjut
+          </p>
         </div>
       </main>
     </Shell>
@@ -549,6 +573,9 @@ function MissionIntro({ round, onNext, onExit }) {
 
 function MissionComplete({ round, total, onNext, onReplay, onExit }) {
   const isLast = round === ROUNDS.length - 1
+  const advance = () => (isLast ? onReplay() : onNext())
+  useEnter(advance)
+
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
@@ -593,6 +620,10 @@ function MissionComplete({ round, total, onNext, onReplay, onExit }) {
               </button>
             </div>
           )}
+          <p className="mt-2 text-xs font-extrabold text-slate-400">
+            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span>{' '}
+            {isLast ? 'untuk main lagi' : 'untuk lanjut misi'}
+          </p>
         </div>
       </main>
     </Shell>
