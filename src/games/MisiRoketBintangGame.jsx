@@ -16,7 +16,7 @@ const NEON = ['#22d3ee', '#f472b6', '#facc15', '#4ade80', '#a78bfa', '#fef9c3']
 const SPARK_CHARS = ['✦', '✧', '★', '✦', '·', '★']
 
 /* ----------------------------- game data ------------------------------ */
-const SEQ_LEN = 10
+const SEQ_LEN = 30
 const ANCHOR_Y = '38%'
 const FLIGHT_MS = 640
 
@@ -32,18 +32,6 @@ const ROUNDS = [
     icon: '🪐',
     letters: ['F', 'J'],
     desc: 'Bintang F dan J adalah jangkar jarimu!',
-  },
-  {
-    name: 'Misi Tetangga',
-    icon: '🌙',
-    letters: ['F', 'J', 'D', 'K'],
-    desc: 'Sekarang huruf D dan K ikut bermain!',
-  },
-  {
-    name: 'Misi Home Row',
-    icon: '🌟',
-    letters: ['F', 'J', 'D', 'K', 'S', 'L', 'A'],
-    desc: 'A S D F dan J K L — semua superstar!',
   },
 ].map((r) => ({ ...r, seq: buildSeq(r.letters) }))
 
@@ -339,7 +327,10 @@ function HomeRowGuide({ target, unlocked }) {
 /* -------------------------- star collection meter --------------------- */
 function StarMeter({ collected, total }) {
   return (
-    <div className="flex items-center justify-center gap-1 sm:gap-1.5" aria-hidden="true">
+    <div
+      className="flex max-w-full flex-wrap items-center justify-center gap-0.5 sm:gap-1.5 sm:px-2"
+      aria-hidden="true"
+    >
       {Array.from({ length: total }, (_, i) => (
         <span
           key={i}
@@ -493,25 +484,26 @@ function StartScreen({ onStart, onExit }) {
             Misi <span className="text-rose-500">Roket</span> Bintang
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
-            Kumpulkan 10 bintang untuk meluncurkan roketmu! ⭐
+            Kumpulkan {SEQ_LEN} bintang untuk meluncurkan roketmu! ⭐
           </p>
           <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 uppercase sm:text-sm">
-            Tekan F J D K S L A di keyboard
+            Tekan F dan J di keyboard
           </p>
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
             <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700 uppercase">
-              3 Misi
+              1 Misi · Bintang Jangkar
             </p>
-            <ul className="flex flex-col gap-1.5">
-              {ROUNDS.map((r, i) => (
-                <li key={r.name} className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                  <span className="text-lg" aria-hidden="true">{r.icon}</span>
-                  <span className="shrink-0 font-extrabold text-indigo-600">{i + 1}.</span>
-                  <span>{r.letters.join(' ')}</span>
-                </li>
+            <div className="flex items-center justify-center gap-2">
+              {ROUNDS[0].letters.map((l) => (
+                <span
+                  key={l}
+                  className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-cyan-300 bg-cyan-400 text-2xl font-black text-slate-900 shadow sm:h-14 sm:w-14 sm:text-3xl"
+                >
+                  {l}
+                </span>
               ))}
-            </ul>
+            </div>
           </div>
 
           <button
@@ -539,10 +531,7 @@ function MissionIntro({ round, onNext, onExit }) {
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <span className="text-5xl sm:text-6xl" aria-hidden="true">{r.icon}</span>
-          <p className="mt-2 text-xs font-extrabold tracking-wide text-indigo-500 uppercase sm:text-sm">
-            Misi {round + 1} dari {ROUNDS.length}
-          </p>
-          <h1 className="text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold text-slate-700">{r.name}</h1>
+          <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold text-slate-700">{r.name}</h1>
           <p className="text-base font-bold text-slate-500 sm:text-lg">{r.desc}</p>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             {r.letters.map((l) => (
@@ -571,58 +560,36 @@ function MissionIntro({ round, onNext, onExit }) {
   )
 }
 
-function MissionComplete({ round, total, onNext, onReplay, onExit }) {
-  const isLast = round === ROUNDS.length - 1
-  const advance = () => (isLast ? onReplay() : onNext())
-  useEnter(advance)
+function MissionComplete({ total, onReplay, onExit }) {
+  useEnter(onReplay)
 
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
-          <span className="text-5xl sm:text-6xl" aria-hidden="true">{isLast ? '🏆' : '🎉'}</span>
+          <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
           <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
-            {isLast ? 'Semua Misi Selesai!' : `${ROUNDS[round].name} Selesai!`}
+            Misi Selesai!
           </h1>
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
             Roket berhasil meluncur! Kamu hebat, Pilot! 🚀
           </p>
           <p className="mt-1 text-sm font-bold text-slate-400">
-            Total bintang: <span className="text-amber-500">{total}</span> / {ROUNDS.length * SEQ_LEN}
+            Total bintang: <span className="text-amber-500">{total}</span> / {SEQ_LEN}
           </p>
           <div className="mt-2">
             <StarMeter collected={SEQ_LEN} total={SEQ_LEN} />
           </div>
 
-          {isLast ? (
-            <button
-              type="button"
-              onClick={onReplay}
-              className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
-            >
-              MAIN LAGI
-            </button>
-          ) : (
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-              <button
-                type="button"
-                onClick={onNext}
-                className="flex-1 rounded-full bg-rose-500 px-6 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
-              >
-                Lanjut Misi {round + 2} →
-              </button>
-              <button
-                type="button"
-                onClick={onReplay}
-                className="flex-1 rounded-full bg-indigo-500 px-6 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
-              >
-                Main Lagi
-              </button>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={onReplay}
+            className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
+          >
+            MAIN LAGI
+          </button>
           <p className="mt-2 text-xs font-extrabold text-slate-400">
-            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span>{' '}
-            {isLast ? 'untuk main lagi' : 'untuk lanjut misi'}
+            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk main lagi
           </p>
         </div>
       </main>
@@ -670,7 +637,7 @@ export default function MisiRoketBintangGame({ onExit }) {
   }, [])
 
   const stateRef = useRef({})
-  stateRef.current = { round, step, feedback, flying, target }
+  stateRef.current = { step, feedback, flying, target }
 
   function measureFlight() {
     const from = starRef.current?.getBoundingClientRect()
@@ -685,17 +652,14 @@ export default function MisiRoketBintangGame({ onExit }) {
   useEffect(() => {
     if (screen !== 'playing') return
 
-    function finishMission(doneRound) {
+    function finishMission() {
       setLaunching(true)
       playWhoosh()
       later(() => {
         spaceConfetti()
         playFanfare()
       }, 320)
-      later(
-        () => setScreen(doneRound === ROUNDS.length - 1 ? 'complete' : 'mission-complete'),
-        1500,
-      )
+      later(() => setScreen('complete'), 1500)
     }
 
     const handleKey = (e) => {
@@ -715,7 +679,7 @@ export default function MisiRoketBintangGame({ onExit }) {
           setFlying(false)
           setFeedback(null)
           setTrail([])
-          if (s.step + 1 >= SEQ_LEN) finishMission(s.round)
+          if (s.step + 1 >= SEQ_LEN) finishMission()
           else setStep(s.step + 1)
         }, FLIGHT_MS)
       } else {
@@ -756,19 +720,9 @@ export default function MisiRoketBintangGame({ onExit }) {
     return <StartScreen onStart={() => startRound(0)} onExit={onExit} />
   }
   if (screen === 'mission-intro') return <MissionIntro round={round} onNext={() => setScreen('playing')} onExit={onExit} />
-  if (screen === 'mission-complete' || screen === 'complete') {
-    return (
-      <MissionComplete
-        round={round}
-        total={total}
-        onNext={() => startRound(round + 1)}
-        onReplay={replay}
-        onExit={onExit}
-      />
-    )
+  if (screen === 'complete') {
+    return <MissionComplete total={total} onReplay={replay} onExit={onExit} />
   }
-
-  const isLastRound = round === ROUNDS.length - 1
 
   return (
     <Shell
@@ -878,7 +832,6 @@ export default function MisiRoketBintangGame({ onExit }) {
         </div>
         <p className="mt-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
           Barisan Home Row — tekan di keyboard asli ⌨️
-          {isLastRound ? ' · Misi terakhir!' : ''}
         </p>
         <div className="px-4">
           <HomeRowGuide target={flying ? null : target} unlocked={unlocked} />
