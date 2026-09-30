@@ -14,6 +14,7 @@ const HULL_D = '#94a3b8'
 
 const NEON = ['#22d3ee', '#f472b6', '#facc15', '#4ade80', '#a78bfa', '#fef9c3']
 const SPARK_CHARS = ['✦', '✧', '★', '✦', '·', '★']
+const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-serif"
 
 /* ----------------------------- game data ------------------------------ */
 const SEQ_LEN = 30
@@ -28,10 +29,10 @@ function buildSeq(letters) {
 
 const ROUNDS = [
   {
-    name: 'Misi Jangkar',
+    name: 'misi jangkar',
     icon: '🪐',
-    letters: ['F', 'J'],
-    desc: 'Bintang F dan J adalah jangkar jarimu!',
+    letters: ['f', 'j'],
+    desc: 'bintang f dan j adalah jangkar jarimu!',
   },
 ].map((r) => ({ ...r, seq: buildSeq(r.letters) }))
 
@@ -275,15 +276,15 @@ function RocketArt() {
 const KEY_UNIT = 'min(6.1vw, 6.2vh, 2.9rem)'
 
 const HOME_ROW = [
-  { l: 'Caps', w: 1.6, mod: true },
-  { l: 'A' },
-  { l: 'S' },
-  { l: 'D' },
-  { l: 'F' },
-  { l: 'J' },
-  { l: 'K' },
-  { l: 'L' },
-  { l: 'Enter', w: 1.8, mod: true },
+  { l: 'caps', w: 1.6, mod: true },
+  { l: 'a' },
+  { l: 's' },
+  { l: 'd' },
+  { l: 'f' },
+  { l: 'j' },
+  { l: 'k' },
+  { l: 'l' },
+  { l: 'enter', w: 1.8, mod: true },
 ]
 
 function HomeRowGuide({ target, unlocked }) {
@@ -453,7 +454,10 @@ function useEnter(onEnter) {
 /* ----------------------------- screens -------------------------------- */
 function Shell({ children, onExit, right }) {
   return (
-    <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-950">
+    <div
+      className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-950"
+      style={{ fontFamily: COMIC }}
+    >
       <SpaceBackdrop />
       <div className="z-10 flex w-full shrink-0 items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
         <button
@@ -461,7 +465,7 @@ function Shell({ children, onExit, right }) {
           onClick={onExit}
           className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-sm font-extrabold text-indigo-700 shadow transition hover:scale-105 sm:px-4 sm:py-2 sm:text-lg"
         >
-          <span aria-hidden="true">←</span> Keluar
+          <span aria-hidden="true">←</span> keluar
         </button>
         {right ?? <div className="w-16 sm:w-24" aria-hidden="true" />}
       </div>
@@ -481,18 +485,18 @@ function StartScreen({ onStart, onExit }) {
             <RocketArt />
           </div>
           <h1 className="text-[clamp(1.6rem,5.5vw,2.6rem)] font-extrabold leading-none text-slate-700">
-            Misi <span className="text-rose-500">Roket</span> Bintang
+            misi <span className="text-rose-500">roket</span> bintang
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
-            Kumpulkan {SEQ_LEN} bintang untuk meluncurkan roketmu! ⭐
+            kumpulkan {SEQ_LEN} bintang untuk meluncurkan roketmu! ⭐
           </p>
-          <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 uppercase sm:text-sm">
-            Tekan F dan J di keyboard
+          <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
+            tekan f dan j di keyboard
           </p>
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
-            <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700 uppercase">
-              1 Misi · Bintang Jangkar
+            <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700">
+              1 misi · bintang jangkar
             </p>
             <div className="flex items-center justify-center gap-2">
               {ROUNDS[0].letters.map((l) => (
@@ -511,10 +515,10 @@ function StartScreen({ onStart, onExit }) {
             onClick={onStart}
             className="mt-5 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
           >
-            Mulai Main! 🚀
+            mulai main! 🚀
           </button>
           <p className="mt-2 text-xs font-extrabold text-slate-400">
-            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk mulai
+            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk mulai
           </p>
         </div>
       </main>
@@ -543,16 +547,16 @@ function MissionIntro({ round, onNext, onExit }) {
               </span>
             ))}
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-400">Kumpulkan {SEQ_LEN} bintang!</p>
+          <p className="mt-3 text-sm font-bold text-slate-400">kumpulkan {SEQ_LEN} bintang!</p>
           <button
             type="button"
             onClick={onNext}
             className="mt-4 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
           >
-            Siap! Go! 🚀
+            siap! go! 🚀
           </button>
           <p className="mt-2 text-xs font-extrabold text-slate-400">
-            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk lanjut
+            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk lanjut
           </p>
         </div>
       </main>
@@ -569,13 +573,13 @@ function MissionComplete({ total, onReplay, onExit }) {
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
           <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
-            Misi Selesai!
+            misi selesai!
           </h1>
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
-            Roket berhasil meluncur! Kamu hebat, Pilot! 🚀
+            roket berhasil meluncur! kamu hebat, pilot! 🚀
           </p>
           <p className="mt-1 text-sm font-bold text-slate-400">
-            Total bintang: <span className="text-amber-500">{total}</span> / {SEQ_LEN}
+            total bintang: <span className="text-amber-500">{total}</span> / {SEQ_LEN}
           </p>
           <div className="mt-2">
             <StarMeter collected={SEQ_LEN} total={SEQ_LEN} />
@@ -586,10 +590,10 @@ function MissionComplete({ total, onReplay, onExit }) {
             onClick={onReplay}
             className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
           >
-            MAIN LAGI
+            main lagi
           </button>
           <p className="mt-2 text-xs font-extrabold text-slate-400">
-            Tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">ENTER</span> untuk main lagi
+            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk main lagi
           </p>
         </div>
       </main>
@@ -668,7 +672,7 @@ export default function MisiRoketBintangGame({ onExit }) {
       const s = stateRef.current
       if (s.feedback || s.flying) return
 
-      if (e.key.toUpperCase() === s.target) {
+      if (e.key.toLowerCase() === s.target) {
         setFeedback('correct')
         setFlight(measureFlight())
         setTrail(makeTrail(flightId.current++))
@@ -729,14 +733,14 @@ export default function MisiRoketBintangGame({ onExit }) {
       onExit={onExit}
       right={
         <div className="text-right">
-          <p className="text-[10px] font-extrabold tracking-wide text-cyan-400 uppercase sm:text-xs">
+          <p className="text-[10px] font-extrabold tracking-wide text-cyan-400 sm:text-xs">
             {roundData.name}
           </p>
           <p className="text-xs font-bold text-white/60">
-            Bintang {step + 1} / {SEQ_LEN}
+            bintang {step + 1} / {SEQ_LEN}
           </p>
           <p className="text-[10px] font-bold text-amber-400/80 sm:text-xs">
-            Total ⭐ {total}
+            total ⭐ {total}
           </p>
         </div>
       }
@@ -774,7 +778,7 @@ export default function MisiRoketBintangGame({ onExit }) {
                   y="110"
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontFamily="'Baloo 2', 'Comic Sans MS', system-ui, sans-serif"
+                  fontFamily={COMIC}
                   fontSize="64"
                   fontWeight="900"
                   fill="#713f12"
@@ -809,20 +813,20 @@ export default function MisiRoketBintangGame({ onExit }) {
           <p className="text-center" role="status" aria-live="polite">
             {feedback === 'correct' ? (
               <span className="animate-pop-in rounded-2xl bg-emerald-500/90 px-5 py-1.5 text-base font-extrabold text-white shadow-md sm:text-xl">
-                Tepat! Bintang masuk roket ✨
+                tepat! bintang masuk roket ✨
               </span>
             ) : feedback === 'wrong' ? (
               <span className="animate-pop-in rounded-2xl bg-amber-400/90 px-5 py-1.5 text-base font-extrabold text-slate-900 shadow-md sm:text-xl">
-                Coba lagi ya! 💫
+                coba lagi ya! 💫
               </span>
             ) : launching ? (
               <span className="text-sm font-extrabold text-rose-300 sm:text-base">
-                3… 2… 1… LUNCUR! 🚀
+                3… 2… 1… luncur! 🚀
               </span>
             ) : (
               <span className="text-sm font-bold text-cyan-300 sm:text-base">
-                Tekan tombol{' '}
-                <span className="font-black text-white uppercase">{target}</span> di keyboard
+                tekan tombol{' '}
+                <span className="font-black text-white">{target}</span> di keyboard
               </span>
             )}
           </p>
@@ -831,7 +835,7 @@ export default function MisiRoketBintangGame({ onExit }) {
           <StarMeter collected={step + (flying ? 1 : 0)} total={SEQ_LEN} />
         </div>
         <p className="mt-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
-          Barisan Home Row — tekan di keyboard asli ⌨️
+          barisan home row — tekan di keyboard asli ⌨️
         </p>
         <div className="px-4">
           <HomeRowGuide target={flying ? null : target} unlocked={unlocked} />
