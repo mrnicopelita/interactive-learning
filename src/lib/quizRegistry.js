@@ -24,7 +24,7 @@ export const QUIZ_REGISTRY = [
   { id: 'tik-quest', title: 'Detective Bity: TIK Quest', tagline: 'Selesaikan 9 kasus TIK, kumpulkan lencana, dan raih sertifikat Master Detective!', images: ['/images/laptop.svg', '/images/smartphone.svg'], category: 'primary' },
   { id: 'terminal-protocol', title: 'Terminal Protocol', tagline: 'Ketik perintah terminal darurat untuk memulihkan kota dari virus NOVA-BUG!', images: ['/images/monitor.svg', '/images/keyboard.svg'], category: 'junior-high' },
   { id: 'misi-roket-bintang', title: 'Misi Roket Bintang', tagline: 'Tekan F J D K S L A untuk mengumpulkan bintang dan melepas roketnya!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'primary' },
-  { id: 'jembatan-bintang', title: 'Jembatan Bintang G-H', tagline: 'Bangun jembatan bintang G-H menuju stasiun luar angkasa!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'preschool' },
+  { id: 'jembatan-bintang', title: 'Jembatan Bintang G-H', tagline: 'Bangun jembatan bintang F G H J menuju stasiun luar angkasa!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'preschool' },
   { id: 'exam', title: 'Quiz Grade 1', tagline: 'Answer questions and test what you know!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional', category: 'quizzes' },
   { id: 'exam-2', title: 'Quiz Grade 2', tagline: 'Fun questions for grade 2 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-2', category: 'quizzes' },
   { id: 'exam-3', title: 'Quiz Grade 3', tagline: 'Fun questions for grade 3 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-3', category: 'quizzes' },

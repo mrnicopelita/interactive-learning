@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 /* ------------------------------ palette ------------------------------- */
@@ -44,18 +44,18 @@ const ROUNDS = [
     seq: alternate('G', 'H', SEQ_LEN),
   },
   {
-    name: 'campuran jangkar',
+    name: 'jangkar + g & h',
     icon: '⚓',
     letters: ['F', 'G', 'J', 'H'],
-    desc: 'f g j h melintasi jurang galaksi!',
+    desc: 'jari jangkar f dan j bertemu g dan h!',
     seq: cycle(['F', 'G', 'J', 'H'], SEQ_LEN),
   },
   {
-    name: 'home row lengkap',
+    name: 'f g h j lengkap',
     icon: '🌌',
-    letters: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    desc: 'semua huruf home row ikut membangun jembatan!',
-    seq: cycle(['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'], SEQ_LEN),
+    letters: ['F', 'G', 'H', 'J'],
+    desc: 'gabungkan semua bintang f g h j!',
+    seq: cycle(['G', 'F', 'J', 'H'], SEQ_LEN),
   },
 ]
 
@@ -302,18 +302,13 @@ function StationArt() {
 }
 
 /* ------------------------- on-screen key guide ----------------------- */
-const KEY_UNIT = 'min(5vw, 5.6vh, 2.7rem)'
+const KEY_UNIT = 'min(7vw, 6.2vh, 3.4rem)'
 
 const HOME_ROW = [
-  { l: 'A', color: '#a78bfa' },
-  { l: 'S', color: '#a78bfa' },
-  { l: 'D', color: '#60a5fa' },
   { l: 'F', color: CYAN },
   { l: 'G', color: GREEN },
   { l: 'H', color: GOLD },
   { l: 'J', color: CYAN },
-  { l: 'K', color: '#f472b6' },
-  { l: 'L', color: '#f472b6' },
 ]
 
 function HomeRowGuide({ target, active }) {
@@ -323,25 +318,27 @@ function HomeRowGuide({ target, active }) {
       style={{ '--u': KEY_UNIT }}
       aria-hidden="true"
     >
-      <div className="flex justify-center gap-1.5 sm:gap-2">
+      <div className="flex items-center justify-center gap-2 sm:gap-2.5">
         {HOME_ROW.map((key) => {
           const isActive = active.includes(key.l)
           const isTarget = !!(target && key.l === target)
           return (
-            <div
-              key={key.l}
-              className={`flex h-[var(--u)] w-[var(--u)] items-center justify-center rounded-lg border-2 font-extrabold transition-all duration-150 ${
-                isTarget ? 'jb-key-target' : ''
-              } ${isActive ? '' : 'opacity-25'}`}
-              style={{
-                color: key.color,
-                borderColor: isTarget ? '#ffffff' : `${key.color}66`,
-                background: isActive ? `${key.color}26` : 'rgba(255,255,255,0.05)',
-                fontSize: `calc(var(--u) * 0.42)`,
-              }}
-            >
-              {key.l}
-            </div>
+            <Fragment key={key.l}>
+              {key.l === 'H' && <div aria-hidden="true" className="w-[min(6vw,3rem)] shrink-0" />}
+              <div
+                className={`flex h-[var(--u)] w-[var(--u)] shrink-0 items-center justify-center rounded-lg border-2 font-extrabold transition-all duration-150 ${
+                  isTarget ? 'jb-key-target' : ''
+                } ${isActive ? '' : 'opacity-25'}`}
+                style={{
+                  color: key.color,
+                  borderColor: isTarget ? '#ffffff' : `${key.color}66`,
+                  background: isActive ? `${key.color}26` : 'rgba(255,255,255,0.05)',
+                  fontSize: `calc(var(--u) * 0.42)`,
+                }}
+              >
+                {key.l}
+              </div>
+            </Fragment>
           )
         })}
       </div>
