@@ -592,16 +592,19 @@ function RoundIntro({ round, onNext, onExit }) {
             ))}
           </div>
           <p className="mt-3 text-sm font-bold text-slate-400">kumpulkan {SEQ_LEN} bintang!</p>
-          <button
-            type="button"
-            onClick={onNext}
-            className="mt-4 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
-          >
-            siap! go! 🚀
-          </button>
-          <p className="mt-2 text-xs font-extrabold text-slate-400">
-            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk lanjut
-          </p>
+          <div className="mt-4">
+            <div className="animate-pov-replay mx-auto inline-flex items-center gap-2 rounded-full border-4 border-rose-200 bg-rose-500 px-6 py-3 text-white shadow-lg">
+              <span aria-hidden="true">⌨️</span>
+              <span className="text-lg font-extrabold sm:text-xl">tekan</span>
+              <span className="rounded-md bg-white px-2.5 py-0.5 text-lg font-black text-rose-600 sm:text-xl">
+                ENTER
+              </span>
+              <span className="text-lg font-extrabold sm:text-xl">untuk lanjut</span>
+            </div>
+            <p className="mt-2 text-xs font-extrabold text-slate-400">
+              hari ini bukan main mouse — tekan tombol enter ya!
+            </p>
+          </div>
         </div>
       </main>
     </Shell>
