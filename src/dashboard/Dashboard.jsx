@@ -667,44 +667,63 @@ function DashboardView({ onExit }) {
               {categoriesLoading ? (
                 <p className="text-xs font-semibold text-slate-400">Loading categories…</p>
               ) : (
-                <div className="flex flex-wrap gap-2 sm:gap-3">
-                  {QUIZ_REGISTRY.map((quiz) => {
-                    const locked = locks[quiz.id] ?? true
-                    const cat = getCategoryById(categories?.[quiz.id] ?? quiz.category)
+                <div className="flex flex-wrap gap-4">
+                  {CATEGORIES.map((cat) => {
+                    const quizzesInCat = QUIZ_REGISTRY.filter(
+                      (q) => (categories?.[q.id] ?? q.category) === cat.id
+                    )
                     return (
-                      <button
-                        key={quiz.id}
-                        type="button"
-                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold shadow transition hover:scale-105 ${
-                          locked
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}
+                      <div
+                        key={cat.id}
+                        className={`flex-1 min-w-[12rem] rounded-xl p-2 ${cat.color}/10 border-2 border-dashed ${cat.color}/30`}
                       >
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); toggleLock(quiz.id) }}
-                          disabled={locksLoading}
-                          className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-extrabold transition hover:scale-110 ${
-                            locked
-                              ? 'bg-rose-200 text-rose-700'
-                              : 'bg-emerald-200 text-emerald-700'
-                          }`}
-                          title={locked ? 'Unlock' : 'Lock'}
-                        >
-                          {locked ? '🔒' : '🔓'}
-                        </button>
-                        <span className="truncate max-w-[10rem]">{quiz.title}</span>
-                        <span className={`w-1.5 h-1.5 rounded-full ${cat?.color || 'bg-slate-400'}`} />
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); setEditingQuiz(quiz) }}
-                          className="flex items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
-                          title="Edit"
-                        >
-                          ✏️
-                        </button>
-                      </button>
+                        <h3 className={`font-bold text-[11px] ${cat.color}/80 mb-1.5 flex items-center gap-1.5`}>
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color.replace('bg-', '') }} />
+                          {cat.label} ({quizzesInCat.length})
+                        </h3>
+                        <div className="space-y-1">
+                          {quizzesInCat.map((quiz) => {
+                            const locked = locks[quiz.id] ?? true
+                            return (
+                              <div
+                                key={quiz.id}
+                                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm transition hover:scale-102 ${
+                                  cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
+                                  cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
+                                  cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => toggleLock(quiz.id)}
+                                  disabled={locksLoading}
+                                  className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-extrabold shadow-sm transition hover:scale-110 ${
+                                    locked
+                                      ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                  }`}
+                                  title={locked ? 'Unlock' : 'Lock'}
+                                >
+                                  {locked ? '🔒' : '🔓'}
+                                </button>
+                                <span className="flex-1 truncate">{quiz.title}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingQuiz(quiz)}
+                                  className="flex items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
+                                  title="Edit"
+                                >
+                                  ✏️
+                                </button>
+                              </div>
+                            )
+                          })}
+                          {quizzesInCat.length === 0 && (
+                            <p className="text-[10px] text-slate-400 text-center py-1.5">No games</p>
+                          )}
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
