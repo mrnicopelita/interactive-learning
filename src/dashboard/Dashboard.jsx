@@ -4,7 +4,7 @@ import { formatTime } from '../exams/examEngine.js'
 import { useQuizLocks } from '../lib/useQuizLocks.js'
 import { QUIZ_REGISTRY, EXAM_NAME_MAP, CATEGORIES, getCategoryById } from '../lib/quizRegistry.js'
 
-const ACCESS_CODE = 'j0gl0'
+const ACCESS_CODE = 'qw3rty'
 
 const WEEKS = [
   { id: 'week2', label: 'Week 2', range: 'Aug 10–14', start: '2026-08-10', end: '2026-08-14' },
@@ -698,7 +698,7 @@ function DashboardView({ onExit }) {
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
                                   disabled={locksLoading}
-                                  className={`flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-extrabold shadow-sm transition hover:scale-110 ${
+                                  className={`flex items-center justify-center w-4 h-4 rounded-full text-[8px] font-extrabold shadow-sm transition hover:scale-110 ${
                                     locked
                                       ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                                       : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
