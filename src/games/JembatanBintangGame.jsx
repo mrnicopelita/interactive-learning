@@ -14,7 +14,7 @@ const INK = '#1e293b'
 const HULL_D = '#94a3b8'
 
 const NEON = ['#22d3ee', '#4ade80', '#facc15', '#f472b6', '#a78bfa', '#fef9c3']
-const SPARK_CHARS = ['ÃÂ¢ÃÂÃÂ¦', 'ÃÂ¢ÃÂÃÂ§', 'ÃÂ¢ÃÂÃÂ', 'ÃÂ¢ÃÂÃÂ¦', 'ÃÂÃÂ·', 'ÃÂ¢ÃÂÃÂ']
+const SPARK_CHARS = ['', '', '', '', '', '']
 const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-serif"
 
 /* ----------------------------- game data ------------------------------ */
@@ -38,42 +38,42 @@ function cycle(letters, n) {
 const ROUNDS = [
   {
     name: 'jembatan g & h',
-    icon: 'ÃÂ°ÃÂÃÂÃÂ',
+    icon: '',
     letters: ['G', 'H'],
-    desc: 'g dan h ÃÂ¢ÃÂÃÂ jari telunjuk kiri dan kanan!',
+    desc: 'g dan h  jari telunjuk kiri dan kanan!',
     seq: alternate('G', 'H', SEQ_LEN),
   },
   {
     name: 'g & h dua-dua',
-    icon: 'ÃÂ°ÃÂÃÂÃÂ',
+    icon: '',
     letters: ['G', 'H'],
     desc: 'kadang g dua kali, kadang h dua kali!',
     seq: ['G', 'H', 'H', 'G', 'G', 'H', 'G', 'H', 'H', 'G'],
   },
   {
     name: 'jangkar + g & h',
-    icon: 'ÃÂ¢ÃÂÃÂ',
+    icon: '',
     letters: ['F', 'G', 'J', 'H'],
     desc: 'jari jangkar f dan j bertemu g dan h!',
     seq: cycle(['F', 'G', 'J', 'H'], SEQ_LEN),
   },
   {
     name: 'f g h j lengkap',
-    icon: 'ÃÂ°ÃÂÃÂÃÂ',
+    icon: '',
     letters: ['F', 'G', 'H', 'J'],
     desc: 'gabungkan semua bintang f g h j!',
     seq: cycle(['G', 'F', 'J', 'H'], SEQ_LEN),
   },
   {
     name: 'campuran ekstra',
-    icon: 'ÃÂ°ÃÂÃÂªÃÂ',
+    icon: '',
     letters: ['F', 'G', 'H', 'J'],
     desc: 'roulette f g h j melintasi galaksi!',
     seq: cycle(['J', 'H', 'F', 'G'], SEQ_LEN),
   },
   {
     name: 'grand final',
-    icon: 'ÃÂ°ÃÂÃÂÃÂ ',
+    icon: '',
     letters: ['F', 'G', 'H', 'J'],
     desc: 'jembatan terakhir: semua bintang f g h j!',
     seq: ['F', 'G', 'H', 'J', 'G', 'H', 'F', 'J', 'H', 'G'],
@@ -114,7 +114,7 @@ function playChime() {
   tone(2640, 0.24, 0.04, 'sine', 0.15)
 }
 
-/* gentle, near-silent nudge for a wrong key ÃÂ¢ÃÂÃÂ no penalty, no harsh tone */
+/* gentle, near-silent nudge for a wrong key  no penalty, no harsh tone */
 function playSoft() {
   tone(300, 0.14, 0.04, 'sine', 0, 220)
 }
@@ -389,7 +389,7 @@ function Bridge({ placed, total }) {
                 fontSize: 'calc(min(5.2vw, 5.4vh, 42px) * 0.5)',
               }}
             >
-              {on ? 'ÃÂ¢ÃÂÃÂ¦' : 'ÃÂÃÂ·'}
+              {on ? '' : ''}
             </div>
           </div>
         )
@@ -401,7 +401,7 @@ function Bridge({ placed, total }) {
 /* ------------------------------ confetti ------------------------------ */
 function cosmicConfetti(originX) {
   const colors = [GOLD, CYAN, GREEN, '#f472b6', '#a78bfa', '#ffffff']
-  const star = confetti.shapeFromText({ text: 'ÃÂ¢ÃÂ­ÃÂ', scalar: 1.6 })
+  const star = confetti.shapeFromText({ text: '', scalar: 1.6 })
   const shapes = [star, 'circle', 'square']
   const cannon = (origin, angle) =>
     confetti({
@@ -418,7 +418,7 @@ function cosmicConfetti(originX) {
     })
   cannon({ x: originX, y: 0.5 }, 90)
   cannon({ x: Math.max(0.15, originX - 0.2), y: 0.6 }, 70)
-  cannon({ x: Math.max(0.15, originX - 0.2), y: 0.6 }, 70)
+  cannon({ x: Math.min(0.85, originX + 0.2), y: 0.6 }, 110)
   setTimeout(
     () =>
       confetti({
@@ -467,8 +467,8 @@ function StarTrail({ trail, flight }) {
 function makeTrail(id) {
   return Array.from({ length: 16 }, (_, i) => ({
     id: `${id}-${i}`,
-    ox: (Math.random() ÃÂ¢ÃÂÃÂ 0.5) * 90,
-    oy: (Math.random() ÃÂ¢ÃÂÃÂ 0.5) * 70,
+    ox: (Math.random()  0.5) * 90,
+    oy: (Math.random()  0.5) * 70,
     size: 5 + Math.random() * 9,
     color: NEON[i % NEON.length],
     delay: i * 22,
@@ -503,7 +503,7 @@ function Shell({ children, onExit, right }) {
           onClick={onExit}
           className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-sm font-extrabold text-indigo-700 shadow transition hover:scale-105 sm:px-4 sm:py-2 sm:text-lg"
         >
-          <span aria-hidden="true">ÃÂ¢ÃÂÃÂ</span> keluar
+          <span aria-hidden="true"></span> keluar
         </button>
         {right ?? <div className="w-16 sm:w-24" aria-hidden="true" />}
       </div>
@@ -519,7 +519,7 @@ function StartScreen({ onStart, onExit }) {
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
         <div className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
-          <div className="mx-auto mb-1 text-5xl sm:text-6xl" aria-hidden="true">ÃÂ°ÃÂÃÂÃÂ</div>
+          <div className="mx-auto mb-1 text-5xl sm:text-6xl" aria-hidden="true"></div>
           <h1 className="text-[clamp(1.6rem,5.5vw,2.6rem)] font-extrabold leading-none text-slate-700">
             Jembatan Bintang <span className="text-cyan-600">G-H</span>
           </h1>
@@ -527,7 +527,7 @@ function StartScreen({ onStart, onExit }) {
             bangun jembatan {SEQ_LEN} bintang untuk menyeberangi jurang galaksi!
           </p>
           <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
-            g ÃÂ¢ÃÂÃÂ jari telunjuk kiri ÃÂÃÂ· h ÃÂ¢ÃÂÃÂ jari telunjuk kanan
+            g  jari telunjuk kiri  h  jari telunjuk kanan
           </p>
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
@@ -594,7 +594,7 @@ function RoundIntro({ round, onNext, onExit }) {
           <p className="mt-3 text-sm font-bold text-slate-400">kumpulkan {SEQ_LEN} bintang!</p>
           <div className="mt-4">
             <div className="animate-pov-replay mx-auto inline-flex items-center gap-2 rounded-full border-4 border-rose-200 bg-rose-500 px-6 py-3 text-white shadow-lg">
-              <span aria-hidden="true">ÃÂ¢ÃÂÃÂ¨ÃÂ¯ÃÂ¸ÃÂ</span>
+              <span aria-hidden="true"></span>
               <span className="text-lg font-extrabold sm:text-xl">tekan</span>
               <span className="rounded-md bg-white px-2.5 py-0.5 text-lg font-black text-rose-600 sm:text-xl">
                 ENTER
@@ -602,7 +602,7 @@ function RoundIntro({ round, onNext, onExit }) {
               <span className="text-lg font-extrabold sm:text-xl">untuk lanjut</span>
             </div>
             <p className="mt-2 text-xs font-extrabold text-slate-400">
-              hari ini bukan main mouse â tekan tombol enter ya!
+              hari ini bukan main mouse  tekan tombol enter ya!
             </p>
           </div>
         </div>
@@ -618,7 +618,7 @@ function CompleteScreen({ total, onReplay, onExit }) {
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
-          <span className="text-5xl sm:text-6xl" aria-hidden="true">ÃÂ°ÃÂÃÂÃÂ</span>
+          <span className="text-5xl sm:text-6xl" aria-hidden="true"></span>
           <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
             jembatan selesai!
           </h1>
@@ -631,7 +631,7 @@ function CompleteScreen({ total, onReplay, onExit }) {
           <div className="mt-2 flex flex-wrap items-center justify-center gap-0.5">
             {Array.from({ length: ROUNDS.length * SEQ_LEN }, (_, i) => (
               <span key={i} className="animate-pop-in text-sm leading-none">
-                ÃÂ¢ÃÂ­ÃÂ
+                
               </span>
             ))}
           </div>
@@ -701,8 +701,8 @@ export default function JembatanBintangGame({ onExit }) {
     const to = rocketRef.current?.getBoundingClientRect()
     if (!from || !to) return { dx: 0, dy: 0 }
     return {
-      dx: to.left + to.width / 2 ÃÂ¢ÃÂÃÂ (from.left + from.width / 2),
-      dy: to.top + to.height / 2 ÃÂ¢ÃÂÃÂ (from.top + from.height / 2),
+      dx: to.left + to.width / 2  (from.left + from.width / 2),
+      dy: to.top + to.height / 2  (from.top + from.height / 2),
     }
   }
 
@@ -711,8 +711,8 @@ export default function JembatanBintangGame({ onExit }) {
     const to = stationRef.current?.getBoundingClientRect()
     if (!from || !to) return { dx: 0, dy: 0 }
     return {
-      dx: to.left + to.width / 2 ÃÂ¢ÃÂÃÂ (from.left + from.width / 2),
-      dy: to.top + to.height / 2 ÃÂ¢ÃÂÃÂ (from.top + from.height / 2),
+      dx: to.left + to.width / 2  (from.left + from.width / 2),
+      dy: to.top + to.height / 2  (from.top + from.height / 2),
     }
   }
 
@@ -813,7 +813,7 @@ export default function JembatanBintangGame({ onExit }) {
             bintang {Math.min(step + 1, SEQ_LEN)} / {SEQ_LEN}
           </p>
           <p className="text-[10px] font-bold text-amber-400/80 sm:text-xs">
-            total ÃÂ¢ÃÂ­ÃÂ {total}
+            total  {total}
           </p>
         </div>
       }
@@ -886,7 +886,7 @@ export default function JembatanBintangGame({ onExit }) {
             <StationArt />
           </div>
           <div className="absolute -top-7 right-0 text-2xl leading-none sm:text-3xl" aria-hidden="true">
-            ÃÂ°ÃÂÃÂÃÂ©ÃÂ¢ÃÂÃÂÃÂ°ÃÂÃÂÃÂ
+            
           </div>
         </div>
       </main>
@@ -896,15 +896,15 @@ export default function JembatanBintangGame({ onExit }) {
           <p className="text-center" role="status" aria-live="polite">
             {feedback === 'correct' ? (
               <span className="animate-pop-in rounded-2xl bg-emerald-500/90 px-5 py-1.5 text-base font-extrabold text-white shadow-md sm:text-xl">
-                tepat! jembatan bertambah ÃÂ¢ÃÂÃÂ¨
+                tepat! jembatan bertambah 
               </span>
             ) : feedback === 'wrong' ? (
               <span className="animate-pop-in rounded-2xl bg-amber-400/90 px-5 py-1.5 text-base font-extrabold text-slate-900 shadow-md sm:text-xl">
-                coba lagi ya, fokus dulu! ÃÂ°ÃÂÃÂÃÂ«
+                coba lagi ya, fokus dulu! 
               </span>
             ) : zooming ? (
               <span className="text-sm font-extrabold text-rose-300 sm:text-base">
-                roket menyeberangi jembatan! ÃÂ°ÃÂÃÂÃÂ
+                roket menyeberangi jembatan! 
               </span>
             ) : (
               <span className="text-sm font-bold text-cyan-300 sm:text-base">
@@ -915,7 +915,7 @@ export default function JembatanBintangGame({ onExit }) {
           </p>
         </div>
         <p className="mt-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
-          g ÃÂ¢ÃÂÃÂ telunjuk kiri (hijau) ÃÂÃÂ· h ÃÂ¢ÃÂÃÂ telunjuk kanan (kuning)
+          g  telunjuk kiri (hijau)  h  telunjuk kanan (kuning)
         </p>
         <div className="px-4">
           <HomeRowGuide target={flying || zooming ? null : target} active={activeKeys} />
