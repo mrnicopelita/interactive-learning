@@ -44,6 +44,13 @@ const ROUNDS = [
     seq: alternate('G', 'H', SEQ_LEN),
   },
   {
+    name: 'g & h dua-dua',
+    icon: '🌟',
+    letters: ['G', 'H'],
+    desc: 'kadang g dua kali, kadang h dua kali!',
+    seq: ['G', 'H', 'H', 'G', 'G', 'H', 'G', 'H', 'H', 'G'],
+  },
+  {
     name: 'jangkar + g & h',
     icon: '⚓',
     letters: ['F', 'G', 'J', 'H'],
@@ -525,7 +532,7 @@ function StartScreen({ onStart, onExit }) {
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
             <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700">
-              5 jembatan misi
+              6 jembatan misi
             </p>
             <div className="flex flex-col items-center gap-2">
               {ROUNDS.map((r) => (
