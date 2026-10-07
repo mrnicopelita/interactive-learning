@@ -682,27 +682,43 @@ function DashboardView({ onExit }) {
                           {cat.label} ({quizzesInCat.length})
                         </h3>
                         <div className="space-y-1.5">
-                          {quizzesInCat.map((quiz) => (
-                            <div
-                              key={quiz.id}
-                              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 ${
-                                cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
-                                cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
-                                cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
-                                'bg-amber-100 text-amber-700'
-                              }`}
-                            >
-                              {quiz.title}
-                              <button
-                                type="button"
-                                onClick={() => setEditingQuiz(quiz)}
-                                className="ml-auto flex items-center justify-center w-6 h-6 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
-                                title="Edit"
+                          {quizzesInCat.map((quiz) => {
+                            const locked = locks[quiz.id] ?? true
+                            return (
+                              <div
+                                key={quiz.id}
+                                className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 ${
+                                  cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
+                                  cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
+                                  cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
+                                  'bg-amber-100 text-amber-700'
+                                }`}
                               >
-                                ✏️
-                              </button>
-                            </div>
-                          ))}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleLock(quiz.id)}
+                                  disabled={locksLoading}
+                                  className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-extrabold shadow-sm transition hover:scale-110 ${
+                                    locked
+                                      ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                  }`}
+                                  title={locked ? 'Unlock' : 'Lock'}
+                                >
+                                  {locked ? '🔒' : '🔓'}
+                                </button>
+                                <span className="flex-1 truncate">{quiz.title}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingQuiz(quiz)}
+                                  className="flex items-center justify-center w-6 h-6 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
+                                  title="Edit"
+                                >
+                                  ✏️
+                                </button>
+                              </div>
+                            )
+                          })}
                           {quizzesInCat.length === 0 && (
                             <p className="text-xs text-slate-400 text-center py-2">No games</p>
                           )}
