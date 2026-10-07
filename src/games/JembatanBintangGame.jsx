@@ -57,6 +57,20 @@ const ROUNDS = [
     desc: 'gabungkan semua bintang f g h j!',
     seq: cycle(['G', 'F', 'J', 'H'], SEQ_LEN),
   },
+  {
+    name: 'campuran ekstra',
+    icon: '🪐',
+    letters: ['F', 'G', 'H', 'J'],
+    desc: 'roulette f g h j melintasi galaksi!',
+    seq: cycle(['J', 'H', 'F', 'G'], SEQ_LEN),
+  },
+  {
+    name: 'grand final',
+    icon: '🌠',
+    letters: ['F', 'G', 'H', 'J'],
+    desc: 'jembatan terakhir: semua bintang f g h j!',
+    seq: ['F', 'G', 'H', 'J', 'G', 'H', 'F', 'J', 'H', 'G'],
+  },
 ]
 
 /* ------------------------- audio (Web Audio API) ----------------------- */
@@ -511,7 +525,7 @@ function StartScreen({ onStart, onExit }) {
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
             <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700">
-              3 jembatan misi
+              5 jembatan misi
             </p>
             <div className="flex flex-col items-center gap-2">
               {ROUNDS.map((r) => (
