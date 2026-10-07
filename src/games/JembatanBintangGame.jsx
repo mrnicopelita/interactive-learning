@@ -417,7 +417,7 @@ function cosmicConfetti(originX) {
       ticks: 240,
     })
   cannon({ x: originX, y: 0.5 }, 90)
-  cannon({ x: Math.max(0.15, originX - 0.2), y: 0.6 }, 70)
+  cannon({ x: Math.max(0.15, originX — 0.2), y: 0.6 }, 70)
   cannon({ x: Math.min(0.85, originX + 0.2), y: 0.6 }, 110)
   setTimeout(
     () =>
@@ -467,8 +467,8 @@ function StarTrail({ trail, flight }) {
 function makeTrail(id) {
   return Array.from({ length: 16 }, (_, i) => ({
     id: `${id}-${i}`,
-    ox: (Math.random() - 0.5) * 90,
-    oy: (Math.random() - 0.5) * 70,
+    ox: (Math.random() — 0.5) * 90,
+    oy: (Math.random() — 0.5) * 70,
     size: 5 + Math.random() * 9,
     color: NEON[i % NEON.length],
     delay: i * 22,
@@ -701,8 +701,8 @@ export default function JembatanBintangGame({ onExit }) {
     const to = rocketRef.current?.getBoundingClientRect()
     if (!from || !to) return { dx: 0, dy: 0 }
     return {
-      dx: to.left + to.width / 2 - (from.left + from.width / 2),
-      dy: to.top + to.height / 2 - (from.top + from.height / 2),
+      dx: to.left + to.width / 2 — (from.left + from.width / 2),
+      dy: to.top + to.height / 2 — (from.top + from.height / 2),
     }
   }
 
@@ -711,8 +711,8 @@ export default function JembatanBintangGame({ onExit }) {
     const to = stationRef.current?.getBoundingClientRect()
     if (!from || !to) return { dx: 0, dy: 0 }
     return {
-      dx: to.left + to.width / 2 - (from.left + from.width / 2),
-      dy: to.top + to.height / 2 - (from.top + from.height / 2),
+      dx: to.left + to.width / 2 — (from.left + from.width / 2),
+      dy: to.top + to.height / 2 — (from.top + from.height / 2),
     }
   }
 
