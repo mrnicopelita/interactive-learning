@@ -515,7 +515,7 @@ function StartScreen({ onStart, onExit }) {
             onClick={onStart}
             className="mt-5 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
           >
-            mulai main! 🚀
+            mulai main!
           </button>
           <p className="mt-2 text-xs font-extrabold text-slate-400">
             tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk mulai
