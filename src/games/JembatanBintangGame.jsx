@@ -467,8 +467,8 @@ function StarTrail({ trail, flight }) {
 function makeTrail(id) {
   return Array.from({ length: 16 }, (_, i) => ({
     id: `${id}-${i}`,
-    ox: (Math.random()  0.5) * 90,
-    oy: (Math.random()  0.5) * 70,
+    ox: (Math.random() - 0.5) * 90,
+    oy: (Math.random() - 0.5) * 70,
     size: 5 + Math.random() * 9,
     color: NEON[i % NEON.length],
     delay: i * 22,
