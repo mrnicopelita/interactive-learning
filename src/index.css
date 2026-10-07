@@ -1049,3 +1049,159 @@ html, body {
 .mrb-slot-pop {
   animation: pop-in 0.4s ease-out both;
 }
+
+/* Jembatan Bintang G-H (home row typing) helpers */
+@keyframes jb-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+
+.jb-star-float {
+  animation: jb-float 2.4s ease-in-out infinite;
+}
+
+@keyframes jb-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.45)); }
+  50% { filter: drop-shadow(0 0 30px rgba(250, 204, 21, 0.9)); }
+}
+
+.jb-star-glow {
+  animation: jb-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes jb-wobble {
+  0%, 100% { transform: rotate(0deg); filter: brightness(1); }
+  20% { transform: rotate(-9deg); filter: brightness(0.65); }
+  45% { transform: rotate(7deg); filter: brightness(0.7); }
+  70% { transform: rotate(-4deg); filter: brightness(0.85); }
+}
+
+.jb-wobble {
+  animation: jb-wobble 0.5s ease-in-out;
+}
+
+@keyframes jb-star-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.24) rotate(14deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(0.12) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+.jb-star-fly {
+  animation: jb-star-fly 640ms cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+@keyframes jb-trail-fly {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(1);
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%)
+      translate(calc(var(--dx) + var(--ox)), calc(var(--dy) + var(--oy))) scale(0.1);
+    opacity: 0;
+  }
+}
+
+.jb-trail {
+  position: absolute;
+  border-radius: 9999px;
+  animation: jb-trail-fly 640ms cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+@keyframes jb-bob {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-10px) rotate(1.5deg); }
+}
+
+.jb-bob {
+  animation: jb-bob 3s ease-in-out infinite;
+}
+
+@keyframes jb-flame {
+  0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.9; }
+  50% { transform: scaleY(1.25) scaleX(0.85); opacity: 0.75; }
+}
+
+.jb-flame {
+  animation: jb-flame 0.16s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
+@keyframes jb-zoom {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  100% {
+    transform: translate(var(--zdx), var(--zdy)) scale(0.55) rotate(3deg);
+  }
+}
+
+.jb-zoom {
+  animation: jb-zoom 1150ms cubic-bezier(0.33, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes jb-tile {
+  0% {
+    transform: scale(0.1) rotate(-20deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.25) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes jb-tile-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 211, 238, 0.6), 0 0 22px rgba(34, 211, 238, 0.25); }
+  50% { box-shadow: 0 0 16px rgba(34, 211, 238, 0.95), 0 0 34px rgba(34, 211, 238, 0.4); }
+}
+
+.jb-tile {
+  animation:
+    jb-tile 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both,
+    jb-tile-glow 2.2s ease-in-out infinite;
+}
+
+@keyframes jb-station-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.45)); }
+  50% { filter: drop-shadow(0 0 22px rgba(52, 211, 153, 0.9)); }
+}
+
+.jb-station-pulse {
+  animation: jb-station-glow 2s ease-in-out infinite;
+}
+
+@keyframes jb-key-pulse {
+  0%, 100% { box-shadow: 0 0 8px 1px rgba(255, 255, 255, 0.7), 0 0 16px 2px rgba(250, 204, 21, 0.45); }
+  50% { box-shadow: 0 0 16px 4px rgba(255, 255, 255, 0.95), 0 0 26px 6px rgba(250, 204, 21, 0.7); }
+}
+
+.jb-key-target {
+  animation: jb-key-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes jb-twinkle {
+  0%, 100% { opacity: 0.22; transform: scale(0.65) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.3) rotate(25deg); }
+}
+
+.jb-twinkle {
+  animation: jb-twinkle 2.5s ease-in-out infinite;
+}

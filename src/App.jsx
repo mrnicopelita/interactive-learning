@@ -17,6 +17,7 @@ import CyberQuestGame from './games/CyberQuestGame.jsx'
 import TikQuestGame from './games/TikQuestGame.jsx'
 import TerminalProtocolGame from './games/TerminalProtocolGame.jsx'
 import MisiRoketBintangGame from './games/MisiRoketBintangGame.jsx'
+import JembatanBintangGame from './games/JembatanBintangGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -64,6 +65,7 @@ const GAME_COMPONENTS = {
   'tik-quest': TikQuestGame,
   'terminal-protocol': TerminalProtocolGame,
   'misi-roket-bintang': MisiRoketBintangGame,
+  'jembatan-bintang': JembatanBintangGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
