@@ -288,6 +288,92 @@ function EditModal({ row, onSave, onCancel }) {
   )
 }
 
+function EditQuizModal({ quiz, onSave, onCancel }) {
+  const [draft, setDraft] = useState({ title: quiz.title, category: quiz.category })
+  const [busy, setBusy] = useState(false)
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    if (!draft.title.trim()) return
+    setBusy(true)
+    onSave(quiz.id, draft.title.trim(), draft.category)
+      .catch(() => {})
+      .finally(() => setBusy(false))
+  }
+
+  const fieldClass =
+    'w-full rounded-2xl border-2 border-sky-200 bg-sky-50 px-4 py-2 text-base font-bold text-slate-700 outline-none placeholder:font-semibold placeholder:text-slate-400 focus:border-sky-500'
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="animate-pop-in flex max-h-[90dvh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+      >
+        <h2 className="text-xl font-extrabold text-slate-700 sm:text-2xl">
+          Edit Game/Quiz
+        </h2>
+
+        <label className="flex flex-col gap-1.5 text-left">
+          <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+            Title
+          </span>
+          <input
+            type="text"
+            value={draft.title}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, title: event.target.value }))
+            }
+            className={fieldClass}
+            autoFocus
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5 text-left">
+          <span className="text-xs font-extrabold tracking-wide text-slate-600 uppercase">
+            Category
+          </span>
+          <select
+            value={draft.category}
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, category: event.target.value }))
+            }
+            className={fieldClass}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="mt-2 flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="rounded-full bg-white px-5 py-2.5 text-base font-extrabold text-slate-600 shadow transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={busy}
+            className="rounded-full bg-emerald-500 px-5 py-2.5 text-base font-extrabold text-white shadow transition hover:scale-105 disabled:pointer-events-none disabled:opacity-40"
+          >
+            {busy ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function DashboardView({ onExit }) {
   const [state, setState] = useState({ status: 'loading' })
   const [editingRow, setEditingRow] = useState(null)
@@ -297,7 +383,7 @@ function DashboardView({ onExit }) {
   const [focusedRowId, setFocusedRowId] = useState(null)
   const [categories, setCategories] = useState(null)
   const [categoriesLoading, setCategoriesLoading] = useState(true)
-  const [draggedQuizId, setDraggedQuizId] = useState(null)
+  const [editingQuiz, setEditingQuiz] = useState(null)
   const { locks, loading: locksLoading, error: locksError, toggleLock } = useQuizLocks()
 
   useEffect(() => {
@@ -358,6 +444,17 @@ function DashboardView({ onExit }) {
       { onConflict: 'quiz_id' }
     )
     setNotice({ kind: 'success', text: 'Category updated.' })
+  }
+
+  async function updateQuiz(quizId, newTitle, newCategory) {
+    if (!supabase) return
+    setCategories((prev) => ({ ...prev, [quizId]: newCategory }))
+    await supabase.from('quiz_categories').upsert(
+      { quiz_id: quizId, category_id: newCategory },
+      { onConflict: 'quiz_id' }
+    )
+    setNotice({ kind: 'success', text: `${newTitle} updated.` })
+    setEditingQuiz(null)
   }
 
   async function handleDelete(row) {
@@ -562,48 +659,10 @@ function DashboardView({ onExit }) {
 
             <div className="flex w-full max-w-5xl flex-col gap-2 rounded-3xl bg-white/95 px-5 py-4 shadow-lg sm:px-6">
               <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
-                <span aria-hidden="true">🔐</span> Quiz Access
-              </h2>
-              <p className="text-xs font-semibold text-slate-500 sm:text-sm">
-                Toggle to lock or unlock quizzes for students
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                {GAMES_LIST.map((g) => {
-                  const locked = locks[g.id] ?? true
-                  return (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => toggleLock(g.id)}
-                      disabled={locksLoading}
-                      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-extrabold shadow transition hover:scale-105 sm:px-5 sm:text-base ${
-                        locked
-                          ? 'bg-rose-100 text-rose-700'
-                          : 'bg-emerald-100 text-emerald-700'
-                      }`}
-                    >
-                      <span aria-hidden="true">{locked ? '🔒' : '🔓'}</span>
-                      {g.title}
-                    </button>
-                  )
-                })}
-              </div>
-              {locksError && (
-                <p className="mt-1 rounded-2xl bg-rose-100 px-4 py-2 text-xs font-extrabold text-rose-700 sm:text-sm">
-                  ⚠️ {locksError}
-                </p>
-              )}
-              {locksLoading && (
-                <p className="text-xs font-semibold text-slate-400">Loading quiz settings…</p>
-              )}
-            </div>
-
-            <div className="flex w-full max-w-5xl flex-col gap-2 rounded-3xl bg-white/95 px-5 py-4 shadow-lg sm:px-6">
-              <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
                 <span aria-hidden="true">📁</span> Categories
               </h2>
               <p className="text-xs font-semibold text-slate-500 sm:text-sm">
-                Drag quizzes between categories to reorganize
+                Click pencil icon to rename or move category
               </p>
               {categoriesLoading ? (
                 <p className="text-xs font-semibold text-slate-400">Loading categories…</p>
@@ -617,12 +676,6 @@ function DashboardView({ onExit }) {
                       <div
                         key={cat.id}
                         className={`flex-1 min-w-[14rem] rounded-2xl p-3 ${cat.color}/10 border-2 border-dashed ${cat.color}/30`}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => {
-                          e.preventDefault()
-                          if (draggedQuizId) saveCategory(draggedQuizId, cat.id)
-                          setDraggedQuizId(null)
-                        }}
                       >
                         <h3 className={`font-extrabold text-sm ${cat.color}/80 mb-2 flex items-center gap-2`}>
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color.replace('bg-', '') }} />
@@ -632,22 +685,26 @@ function DashboardView({ onExit }) {
                           {quizzesInCat.map((quiz) => (
                             <div
                               key={quiz.id}
-                              draggable
-                              onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDraggedQuizId(quiz.id) }}
-                              onDragEnd={() => setDraggedQuizId(null)}
-                              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 cursor-grab active:cursor-grabbing ${draggedQuizId === quiz.id ? 'opacity-50' : ''} ${
+                              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 ${
                                 cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
                                 cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
                                 cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
                                 'bg-amber-100 text-amber-700'
                               }`}
                             >
-                              <span aria-hidden="true">⋮⋮</span>
                               {quiz.title}
+                              <button
+                                type="button"
+                                onClick={() => setEditingQuiz(quiz)}
+                                className="ml-auto flex items-center justify-center w-6 h-6 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
+                                title="Edit"
+                              >
+                                ✏️
+                              </button>
                             </div>
                           ))}
                           {quizzesInCat.length === 0 && (
-                            <p className="text-xs text-slate-400 text-center py-2">Drop here</p>
+                            <p className="text-xs text-slate-400 text-center py-2">No games</p>
                           )}
                         </div>
                       </div>
@@ -858,6 +915,13 @@ function DashboardView({ onExit }) {
           row={editingRow}
           onSave={handleEditSave}
           onCancel={() => setEditingRow(null)}
+        />
+      )}
+      {editingQuiz && (
+        <EditQuizModal
+          quiz={editingQuiz}
+          onSave={updateQuiz}
+          onCancel={() => setEditingQuiz(null)}
         />
       )}
     </div>
