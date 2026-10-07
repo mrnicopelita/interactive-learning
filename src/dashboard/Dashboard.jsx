@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { formatTime } from '../exams/examEngine.js'
 import { useQuizLocks } from '../lib/useQuizLocks.js'
-import { QUIZ_REGISTRY, EXAM_NAME_MAP } from '../lib/quizRegistry.js'
+import { QUIZ_REGISTRY, EXAM_NAME_MAP, CATEGORIES, getCategoryById } from '../lib/quizRegistry.js'
 
 const ACCESS_CODE = 'j0gl0'
 
@@ -295,6 +295,9 @@ function DashboardView({ onExit }) {
   const [selectedExam, setSelectedExam] = useState(null)
   const [selectedWeek, setSelectedWeek] = useState(null)
   const [focusedRowId, setFocusedRowId] = useState(null)
+  const [categories, setCategories] = useState(null)
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const [draggedQuizId, setDraggedQuizId] = useState(null)
   const { locks, loading: locksLoading, error: locksError, toggleLock } = useQuizLocks()
 
   useEffect(() => {
@@ -329,6 +332,33 @@ function DashboardView({ onExit }) {
     const timer = setTimeout(() => setNotice(null), 4000)
     return () => clearTimeout(timer)
   }, [notice])
+
+  useEffect(() => {
+    if (!supabase) { setCategoriesLoading(false); return }
+    async function loadCategories() {
+      const { data } = await supabase.from('quiz_categories').select('*')
+      if (data) {
+        const map = {}
+        data.forEach((r) => { map[r.quiz_id] = r.category_id })
+        setCategories(map)
+      } else {
+        setCategories({})
+      }
+      setCategoriesLoading(false)
+    }
+    loadCategories()
+  }, [])
+
+  async function saveCategory(quizId, categoryId) {
+    if (!supabase) return
+    const newCategories = { ...categories, [quizId]: categoryId }
+    setCategories(newCategories)
+    await supabase.from('quiz_categories').upsert(
+      { quiz_id: quizId, category_id: categoryId },
+      { onConflict: 'quiz_id' }
+    )
+    setNotice({ kind: 'success', text: 'Category updated.' })
+  }
 
   async function handleDelete(row) {
     if (!window.confirm(`Delete ${row.student_name}'s submission?`)) return
@@ -565,6 +595,65 @@ function DashboardView({ onExit }) {
               )}
               {locksLoading && (
                 <p className="text-xs font-semibold text-slate-400">Loading quiz settings…</p>
+              )}
+            </div>
+
+            <div className="flex w-full max-w-5xl flex-col gap-2 rounded-3xl bg-white/95 px-5 py-4 shadow-lg sm:px-6">
+              <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
+                <span aria-hidden="true">📁</span> Categories
+              </h2>
+              <p className="text-xs font-semibold text-slate-500 sm:text-sm">
+                Drag quizzes between categories to reorganize
+              </p>
+              {categoriesLoading ? (
+                <p className="text-xs font-semibold text-slate-400">Loading categories…</p>
+              ) : (
+                <div className="flex flex-wrap gap-4">
+                  {CATEGORIES.map((cat) => {
+                    const quizzesInCat = QUIZ_REGISTRY.filter(
+                      (q) => (categories?.[q.id] ?? q.category) === cat.id
+                    )
+                    return (
+                      <div
+                        key={cat.id}
+                        className={`flex-1 min-w-[14rem] rounded-2xl p-3 ${cat.color}/10 border-2 border-dashed ${cat.color}/30`}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          if (draggedQuizId) saveCategory(draggedQuizId, cat.id)
+                          setDraggedQuizId(null)
+                        }}
+                      >
+                        <h3 className={`font-extrabold text-sm ${cat.color}/80 mb-2 flex items-center gap-2`}>
+                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color.replace('bg-', '') }} />
+                          {cat.label} ({quizzesInCat.length})
+                        </h3>
+                        <div className="space-y-1.5">
+                          {quizzesInCat.map((quiz) => (
+                            <div
+                              key={quiz.id}
+                              draggable
+                              onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDraggedQuizId(quiz.id) }}
+                              onDragEnd={() => setDraggedQuizId(null)}
+                              className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 cursor-grab active:cursor-grabbing ${draggedQuizId === quiz.id ? 'opacity-50' : ''} ${
+                                cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
+                                cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
+                                cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
+                                'bg-amber-100 text-amber-700'
+                              }`}
+                            >
+                              <span aria-hidden="true">⋮⋮</span>
+                              {quiz.title}
+                            </div>
+                          ))}
+                          {quizzesInCat.length === 0 && (
+                            <p className="text-xs text-slate-400 text-center py-2">Drop here</p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               )}
             </div>
 
