@@ -602,7 +602,7 @@ function RoundIntro({ round, onNext, onExit }) {
               <span className="text-lg font-extrabold sm:text-xl">untuk lanjut</span>
             </div>
             <p className="mt-2 text-xs font-extrabold text-slate-400">
-              hari ini bukan main mouse  tekan tombol enter ya!
+              hari ini bukan main mouse — tekan tombol enter ya!
             </p>
           </div>
         </div>
