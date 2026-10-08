@@ -26,6 +26,7 @@ export const QUIZ_REGISTRY = [
   { id: 'misi-roket-bintang', title: 'Misi Roket Bintang', tagline: 'Tekan F J D K S L A untuk mengumpulkan bintang dan melepas roketnya!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'primary' },
   { id: 'jembatan-bintang', title: 'P12 Jembatan G-H', tagline: 'Bangun jembatan bintang F G H J menuju stasiun luar angkasa!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'preschool' },
   { id: 'pengisi-bahan-bakar', title: 'P13 Pengisi Bahan Bakar', tagline: 'Ketuk F G H J dua kali untuk mengisi tangki dan meluncurkan roket!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'preschool' },
+  { id: 'perisai-meteor', title: 'P14 Perisai Meteor Antariksa', tagline: 'Tekan F G H J untuk menembak meteor dan lindungi roket!', images: ['/images/rocket.svg', '/images/keyboard.svg'], category: 'preschool' },
   { id: 'exam', title: 'Quiz Grade 1', tagline: 'Answer questions and test what you know!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional', category: 'quizzes' },
   { id: 'exam-2', title: 'Quiz Grade 2', tagline: 'Fun questions for grade 2 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-2', category: 'quizzes' },
   { id: 'exam-3', title: 'Quiz Grade 3', tagline: 'Fun questions for grade 3 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-3', category: 'quizzes' },
