@@ -698,7 +698,7 @@ function DashboardView({ onExit }) {
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
                                   disabled={locksLoading}
-                                  className={`flex items-center justify-center w-4 h-4 rounded-full text-[8px] font-extrabold shadow-sm transition hover:scale-110 ${
+                                  className={`flex items-center justify-center w-3 h-3 rounded-full text-[6px] font-extrabold shadow-sm transition hover:scale-110 ${
                                     locked
                                       ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                                       : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
@@ -708,10 +708,11 @@ function DashboardView({ onExit }) {
                                   {locked ? '🔒' : '🔓'}
                                 </button>
                                 <span className="flex-1 truncate">{quiz.title}</span>
+                                <span className={`w-1 h-1 rounded-full ${cat.id === 'quizzes' ? 'bg-sky-500' : cat.id === 'preschool' ? 'bg-pink-500' : cat.id === 'primary' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                                 <button
                                   type="button"
                                   onClick={() => setEditingQuiz(quiz)}
-                                  className="flex items-center justify-center w-5 h-5 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
+                                  className="flex items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
                                   title="Edit"
                                 >
                                   ✏️
