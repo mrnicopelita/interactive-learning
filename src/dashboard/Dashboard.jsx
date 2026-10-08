@@ -664,7 +664,12 @@ function DashboardView({ onExit }) {
                 <span aria-hidden="true">📁</span> Categories
               </h2>
               <p className="text-xs font-semibold text-slate-500 sm:text-sm">
-                Click lock to toggle, pencil to rename/move category
+                Drag ⋮⋮ to move across categories. On touch: tap ⋮⋮ to select, then tap a category to drop.
+                {draggedQuizId && (
+                  <span className="ml-1 text-sky-700">
+                    Moving: {QUIZ_REGISTRY.find((q) => q.id === draggedQuizId)?.title} — tap a category to drop, or tap ⋮⋮ again to cancel.
+                  </span>
+                )}
               </p>
               {categoriesLoading ? (
                 <p className="text-xs font-semibold text-slate-400">Loading categories…</p>
@@ -674,28 +679,80 @@ function DashboardView({ onExit }) {
                     const quizzesInCat = QUIZ_REGISTRY.filter(
                       (q) => (categories?.[q.id] ?? q.category) === cat.id
                     )
+                    const isOver = dragOverCat === cat.id
                     return (
                       <div
                         key={cat.id}
-                        className={`flex-1 min-w-[12rem] rounded-xl p-2 ${cat.color}/10 border-2 border-dashed ${cat.color}/30`}
+                        onDragOver={(e) => {
+                          e.preventDefault()
+                          e.dataTransfer.dropEffect = 'move'
+                          if (dragOverCat !== cat.id) setDragOverCat(cat.id)
+                        }}
+                        onDragLeave={() => {
+                          if (dragOverCat === cat.id) setDragOverCat(null)
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          const id = e.dataTransfer.getData('text/plain') || draggedQuizId
+                          if (id) saveCategory(id, cat.id)
+                          setDraggedQuizId(null)
+                          setDragOverCat(null)
+                        }}
+                        onClick={() => {
+                          if (draggedQuizId) {
+                            saveCategory(draggedQuizId, cat.id)
+                            setDraggedQuizId(null)
+                            setDragOverCat(null)
+                          }
+                        }}
+                        className={`flex-1 min-w-[12rem] rounded-xl border-2 border-dashed p-2 transition ${
+                          isOver
+                            ? 'border-sky-500 bg-sky-50 shadow-lg'
+                            : `${cat.color}/30 ${cat.color}/10`
+                        } ${draggedQuizId ? 'cursor-pointer hover:border-sky-500' : ''}`}
                       >
                         <h3 className={`font-bold text-[11px] ${cat.color}/80 mb-1.5 flex items-center gap-1.5`}>
                           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color.replace('bg-', '') }} />
                           {cat.label} ({quizzesInCat.length})
+                          {draggedQuizId && <span className="font-semibold text-sky-600">— drop here</span>}
                         </h3>
                         <div className="space-y-1">
                           {quizzesInCat.map((quiz) => {
                             const locked = locks[quiz.id] ?? true
+                            const isDragging = draggedQuizId === quiz.id
                             return (
                               <div
                                 key={quiz.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.effectAllowed = 'move'
+                                  e.dataTransfer.setData('text/plain', quiz.id)
+                                  setDraggedQuizId(quiz.id)
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedQuizId(null)
+                                  setDragOverCat(null)
+                                }}
                                 className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm transition hover:scale-102 ${
+                                  isDragging ? 'opacity-50 ring-2 ring-sky-400' : ''
+                                } ${
                                   cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
                                   cat.id === 'preschool' ? 'bg-pink-100 text-pink-700' :
                                   cat.id === 'primary' ? 'bg-emerald-100 text-emerald-700' :
                                   'bg-amber-100 text-amber-700'
                                 }`}
                               >
+                                <span
+                                  title="Drag to move (or tap to select, then tap a category)"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setDraggedQuizId(isDragging ? null : quiz.id)
+                                  }}
+                                  className="cursor-grab select-none text-slate-400 active:cursor-grabbing"
+                                  aria-hidden="true"
+                                >
+                                  ⋮⋮
+                                </span>
                                 <button
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
@@ -738,122 +795,6 @@ function DashboardView({ onExit }) {
               )}
               {locksLoading && (
                 <p className="text-xs font-semibold text-slate-400">Loading quiz settings…</p>
-              )}
-            </div>
-
-            <div className="flex w-full max-w-5xl flex-col gap-2 rounded-3xl bg-white/95 px-5 py-4 shadow-lg sm:px-6">
-              <h2 className="text-lg font-extrabold text-slate-700 sm:text-xl">
-                <span aria-hidden="true">🧩</span> Arrange Games — Drag &amp; Drop
-              </h2>
-              <p className="text-xs font-semibold text-slate-500 sm:text-sm">
-                Drag any game into a category. Tip: on touch screen, tap a game to select it, then tap a category to drop it.
-                {draggedQuizId && (
-                  <span className="ml-1 text-sky-700">
-                    Moving: {QUIZ_REGISTRY.find((q) => q.id === draggedQuizId)?.title} — tap a category below, or tap the game again to cancel.
-                  </span>
-                )}
-              </p>
-              {categoriesLoading ? (
-                <p className="text-xs font-semibold text-slate-400">Loading categories…</p>
-              ) : (
-                <>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">
-                      All games ({QUIZ_REGISTRY.length}):
-                    </span>
-                    <div className="flex w-full flex-wrap gap-1.5">
-                      {QUIZ_REGISTRY.map((quiz) => {
-                        const catId = categories?.[quiz.id] ?? quiz.category
-                        const cat = getCategoryById(catId)
-                        const isDragging = draggedQuizId === quiz.id
-                        return (
-                          <div
-                            key={`all-${quiz.id}`}
-                            draggable
-                            onDragStart={(e) => {
-                              e.dataTransfer.effectAllowed = 'move'
-                              e.dataTransfer.setData('text/plain', quiz.id)
-                              setDraggedQuizId(quiz.id)
-                            }}
-                            onDragEnd={() => {
-                              setDraggedQuizId(null)
-                              setDragOverCat(null)
-                            }}
-                            onClick={() => setDraggedQuizId(isDragging ? null : quiz.id)}
-                            title={`${quiz.title} → ${cat?.label || catId} (tap to select, then tap a category)`}
-                            className={`cursor-grab select-none rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm transition active:cursor-grabbing ${
-                              isDragging
-                                ? 'bg-slate-700 text-white ring-2 ring-sky-400'
-                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                            }`}
-                          >
-                            ⋮⋮ {quiz.title}
-                            <span className={`ml-1.5 inline-block h-1.5 w-1.5 rounded-full ${cat?.color || 'bg-slate-400'}`} />
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-4 pt-1">
-                    {CATEGORIES.map((cat) => {
-                      const quizzesInCat = QUIZ_REGISTRY.filter(
-                        (q) => (categories?.[q.id] ?? q.category) === cat.id,
-                      )
-                      const isOver = dragOverCat === cat.id
-                      return (
-                        <div
-                          key={`drop-${cat.id}`}
-                          onDragOver={(e) => {
-                            e.preventDefault()
-                            e.dataTransfer.dropEffect = 'move'
-                            if (dragOverCat !== cat.id) setDragOverCat(cat.id)
-                          }}
-                          onDragLeave={() => {
-                            if (dragOverCat === cat.id) setDragOverCat(null)
-                          }}
-                          onDrop={(e) => {
-                            e.preventDefault()
-                            const id = e.dataTransfer.getData('text/plain') || draggedQuizId
-                            if (id) saveCategory(id, cat.id)
-                            setDraggedQuizId(null)
-                            setDragOverCat(null)
-                          }}
-                          onClick={() => {
-                            if (draggedQuizId) {
-                              saveCategory(draggedQuizId, cat.id)
-                              setDraggedQuizId(null)
-                              setDragOverCat(null)
-                            }
-                          }}
-                          className={`min-w-[12rem] flex-1 rounded-xl border-2 p-2 transition ${
-                            isOver
-                              ? 'border-sky-500 bg-sky-50 shadow-lg'
-                              : `${cat.color}/30 bg-white`
-                          } border-dashed ${draggedQuizId ? 'cursor-pointer hover:border-sky-500 hover:bg-sky-50' : ''}`}
-                        >
-                          <h3 className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold">
-                            <span className={`inline-block h-2.5 w-2.5 rounded-full ${cat.color}`} />
-                            {cat.label} ({quizzesInCat.length})
-                            {draggedQuizId && <span className="font-semibold text-sky-600">— drop here</span>}
-                          </h3>
-                          <div className="space-y-1">
-                            {quizzesInCat.map((quiz) => (
-                              <div
-                                key={`in-${cat.id}-${quiz.id}`}
-                                className="truncate rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600"
-                              >
-                                {quiz.title}
-                              </div>
-                            ))}
-                            {quizzesInCat.length === 0 && (
-                              <p className="py-1.5 text-center text-[10px] text-slate-400">Drop here</p>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
               )}
             </div>
 
