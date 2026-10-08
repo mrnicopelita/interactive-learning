@@ -521,7 +521,7 @@ function StartScreen({ onStart, onExit }) {
         <div className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <div className="mx-auto mb-1 text-5xl sm:text-6xl" aria-hidden="true">🌉</div>
           <h1 className="text-[clamp(1.6rem,5.5vw,2.6rem)] font-extrabold leading-none text-slate-700">
-            p12 <span className="text-cyan-600">misi roket</span>
+            p12 <span className="text-cyan-600">jembatan g-h</span>
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
             bangun jembatan {SEQ_LEN} bintang untuk menyeberangi jurang galaksi!
