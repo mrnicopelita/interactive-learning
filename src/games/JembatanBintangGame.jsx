@@ -39,44 +39,44 @@ const ROUNDS = [
   {
     name: 'jembatan g & h',
     icon: '🌉',
-    letters: ['G', 'H'],
+    letters: ['g', 'h'],
     desc: 'g dan h — jari telunjuk kiri dan kanan!',
-    seq: alternate('G', 'H', SEQ_LEN),
+    seq: alternate('g', 'h', SEQ_LEN),
   },
   {
     name: 'g & h dua-dua',
     icon: '🌟',
-    letters: ['G', 'H'],
+    letters: ['g', 'h'],
     desc: 'kadang g dua kali, kadang h dua kali!',
-    seq: ['G', 'H', 'H', 'G', 'G', 'H', 'G', 'H', 'H', 'G'],
+    seq: ['g', 'h', 'h', 'g', 'g', 'h', 'g', 'h', 'h', 'g'],
   },
   {
     name: 'jangkar + g & h',
     icon: '⚓',
-    letters: ['F', 'G', 'J', 'H'],
+    letters: ['f', 'g', 'j', 'h'],
     desc: 'jari jangkar f dan j bertemu g dan h!',
-    seq: cycle(['F', 'G', 'J', 'H'], SEQ_LEN),
+    seq: cycle(['f', 'g', 'j', 'h'], SEQ_LEN),
   },
   {
     name: 'f g h j lengkap',
     icon: '🌌',
-    letters: ['F', 'G', 'H', 'J'],
+    letters: ['f', 'g', 'h', 'j'],
     desc: 'gabungkan semua bintang f g h j!',
-    seq: cycle(['G', 'F', 'J', 'H'], SEQ_LEN),
+    seq: cycle(['g', 'f', 'j', 'h'], SEQ_LEN),
   },
   {
     name: 'campuran ekstra',
     icon: '🪐',
-    letters: ['F', 'G', 'H', 'J'],
+    letters: ['f', 'g', 'h', 'j'],
     desc: 'roulette f g h j melintasi galaksi!',
-    seq: cycle(['J', 'H', 'F', 'G'], SEQ_LEN),
+    seq: cycle(['j', 'h', 'f', 'g'], SEQ_LEN),
   },
   {
     name: 'grand final',
     icon: '🌠',
-    letters: ['F', 'G', 'H', 'J'],
+    letters: ['f', 'g', 'h', 'j'],
     desc: 'jembatan terakhir: semua bintang f g h j!',
-    seq: ['F', 'G', 'H', 'J', 'G', 'H', 'F', 'J', 'H', 'G'],
+    seq: ['f', 'g', 'h', 'j', 'g', 'h', 'f', 'j', 'h', 'g'],
   },
 ]
 
@@ -326,10 +326,10 @@ function StationArt() {
 const KEY_UNIT = 'min(7vw, 6.2vh, 3.4rem)'
 
 const HOME_ROW = [
-  { l: 'F', color: CYAN },
-  { l: 'G', color: GREEN },
-  { l: 'H', color: GOLD },
-  { l: 'J', color: CYAN },
+  { l: 'f', color: CYAN },
+  { l: 'g', color: GREEN },
+  { l: 'h', color: GOLD },
+  { l: 'j', color: CYAN },
 ]
 
 function HomeRowGuide({ target, active }) {
@@ -345,7 +345,7 @@ function HomeRowGuide({ target, active }) {
           const isTarget = !!(target && key.l === target)
           return (
             <Fragment key={key.l}>
-              {key.l === 'H' && <div aria-hidden="true" className="w-[min(6vw,3rem)] shrink-0" />}
+              {key.l === 'h' && <div aria-hidden="true" className="w-[min(6vw,3rem)] shrink-0" />}
               <div
                 className={`flex h-[var(--u)] w-[var(--u)] shrink-0 items-center justify-center rounded-lg border-2 font-extrabold transition-all duration-150 ${
                   isTarget ? 'jb-key-target' : ''
@@ -521,7 +521,7 @@ function StartScreen({ onStart, onExit }) {
         <div className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <div className="mx-auto mb-1 text-5xl sm:text-6xl" aria-hidden="true">🌉</div>
           <h1 className="text-[clamp(1.6rem,5.5vw,2.6rem)] font-extrabold leading-none text-slate-700">
-            Jembatan Bintang <span className="text-cyan-600">G-H</span>
+            jembatan bintang <span className="text-cyan-600">g-h</span>
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
             bangun jembatan {SEQ_LEN} bintang untuk menyeberangi jurang galaksi!
@@ -541,7 +541,7 @@ function StartScreen({ onStart, onExit }) {
                   className="flex items-center justify-center gap-1 rounded-xl border-2 border-cyan-200 bg-white px-3 py-1.5 text-base font-black text-slate-800 sm:text-lg"
                 >
                   {r.letters.map((l) => (
-                    <span key={l} style={{ color: l === 'G' ? GREEN : l === 'H' ? GOLD : '#334155' }}>
+                    <span key={l} style={{ color: l === 'g' ? GREEN : l === 'h' ? GOLD : '#334155' }}>
                       {l}
                     </span>
                   ))}
@@ -583,8 +583,8 @@ function RoundIntro({ round, onNext, onExit }) {
                 key={l}
                 className="flex h-12 w-12 items-center justify-center rounded-xl border-2 bg-indigo-50 text-2xl font-black shadow sm:h-14 sm:w-14 sm:text-3xl"
                 style={{
-                  color: l === 'G' ? GREEN : l === 'H' ? GOLD : CYAN,
-                  borderColor: l === 'G' ? GREEN : l === 'H' ? GOLD : CYAN,
+                  color: l === 'g' ? GREEN : l === 'h' ? GOLD : CYAN,
+                  borderColor: l === 'g' ? GREEN : l === 'h' ? GOLD : CYAN,
                 }}
               >
                 {l}
@@ -747,7 +747,7 @@ export default function JembatanBintangGame({ onExit }) {
       const s = stateRef.current
       if (s.feedback || s.flying || s.zooming) return
 
-      if (e.key.toUpperCase() === s.target) {
+      if (e.key.toLowerCase() === s.target) {
         setFeedback('correct')
         setFlight(measureFlight())
         setTrail(makeTrail(trailId.current++))
