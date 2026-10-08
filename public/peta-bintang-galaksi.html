@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Peta Bintang Galaksi — Oktober Space Mission</title>
+<style>
+:root{ --cyan:#22d3ee; --cyan2:#67e8f9; --gold:#facc15; --gold2:#fde047; }
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; margin:0; overflow:hidden; background:#04050f; }
+body{
+  font-family:'Comic Sans MS','Comic Sans','Chalkboard SE',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color:#fff; user-select:none; -webkit-user-select:none;
+}
+#game{ position:relative; display:flex; flex-direction:column; height:100vh; height:100dvh; width:100%; }
+canvas#cv{ flex:1 1 auto; min-height:0; width:100%; display:block; }
+
+#hud{
+  position:absolute; top:0; left:0; right:0; z-index:5;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+  padding:8px 12px; pointer-events:none;
+}
+#hud .brand{ line-height:1.15; }
+#hud h1{
+  margin:0; font-size:clamp(13px,3vw,21px); letter-spacing:.05em; color:#e9f6ff;
+  text-shadow:0 0 14px rgba(34,211,238,.65);
+}
+#hud .sub{ font-size:clamp(9px,2.2vw,12px); font-weight:800; color:#facc15; letter-spacing:.08em; }
+#prog{
+  background:rgba(9,13,34,.7); border:2px solid rgba(250,204,21,.55);
+  border-radius:999px; padding:5px 14px; font-weight:900; color:#fde047;
+  font-size:clamp(13px,3vw,18px); white-space:nowrap;
+  box-shadow:0 0 18px rgba(250,204,21,.25);
+}
+
+#tip{
+  flex:0 0 auto; min-height:30px; text-align:center; padding:2px 10px 4px;
+  font-size:clamp(14px,3.4vw,21px); font-weight:800; color:#c7d2fe;
+  text-shadow:0 2px 10px rgba(0,0,0,.6);
+}
+#tip b{ font-size:1.3em; text-shadow:0 0 14px currentColor; }
+#tip.good{ color:#6ee7b7; }
+#tip.try{ color:#fcd34d; }
+
+#keys{
+  flex:0 0 auto; display:flex; justify-content:center; align-items:flex-start;
+  gap:clamp(18px,7vw,72px); padding:4px 12px 14px;
+}
+.hand{ display:flex; flex-direction:column; align-items:center; gap:5px; }
+.keys-row{ display:flex; gap:8px; }
+.key{
+  width:clamp(54px,13vw,86px); height:clamp(54px,13vw,86px);
+  display:flex; align-items:center; justify-content:center;
+  border-radius:18px; border:4px solid; background:rgba(255,255,255,.06);
+  font-family:inherit; font-size:clamp(26px,6.5vw,44px); font-weight:900;
+  color:#fff; cursor:pointer; touch-action:manipulation; padding:0;
+  transition:transform .12s ease;
+}
+.key.cyan{ border-color:var(--cyan); color:#a5f3fc; box-shadow:0 0 18px rgba(34,211,238,.35), inset 0 0 16px rgba(34,211,238,.16); }
+.key.gold{ border-color:var(--gold); color:#fef08a; box-shadow:0 0 18px rgba(250,204,21,.32), inset 0 0 16px rgba(250,204,21,.14); }
+.key.on{ animation:keyPulse .72s ease-in-out infinite; }
+.key.hit{ animation:keyHit .28s ease; }
+.hand-lbl{ font-size:clamp(9px,2.5vw,13px); font-weight:900; letter-spacing:.04em; }
+.hand-lbl.cyan{ color:#67e8f9; }
+.hand-lbl.gold{ color:#fde047; }
+
+@keyframes keyPulse{
+  0%,100%{ transform:scale(1.04); filter:brightness(1); }
+  50%{ transform:scale(1.16); filter:brightness(1.35); }
+}
+@keyframes keyHit{
+  0%{ transform:scale(1); }
+  40%{ transform:scale(.86); filter:brightness(1.8); }
+  100%{ transform:scale(1); }
+}
+.overlay{
+  position:fixed; inset:0; z-index:30; display:flex; align-items:center; justify-content:center;
+  padding:14px; background:radial-gradient(circle at 50% 35%, rgba(12,18,50,.86), rgba(3,5,15,.96));
+}
+.overlay.hidden{ display:none; }
+.card{
+  position:relative; width:min(94vw,540px); max-height:96dvh; overflow:auto; text-align:center;
+  background:rgba(255,255,255,.97); color:#1e293b;
+  border-radius:28px; padding:clamp(16px,4vw,30px);
+  box-shadow:0 30px 70px rgba(0,0,0,.6);
+}
+.card.dark{
+  background:linear-gradient(180deg,#0b1030,#151b4b 60%,#0b1030);
+  color:#e2e8f0; border:2px solid rgba(250,204,21,.4);
+}
+.emoji{ font-size:clamp(44px,12vw,70px); line-height:1; }
+.card h1{
+  margin:8px 0 2px; font-size:clamp(21px,6vw,34px); letter-spacing:.03em;
+  color:#0f172a; text-shadow:0 2px 0 #bae6fd;
+}
+.card h2{
+  margin:6px 0 4px; font-size:clamp(20px,5.6vw,32px); letter-spacing:.04em;
+}
+.mission{ margin:2px 0 8px; font-size:clamp(11px,2.9vw,14px); font-weight:900; color:#0284c7; letter-spacing:.05em; }
+.lead{ margin:6px 0; font-size:clamp(13px,3.3vw,16px); font-weight:700; line-height:1.45; }
+.lead b{ color:#b45309; }
+.card.dark .lead b{ color:#fde047; }
+.mini-keys{ display:flex; justify-content:center; gap:8px; margin:12px 0 4px; }
+.mk{
+  display:flex; align-items:center; justify-content:center;
+  width:clamp(44px,11vw,58px); height:clamp(44px,11vw,58px);
+  border:3px solid; border-radius:14px; font-size:clamp(20px,5vw,28px); font-weight:900;
+}
+.mk.cyan{ border-color:var(--cyan); color:#0e7490; background:rgba(34,211,238,.14); }
+.mk.gold{ border-color:var(--gold); color:#a16207; background:rgba(250,204,21,.16); }
+.hint{ margin:4px 0 2px; font-size:clamp(11px,2.8vw,13px); font-weight:800; color:#64748b; }
+.tiny{ margin:10px 0 0; font-size:clamp(10px,2.6vw,12px); font-weight:800; color:#94a3b8; }
+.kbd{ background:#e2e8f0; color:#334155; border-radius:6px; padding:1px 7px; font-weight:900; }
+.stars{ font-size:clamp(18px,5vw,26px); letter-spacing:.14em; margin:6px 0 2px; }
+
+.big-btn{
+  margin-top:14px; border:0; border-radius:999px; cursor:pointer;
+  padding:13px 34px; font-family:inherit; font-size:clamp(20px,5.2vw,28px); font-weight:900;
+  letter-spacing:.03em; transition:transform .1s ease, box-shadow .1s ease;
+}
+.big-btn.rose{
+  background:linear-gradient(180deg,#fb7185,#e11d48); color:#fff;
+  box-shadow:0 7px 0 #9f1239, 0 16px 30px rgba(0,0,0,.35);
+}
+.big-btn.gold{
+  background:linear-gradient(180deg,#fde047,#f59e0b); color:#5b3206;
+  box-shadow:0 7px 0 #b45309, 0 16px 30px rgba(0,0,0,.4);
+}
+.big-btn:active{ transform:translateY(5px); box-shadow:0 2px 0 #9f1239, 0 8px 18px rgba(0,0,0,.3); }
+
+.badge-glow{
+  position:absolute; left:50%; top:38%; width:74%; aspect-ratio:1;
+  transform:translate(-50%,-50%); border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle, rgba(250,204,21,.55), rgba(250,204,21,0) 66%);
+  animation:glowPulse 1.7s ease-in-out infinite;
+}
+.badge-wrap{ position:relative; display:block; width:min(56vw,230px); margin:0 auto; z-index:1; }
+.badge{
+  display:block; width:100%; height:auto;
+  filter:drop-shadow(0 0 22px rgba(250,204,21,.55));
+  animation:badgeZoom 1.05s cubic-bezier(.2,1.35,.4,1) both;
+}
+.goldtext{
+  background:linear-gradient(180deg,#fffbe6 5%,#facc15 48%,#f59e0b 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.55));
+}
+@keyframes badgeZoom{
+  0%{ transform:scale(.05) rotate(-35deg); opacity:0; }
+  55%{ transform:scale(1.16) rotate(7deg); opacity:1; }
+  76%{ transform:scale(.95) rotate(-4deg); }
+  100%{ transform:scale(1) rotate(0); }
+}
+@keyframes glowPulse{
+  0%,100%{ opacity:.55; transform:translate(-50%,-50%) scale(1); }
+  50%{ opacity:1; transform:translate(-50%,-50%) scale(1.12); }
+}
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+.d1{ animation:fadeUp .5s ease .5s both; }
+.d2{ animation:fadeUp .5s ease .8s both; }
+.d3{ animation:fadeUp .5s ease 1.05s both; }
+
+#fx{ position:fixed; inset:0; z-index:40; pointer-events:none; }
+@media (max-height:460px){
+  .card{ padding:12px 16px; }
+  .badge-wrap{ width:min(30vh,150px); }
+  .lead{ margin:4px 0; }
+}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="cv"></canvas>
+
+  <div id="hud">
+    <div class="brand">
+      <h1>PETA BINTANG GALAKSI</h1>
+      <div class="sub">OKTOBER SPACE MISSION · GRAND FINALE</div>
+    </div>
+    <div id="prog">⭐ 0 / 15</div>
+  </div>
+
+  <div id="tip" aria-live="polite"></div>
+
+  <div id="keys">
+    <div class="hand">
+      <div class="keys-row">
+        <button class="key cyan" data-k="F" type="button">F</button>
+        <button class="key cyan" data-k="G" type="button">G</button>
+      </div>
+      <span class="hand-lbl cyan">telunjuk kiri 🖐️</span>
+    </div>
+    <div class="hand">
+      <div class="keys-row">
+        <button class="key gold" data-k="H" type="button">H</button>
+        <button class="key gold" data-k="J" type="button">J</button>
+      </div>
+      <span class="hand-lbl gold">telunjuk kanan ✋</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+
+<div id="start" class="overlay">
+  <div class="card">
+    <div class="emoji">🚀</div>
+    <h1>PETA BINTANG GALAKSI</h1>
+    <p class="mission">Misi Ruar Angkasa Oktober · <b>Grand Finale</b></p>
+    <p class="lead">Bantu astronot cilik menyambung <b>15 bintang</b> menjadi konstelasi roket, dan menangkan <b>LENCANA ASTRONAUT CILIK EMAS!</b></p>
+    <div class="mini-keys">
+      <span class="mk cyan">F</span><span class="mk cyan">G</span>
+      <span class="mk gold">H</span><span class="mk gold">J</span>
+    </div>
+    <p class="hint">gunakan 4 tombol ajaib: F · G · H · J</p>
+    <button id="btnStart" class="big-btn rose" type="button">MULAI MISI</button>
+    <p class="tiny">tekan <span class="kbd">ENTER</span> untuk mulai</p>
+  </div>
+</div>
+
+<div id="win" class="overlay hidden">
+  <div class="card dark">
+    <div class="badge-glow"></div>
+    <div class="badge-wrap">
+      <svg class="badge" viewBox="0 0 240 262" role="img" aria-label="Lencana Astronaut Cilik Emas">
+  <defs>
+    <radialGradient id="medal" cx="34%" cy="26%" r="80%">
+      <stop offset="0%" stop-color="#fff8d6"/><stop offset="42%" stop-color="#ffd83b"/><stop offset="100%" stop-color="#d98a00"/>
+    </radialGradient>
+    <linearGradient id="rib" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <radialGradient id="space" cx="50%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#24306e"/><stop offset="100%" stop-color="#070a1c"/>
+    </radialGradient>
+    <linearGradient id="helm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#c3cedd"/>
+    </linearGradient>
+  </defs>
+  <path d="M82 150 L62 248 L102 226 L120 252 L138 226 L178 248 L158 150 Z" fill="url(#rib)" stroke="#881337" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="120" cy="112" r="86" fill="url(#medal)" stroke="#b45309" stroke-width="6"/>
+  <circle cx="120" cy="112" r="72" fill="url(#space)" stroke="#fde047" stroke-width="4"/>
+  <g fill="#ffffff">
+    <circle cx="74" cy="76" r="2.6"/><circle cx="167" cy="70" r="2.2"/><circle cx="70" cy="142" r="2"/>
+    <circle cx="170" cy="146" r="2.6"/><circle cx="120" cy="52" r="2.4"/><circle cx="92" cy="160" r="1.8"/>
+  </g>
+  <path d="M64 60 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 z" fill="#fde047"/>
+  <path d="M176 104 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5 6 -2.5 z" fill="#67e8f9"/>
+  <g>
+    <line x1="120" y1="58" x2="120" y2="46" stroke="#94a3b8" stroke-width="5"/>
+    <circle cx="120" cy="41" r="7" fill="#f43f5e" stroke="#9f1239" stroke-width="3"/>
+    <path d="M120 62c-26 0-46 20-46 46v12c0 26 20 46 46 46s46-20 46-46v-12c0-26-20-46-46-46z" fill="url(#helm)" stroke="#94a3b8" stroke-width="5"/>
+    <rect x="93" y="82" width="54" height="44" rx="21" fill="#0b1026" stroke="#334155" stroke-width="3"/>
+    <ellipse cx="106" cy="94" rx="8.5" ry="5.5" fill="#67e8f9" opacity=".9" transform="rotate(-28 106 94)"/>
+    <circle cx="138" cy="113" r="2.4" fill="#fde047"/>
+  </g>
+  <rect x="14" y="176" width="212" height="66" rx="20" fill="#fde047" stroke="#b45309" stroke-width="5"/>
+  <text x="120" y="203" text-anchor="middle" font-size="21" font-weight="900" fill="#7c2d12" font-family="'Comic Sans MS',sans-serif">ASTRONAUT CILIK</text>
+  <text x="120" y="232" text-anchor="middle" font-size="24" font-weight="900" fill="#b45309" font-family="'Comic Sans MS',sans-serif">EMAS</text>
+</svg>
+    </div>
+    <h2 class="goldtext d1">ASTRONAUT CILIK EMAS</h2>
+    <p class="lead d1">Konstelasi roket menyala sempurna — 15 bintang tersambung!</p>
+    <div class="stars d2">⭐ ⭐ ⭐ ⭐ ⭐</div>
+    <button id="btnAgain" class="big-btn gold d3" type="button">MAIN LAGI</button>
+    <p class="tiny d3">tekan <span class="kbd">ENTER</span> untuk main lagi</p>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ============================ data ============================ */
+var LETTERS = ['F', 'G', 'H', 'J'];
+var LC = { F: '#22d3ee', G: '#67e8f9', H: '#facc15', J: '#fde047' };
+var RGB = { F: '34,211,238', G: '103,232,249', H: '250,204,21', J: '253,224,71' };
+var TOTAL = 15;
+var COMIC = "'Comic Sans MS','Comic Sans','Chalkboard SE',system-ui,sans-serif";
+
+/* rocket outline waypoints, unit box 0..100 (y down) — traced by the laser */
+var NODES = [
+  [50, 6], [40, 20], [40, 40], [40, 60], [40, 76],
+  [15, 91], [42, 87], [50, 96], [58, 87], [85, 91],
+  [60, 76], [60, 60], [60, 40], [60, 20], [50, 44]
+];
+
+/* ============================ sequence ============================ */
+function makeSequence() {
+  var seq = [], i, k, pool;
+  for (i = 0; i < TOTAL; i++) {
+    pool = LETTERS.filter(function (l) { return l !== seq[i - 1]; });
+    seq.push(pool[(Math.random() * pool.length) | 0]);
+  }
+  /* make sure all four fingers get a turn */
+  LETTERS.forEach(function (l) {
+    if (seq.indexOf(l) >= 0) return;
+    for (k = 0; k < seq.length; k++) {
+      if (seq[k] === l) continue;
+      if (k > 0 && seq[k - 1] === l) continue;
+      if (k < seq.length - 1 && seq[k + 1] === l) continue;
+      if (seq.filter(function (x) { return x === seq[k]; }).length < 2) continue;
+      seq[k] = l;
+      return;
+    }
+  });
+  return seq;
+}
+
+/* ============================ audio ============================ */
+var AC = null;
+function ac() {
+  if (!AC) {
+    var Ctor = window.AudioContext || window.webkitAudioContext;
+    if (!Ctor) return null;
+    AC = new Ctor();
+  }
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(freq, opt) {
+  var c = ac(); if (!c) return;
+  opt = opt || {};
+  var dur = opt.dur || 0.3, vol = opt.vol == null ? 0.12 : opt.vol;
+  var type = opt.type || 'triangle', when = opt.when || 0, glide = opt.glide || 0;
+  var t = c.currentTime + when;
+  var o = c.createOscillator(), g = c.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t);
+  if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + dur + 0.06);
+}
+/* crystal chime — pitch follows the finger, so every star sings its own note */
+function chime(L) {
+  var base = { F: 1046.5, G: 1174.66, H: 1318.51, J: 1567.98 }[L] || 1046.5;
+  tone(base, { dur: 0.34, vol: 0.14, type: 'sine' });
+  tone(base * 1.5, { dur: 0.36, vol: 0.08, type: 'sine', when: 0.04 });
+  tone(base * 2, { dur: 0.44, vol: 0.05, type: 'sine', when: 0.09 });
+  tone(base * 4, { dur: 0.26, vol: 0.03, type: 'triangle', when: 0.14 });
+}
+/* gentle nudge — never an error buzzer */
+function softBlip() {
+  tone(320, { dur: 0.17, vol: 0.05, type: 'sine', glide: 235 });
+}
+function whoosh() {
+  tone(240, { dur: 0.95, vol: 0.07, type: 'triangle', glide: 1250 });
+}
+function fanfare() {
+  var run = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.51, 1567.98];
+  run.forEach(function (f, i) { tone(f, { dur: 0.3, vol: 0.15, type: 'triangle', when: i * 0.1 }); });
+  [523.25, 659.25, 783.99, 1046.5].forEach(function (f) {
+    tone(f, { dur: 1.5, vol: 0.09, type: 'sine', when: 0.86 });
+  });
+  [2093, 2637, 3136, 4186].forEach(function (f, i) {
+    tone(f, { dur: 0.5, vol: 0.05, type: 'sine', when: 1.0 + i * 0.13 });
+  });
+}
+/* ============================ dom ============================ */
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var fxc = document.getElementById('fx'), fctx = fxc.getContext('2d');
+var tipEl = document.getElementById('tip'), progEl = document.getElementById('prog');
+var startOv = document.getElementById('start'), winOv = document.getElementById('win');
+var keyEls = [].slice.call(document.querySelectorAll('.key'));
+
+/* ============================ state ============================ */
+var state = 'start';
+var seq = [], step = 0;
+var segT = new Array(TOTAL).fill(0);
+var parts = [], rings = [], confetti = [], fxDust = false;
+var wrongPulse = 0, revealT = 0;
+var timers = [];
+var W = 0, H = 0, DPR = 1, box = { x: 0, y: 0, s: 1 }, starR = 36, nr = 12, sky = [];
+
+function later(fn, ms) {
+  var id = setTimeout(function () { fn(); }, ms);
+  timers.push(id);
+  return id;
+}
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+/* ============================ layout ============================ */
+function resize() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  var r = cv.getBoundingClientRect();
+  W = Math.max(1, r.width); H = Math.max(1, r.height);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+  var s = Math.min(H * 0.76, W * 0.8) / 100;
+  box = { x: (W - 100 * s) / 2, y: (H - 100 * s) / 2, s: s };
+  starR = Math.max(30, Math.min(56, Math.min(W, H) * 0.075));
+  nr = Math.max(9, Math.min(17, box.s * 2.6));
+
+  sky = [];
+  for (var i = 0; i < 120; i++) {
+    sky.push({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.6 + 0.5, ph: Math.random() * 6.28,
+      sp: 0.5 + Math.random() * 1.8, big: Math.random() < 0.13
+    });
+  }
+
+  fxc.width = Math.round(window.innerWidth * DPR);
+  fxc.height = Math.round(window.innerHeight * DPR);
+  fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  fxDust = true;
+}
+window.addEventListener('resize', resize);
+
+function nodePos(i) {
+  return { x: box.x + NODES[i][0] * box.s, y: box.y + NODES[i][1] * box.s };
+}
+function boxCenter() {
+  return { x: box.x + 50 * box.s, y: box.y + 50 * box.s };
+}
+/* place the big target star just outside the rocket box, nearest free margin */
+function starPosFor(i) {
+  var n = nodePos(i);
+  var bx = box.x, by = box.y, bw = 100 * box.s, bh = 100 * box.s, pad = 12;
+  var hudPad = 56;
+  var dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  var best = null, i2, d, t, x, y, ok;
+  for (i2 = 0; i2 < dirs.length; i2++) {
+    d = dirs[i2];
+    if (d[1] < 0) t = n.y - (by - pad);
+    else if (d[1] > 0) t = (by + bh + pad) - n.y;
+    else if (d[0] > 0) t = (bx + bw + pad) - n.x;
+    else t = n.x - (bx - pad);
+    if (t <= 0) continue;
+    x = n.x + d[0] * (t + starR * 0.95);
+    y = n.y + d[1] * (t + starR * 0.95);
+    x = Math.max(starR + 6, Math.min(W - starR - 6, x));
+    y = Math.max(hudPad + starR, Math.min(H - starR - 6, y));
+    ok = (x + starR * 0.62 < bx) || (x - starR * 0.62 > bx + bw) ||
+         (y + starR * 0.62 < by) || (y - starR * 0.62 > by + bh);
+    if (!ok) continue;
+    var dd = Math.hypot(x - n.x, y - n.y);
+    if (!best || dd < best.d) best = { x: x, y: y, d: dd };
+  }
+  if (best) return best;
+  return { x: Math.min(W - starR - 6, bx + bw + starR), y: Math.max(hudPad + starR, n.y) };
+}
+
+/* ============================ svg-ish helpers ============================ */
+function starPath(c, cx, cy, ro, ri, pts) {
+  pts = pts || 5;
+  c.beginPath();
+  for (var i = 0; i < pts * 2; i++) {
+    var r = i % 2 === 0 ? ro : ri;
+    var a = -Math.PI / 2 + i * Math.PI / pts;
+    var x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+    if (i) c.lineTo(x, y); else c.moveTo(x, y);
+  }
+  c.closePath();
+}
+/* ============================ background ============================ */
+function drawBG(t) {
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#070c20'); g.addColorStop(0.5, '#0a1030'); g.addColorStop(1, '#04050f');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  var neb = [
+    [W * 0.18, H * 0.14, Math.max(W, H) * 0.5, 'rgba(109,40,217,0.30)'],
+    [W * 0.84, H * 0.78, Math.max(W, H) * 0.5, 'rgba(8,145,178,0.24)'],
+    [W * 0.5, H * 1.05, Math.max(W, H) * 0.55, 'rgba(190,18,60,0.16)']
+  ];
+  for (var i = 0; i < neb.length; i++) {
+    var p = 0.85 + 0.15 * Math.sin(t * 0.6 + i);
+    var rg = ctx.createRadialGradient(neb[i][0], neb[i][1], 0, neb[i][0], neb[i][1], neb[i][2]);
+    rg.addColorStop(0, neb[i][3]);
+    rg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = p;
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+  }
+  ctx.restore();
+
+  /* twinkles */
+  for (var k = 0; k < sky.length; k++) {
+    var s = sky[k];
+    var a = 0.32 + 0.42 * (0.5 + 0.5 * Math.sin(t * s.sp + s.ph));
+    ctx.globalAlpha = a;
+    ctx.fillStyle = k % 7 === 0 ? '#fde047' : k % 5 === 0 ? '#a5f3fc' : '#ffffff';
+    if (s.big) {
+      ctx.save();
+      ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+      var R = s.r * 5;
+      ctx.beginPath();
+      ctx.moveTo(s.x - R, s.y); ctx.lineTo(s.x + R, s.y);
+      ctx.moveTo(s.x, s.y - R); ctx.lineTo(s.x, s.y + R);
+      ctx.stroke(); ctx.restore();
+    } else {
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  /* distant ringed planet */
+  var px = W * 0.87, py = H * 0.16, pr = Math.max(16, Math.min(W, H) * 0.045);
+  ctx.save(); ctx.globalAlpha = 0.55;
+  ctx.strokeStyle = '#c4b5fd'; ctx.lineWidth = Math.max(2, pr * 0.18);
+  ctx.beginPath(); ctx.ellipse(px, py, pr * 1.7, pr * 0.5, -0.4, 0, 6.2832); ctx.stroke();
+  var pg = ctx.createRadialGradient(px - pr * 0.3, py - pr * 0.3, pr * 0.1, px, py, pr);
+  pg.addColorStop(0, '#ddd6fe'); pg.addColorStop(1, '#7c3aed');
+  ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(px, py, pr, 0, 6.2832); ctx.fill();
+  ctx.restore();
+}
+
+/* ============================ constellation ============================ */
+function drawSeg(i, p) {
+  if (p <= 0) return;
+  var a = nodePos(i - 1), b = nodePos(i);
+  var ex = a.x + (b.x - a.x) * p, ey = a.y + (b.y - a.y) * p;
+  var grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+  grad.addColorStop(0, LC[seq[i - 1]]); grad.addColorStop(1, LC[seq[i]]);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = grad;
+  ctx.shadowColor = LC[seq[i]]; ctx.shadowBlur = 16;
+  ctx.lineWidth = Math.max(3.5, box.s * 1.1);
+  ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(1.2, box.s * 0.3);
+  ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.restore();
+  if (p < 1) { /* laser head */
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = '#ffffff'; ctx.shadowColor = LC[seq[i]]; ctx.shadowBlur = 20;
+    ctx.beginPath(); ctx.arc(ex, ey, Math.max(4, box.s * 1.2), 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawNode(i, t) {
+  var p = nodePos(i), L = seq[i], col = LC[L];
+  var lit = state === 'finale' || i < step;
+  var active = state === 'play' && i === step;
+  ctx.save();
+  if (lit) {
+    var pu = 0.6 + 0.4 * Math.sin(t * 3 + i);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.shadowColor = col; ctx.shadowBlur = 14 + 12 * pu;
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(p.x, p.y, nr * (state === 'finale' ? 1.15 : 1), 0, 6.2832); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(255,255,255,.95)';
+    ctx.beginPath(); ctx.arc(p.x, p.y, nr * 0.42, 0, 6.2832); ctx.fill();
+  } else {
+    ctx.fillStyle = 'rgba(8,12,32,.92)';
+    ctx.strokeStyle = active ? col : 'rgba(148,163,184,.45)';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(p.x, p.y, nr, 0, 6.2832); ctx.fill(); ctx.stroke();
+  }
+  if (active) {
+    var w = Math.sin(t * 6) * 0.5 + 0.5;
+    var rr = nr * (1.5 + w * 0.9) + wrongPulse * 10;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = col;
+    ctx.globalAlpha = (0.75 - w * 0.4) * (0.7 + wrongPulse * 0.6);
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(p.x, p.y, nr + 5, 0, 6.2832); ctx.stroke();
+  }
+  ctx.restore();
+}
+/* ============================ target star ============================ */
+function drawTarget(t) {
+  if (state !== 'play') return;
+  var i = step, L = seq[i], rgb = RGB[L];
+  var n = nodePos(i), sp = starPosFor(i);
+  var y = sp.y + Math.sin(t * 2.2) * 4;
+  var R = starR * (1 + 0.04 * Math.sin(t * 4.2) + wrongPulse * 0.14);
+
+  /* connector */
+  ctx.save();
+  ctx.setLineDash([7, 9]);
+  ctx.lineDashOffset = -(t * 45) % 16;
+  ctx.strokeStyle = LC[L]; ctx.lineWidth = 3; ctx.globalAlpha = 0.9;
+  ctx.shadowColor = LC[L]; ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.moveTo(sp.x, y); ctx.lineTo(n.x, n.y); ctx.stroke();
+  ctx.restore();
+
+  /* aura */
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  var g = ctx.createRadialGradient(sp.x, y, 0, sp.x, y, R * 2.3);
+  g.addColorStop(0, 'rgba(' + rgb + ',0.55)');
+  g.addColorStop(0.5, 'rgba(' + rgb + ',0.18)');
+  g.addColorStop(1, 'rgba(' + rgb + ',0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(sp.x, y, R * 2.3, 0, 6.2832); ctx.fill();
+  ctx.restore();
+
+  /* star body */
+  ctx.save();
+  var bg = ctx.createLinearGradient(sp.x, y - R, sp.x, y + R);
+  bg.addColorStop(0, '#fffbe6'); bg.addColorStop(0.45, '#fde047'); bg.addColorStop(1, '#f59e0b');
+  starPath(ctx, sp.x, y, R, R * 0.46);
+  ctx.fillStyle = bg;
+  ctx.shadowColor = 'rgba(250,204,21,.9)'; ctx.shadowBlur = 26;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 3; ctx.strokeStyle = '#b45309'; ctx.stroke();
+  starPath(ctx, sp.x, y, R * 0.6, R * 0.28);
+  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fill();
+
+  /* letter */
+  ctx.fillStyle = '#713f12';
+  ctx.font = '900 ' + Math.round(R * 0.78) + 'px ' + COMIC;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(L, sp.x, y + R * 0.04);
+
+  /* orbiting sparkles */
+  ctx.fillStyle = LC[L];
+  for (var k = 0; k < 4; k++) {
+    var a = t * 1.4 + k * (Math.PI / 2);
+    var sx = sp.x + Math.cos(a) * R * 1.35, sy = y + Math.sin(a) * R * 1.35;
+    ctx.globalAlpha = 0.55 + 0.45 * Math.sin(t * 5 + k);
+    ctx.beginPath(); ctx.arc(sx, sy, 3, 0, 6.2832); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ============================ particles ============================ */
+function burst(x, y, col) {
+  for (var i = 0; i < 28; i++) {
+    var a = Math.random() * 6.2832, s = 70 + Math.random() * 240;
+    parts.push({
+      x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      life: 0, max: 0.5 + Math.random() * 0.55,
+      col: i % 4 === 0 ? '#ffffff' : col,
+      sz: 2 + Math.random() * 4, star: Math.random() < 0.45
+    });
+  }
+  rings.push({ x: x, y: y, life: 0, max: 0.6, col: col });
+}
+function updateFx(dt) {
+  var i, p;
+  for (i = parts.length - 1; i >= 0; i--) {
+    p = parts[i]; p.life += dt;
+    if (p.life >= p.max) { parts.splice(i, 1); continue; }
+    var d = Math.exp(-2.4 * dt);
+    p.vx *= d; p.vy *= d; p.vy += 260 * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+  }
+  for (i = rings.length - 1; i >= 0; i--) {
+    rings[i].life += dt;
+    if (rings[i].life >= rings[i].max) rings.splice(i, 1);
+  }
+  for (i = confetti.length - 1; i >= 0; i--) {
+    var c = confetti[i];
+    c.life += dt;
+    c.vy += 1250 * dt;
+    c.vx *= Math.exp(-0.5 * dt);
+    c.x += c.vx * dt; c.y += c.vy * dt; c.rot += c.vr * dt;
+    if (c.y > window.innerHeight + 30 || c.life > 7) confetti.splice(i, 1);
+  }
+}
+function drawFx() {
+  var i;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (i = 0; i < rings.length; i++) {
+    var r = rings[i], k = r.life / r.max;
+    ctx.strokeStyle = r.col; ctx.globalAlpha = (1 - k) * 0.8;
+    ctx.lineWidth = 4 * (1 - k) + 1;
+    ctx.beginPath(); ctx.arc(r.x, r.y, 10 + 110 * k, 0, 6.2832); ctx.stroke();
+  }
+  for (i = 0; i < parts.length; i++) {
+    var p = parts[i], a = 1 - p.life / p.max;
+    ctx.globalAlpha = Math.max(0, a);
+    ctx.fillStyle = p.col;
+    if (p.star) {
+      starPath(ctx, p.x, p.y, p.sz * 1.9, p.sz * 0.8);
+      ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.sz, 0, 6.2832); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+/* ============================ confetti ============================ */
+var CONF_COLORS = ['#f43f5e', '#fb923c', '#fde047', '#4ade80', '#22d3ee', '#818cf8', '#f472b6', '#ffffff'];
+function confettiBurst(x, y, n) {
+  for (var i = 0; i < n; i++) {
+    var a = Math.random() * 6.2832, sp = 140 + Math.random() * 460;
+    confetti.push({
+      x: x, y: y,
+      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 190,
+      rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 12,
+      w: 7 + Math.random() * 8, h: 11 + Math.random() * 9,
+      col: CONF_COLORS[(Math.random() * CONF_COLORS.length) | 0],
+      life: 0
+    });
+  }
+  fxDust = true;
+}
+function drawConfetti() {
+  if (confetti.length) {
+    fctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    for (var i = 0; i < confetti.length; i++) {
+      var c = confetti[i];
+      fctx.save();
+      fctx.translate(c.x, c.y); fctx.rotate(c.rot);
+      fctx.fillStyle = c.col;
+      fctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h * Math.abs(Math.cos(c.rot * 1.3)));
+      fctx.restore();
+    }
+    fxDust = true;
+  } else if (fxDust) {
+    fctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    fxDust = false;
+  }
+}
+/* ============================ grand finale reveal ============================ */
+function rocketFill(alpha) {
+  if (alpha <= 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  var g = ctx.createRadialGradient(box.x + 50 * box.s, box.y + 55 * box.s, 10,
+    box.x + 50 * box.s, box.y + 55 * box.s, 70 * box.s);
+  g.addColorStop(0, 'rgba(34,211,238,' + alpha + ')');
+  g.addColorStop(1, 'rgba(250,204,21,' + alpha * 0.15 + ')');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  for (var i = 0; i < 14; i++) {
+    var p = nodePos(i);
+    if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+function drawFinaleExtras(t) {
+  var cp = Math.max(0, Math.min(1, (revealT - 0.12) / 0.5));
+  var wp = Math.max(0, Math.min(1, (revealT - 0.42) / 0.5));
+
+  /* close the outline: right shoulder -> nose */
+  if (cp > 0) {
+    var a = nodePos(13), b = nodePos(0);
+    var ex = a.x + (b.x - a.x) * cp, ey = a.y + (b.y - a.y) * cp;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round'; ctx.strokeStyle = '#fde047';
+    ctx.shadowColor = '#facc15'; ctx.shadowBlur = 20;
+    ctx.lineWidth = Math.max(3.5, box.s * 1.1);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* porthole ring */
+  if (wp > 0) {
+    var w = nodePos(14), rr = box.s * 7.5;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = '#fde047'; ctx.lineWidth = 4;
+    ctx.shadowColor = '#facc15'; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(w.x, w.y, rr, -Math.PI / 2, -Math.PI / 2 + wp * 6.2832); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* energy shimmer flowing around the whole rocket */
+  if (revealT > 0.55) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = (revealT - 0.55) / 0.45;
+    ctx.setLineDash([18, 250]);
+    ctx.lineDashOffset = -(t * 150) % 268;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#ffffff';
+    ctx.shadowColor = '#fde047'; ctx.shadowBlur = 16;
+    ctx.lineWidth = Math.max(3, box.s * 0.9);
+    ctx.beginPath();
+    for (var i = 0; i < 14; i++) {
+      var p = nodePos(i);
+      if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y);
+    }
+    ctx.closePath(); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/* ============================ main loop ============================ */
+var last = 0;
+function frame(now) {
+  var t = now / 1000;
+  var dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+  last = now;
+
+  if (wrongPulse > 0) wrongPulse = Math.max(0, wrongPulse - dt * 2.6);
+  if (state === 'play') {
+    for (var i = 0; i < step; i++) if (segT[i] < 1) segT[i] = Math.min(1, segT[i] + dt / 0.28);
+  }
+  if (state === 'finale') revealT = Math.min(1, revealT + dt / 1.15);
+  updateFx(dt);
+
+  /* ---- draw ---- */
+  drawBG(t);
+  if (state === 'finale') rocketFill(0.16 * Math.max(0, (revealT - 0.6) / 0.4));
+
+  for (var s = 1; s < step; s++) drawSeg(s, segT[s]);
+  for (var n = 0; n < TOTAL; n++) drawNode(n, t);
+  drawFx();
+  drawTarget(t);
+  if (state === 'finale') drawFinaleExtras(t);
+
+  drawConfetti();
+  requestAnimationFrame(frame);
+}
+/* ============================ hud ============================ */
+var tipTimer = null;
+function setTip(html, cls, ms) {
+  clearTimeout(tipTimer);
+  tipEl.innerHTML = html;
+  tipEl.className = cls ? cls : '';
+  if (ms) tipTimer = setTimeout(renderPrompt, ms);
+}
+function renderPrompt() {
+  if (state !== 'play') return;
+  var L = seq[step];
+  setTip('tekan tombol <b style="color:' + LC[L] + '">' + L + '</b> di keyboard', '', 0);
+}
+function updateProg() { progEl.textContent = '⭐ ' + step + ' / ' + TOTAL; }
+function syncKeys() {
+  var target = state === 'play' ? seq[step] : null;
+  keyEls.forEach(function (el) { el.classList.toggle('on', el.dataset.k === target); });
+}
+
+/* ============================ flow ============================ */
+function reset(next) {
+  clearTimers();
+  clearTimeout(tipTimer);
+  seq = makeSequence();
+  step = 0;
+  segT = [];
+  for (var i = 0; i < TOTAL; i++) segT.push(0);
+  parts.length = 0; rings.length = 0; confetti.length = 0; fxDust = true;
+  wrongPulse = 0; revealT = 0;
+  state = next;
+  winOv.classList.add('hidden');
+  startOv.classList.toggle('hidden', next !== 'start');
+  updateProg(); syncKeys();
+  if (next === 'play') renderPrompt(); else setTip('', '', 0);
+}
+function startGame() { ac(); reset('play'); }
+function replay() { reset('play'); }
+
+function finish() {
+  state = 'finale';
+  revealT = 0; wrongPulse = 0;
+  updateProg(); syncKeys();
+  setTip('konstelasi roket lengkap! 🚀', 'good', 0);
+  winOv.classList.remove('hidden');
+  later(whoosh, 60);
+  later(fanfare, 430);
+  later(function () { confettiBurst(window.innerWidth * 0.5, window.innerHeight * 0.4, 110); }, 340);
+  later(function () { confettiBurst(window.innerWidth * 0.16, window.innerHeight * 0.5, 70); }, 820);
+  later(function () { confettiBurst(window.innerWidth * 0.84, window.innerHeight * 0.5, 70); }, 1080);
+  later(function () { confettiBurst(window.innerWidth * 0.5, window.innerHeight * 0.34, 90); }, 1520);
+}
+
+/* ============================ input ============================ */
+function press(k) {
+  if (state !== 'play') return;
+  var target = seq[step];
+  var el = null;
+  for (var i = 0; i < keyEls.length; i++) if (keyEls[i].dataset.k === k) el = keyEls[i];
+  if (el) { el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); }
+
+  if (k === target) {
+    var idx = step;
+    if (idx > 0) segT[idx] = 0;
+    burst(nodePos(idx), LC[target]);
+    chime(target);
+    step++;
+    updateProg();
+    if (step >= TOTAL) finish();
+    else { syncKeys(); setTip('hebat! bintang menyala ✨', 'good', 620); }
+  } else {
+    wrongPulse = 1;
+    softBlip();
+    setTip('hampir! coba lagi 💫', 'try', 850);
+  }
+}
+
+window.addEventListener('keydown', function (e) {
+  if (e.repeat) return;
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (state === 'start') startGame();
+    else if (state === 'finale') replay();
+    return;
+  }
+  if (state !== 'play') return;
+  var k = (e.key || '').toUpperCase();
+  if (k.length !== 1 || 'FGHJ'.indexOf(k) < 0) return;
+  e.preventDefault();
+  press(k);
+});
+
+keyEls.forEach(function (el) {
+  el.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    press(el.dataset.k);
+  });
+});
+document.getElementById('btnStart').addEventListener('click', startGame);
+document.getElementById('btnAgain').addEventListener('click', replay);
+
+/* ============================ init ============================ */
+resize();
+reset('start');
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
