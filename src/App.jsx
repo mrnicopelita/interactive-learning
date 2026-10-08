@@ -78,7 +78,7 @@ const GAMES = QUIZ_REGISTRY.map((entry) => ({
 }))
 
 function Catalog({ onPlay }) {
-  const { isLocked, loading } = useQuizLocks()
+  const { isLocked } = useQuizLocks()
 
   return (
     <div className="flex h-dvh w-full touch-manipulation flex-col overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200">

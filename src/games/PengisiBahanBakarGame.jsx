@@ -13,13 +13,6 @@ const KEY_COLORS = {
   j: YELLOW,
 }
 
-const KEY_FINGER = {
-  f: 'telunjuk kiri',
-  g: 'telunjuk kiri',
-  h: 'telunjuk kanan',
-  j: 'telunjuk kanan',
-}
-
 function randomPrompts(n = PROMPTS_COUNT) {
   const keys = ['f', 'g', 'h', 'j']
   const seq = []
