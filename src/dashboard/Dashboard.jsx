@@ -757,10 +757,10 @@ function DashboardView({ onExit }) {
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
                                   disabled={locksLoading}
-                                  className={`flex h-3 w-3 shrink-0 items-center justify-center rounded-full text-[6px] font-extrabold shadow-sm transition hover:scale-110 ${
+                                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-sm transition hover:scale-110 ${
                                     locked
-                                      ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
-                                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                      ? 'text-rose-600 hover:bg-rose-100'
+                                      : 'text-emerald-600 hover:bg-emerald-100'
                                   }`}
                                   title={locked ? 'Unlock' : 'Lock'}
                                 >
