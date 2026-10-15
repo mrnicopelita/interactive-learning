@@ -309,7 +309,7 @@ function StartScreen({ onStart, onExit }) {
             ketuk tombolnya DUA KALI untuk mengisi tangki! 10 orb = tangki penuh!
           </p>
           <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
-            F & G → telunjuk kiri (cyan) · H & J → telunjuk kanan (kuning)
+            f & g → telunjuk kiri (cyan) · h & j → telunjuk kanan (kuning)
           </p>
           <div className="mt-4 flex items-center justify-center gap-2">
             {['f', 'g', 'h', 'j'].map((l) => (
@@ -318,14 +318,14 @@ function StartScreen({ onStart, onExit }) {
                 className="flex h-12 w-12 items-center justify-center rounded-xl border-2 bg-indigo-50 text-2xl font-black shadow sm:h-14 sm:w-14 sm:text-3xl"
                 style={{ color: KEY_COLORS[l], borderColor: KEY_COLORS[l] }}
               >
-                {l.toUpperCase()}
+                {l}
               </span>
             ))}
           </div>
           <div className="mt-3 rounded-2xl bg-indigo-50 p-3 text-sm font-bold text-indigo-700">
-            contoh: orb <span className="font-black">“F F”</span> → tekan{' '}
-            <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">F</span> lalu{' '}
-            <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">F</span> lagi!
+            contoh: orb <span className="font-black">“f f”</span> → tekan{' '}
+            <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">f</span> lalu{' '}
+            <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">f</span> lagi!
           </div>
           <button
             type="button"
@@ -448,7 +448,7 @@ function FuelTank({ fuel, count }) {
 }
 
 function FuelOrb({ target, taps, wobbleKey, popping }) {
-  const upper = target.toUpperCase()
+  const lower = target.toLowerCase()
   return (
     <div className="flex flex-col items-center gap-2">
       <div key={wobbleKey} className={wobbleKey > 0 ? 'pbb-wobble' : ''}>
@@ -471,7 +471,7 @@ function FuelOrb({ target, taps, wobbleKey, popping }) {
           >
             <div className="text-center">
               <div className="text-[clamp(2.2rem,7vh,3.4rem)] font-black leading-none tracking-widest text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-                {upper} <span className={taps >= 1 ? 'opacity-40' : ''}>{upper}</span>
+                {lower} <span className={taps >= 1 ? 'opacity-40' : ''}>{lower}</span>
               </div>
               <div className="mt-1.5 flex items-center justify-center gap-1.5" aria-hidden="true">
                 <span className={`h-3 w-3 rounded-full ${taps >= 1 ? 'bg-emerald-300' : 'bg-white/30'}`} />
@@ -482,7 +482,7 @@ function FuelOrb({ target, taps, wobbleKey, popping }) {
         </div>
       </div>
       <p className="rounded-full bg-slate-950/60 px-3 py-1 text-xs font-black text-white sm:text-sm">
-        {taps === 0 ? `ketuk ${upper} 2x!` : taps === 1 ? `sekali lagi ${upper}! ✨` : 'penuh! 🎉'}
+        {taps === 0 ? `ketuk ${lower} 2x!` : taps === 1 ? `sekali lagi ${lower}! ✨` : 'penuh! 🎉'}
       </p>
     </div>
   )
@@ -511,7 +511,7 @@ function KeyGuide({ target, taps }) {
                   fontSize: '1.4rem',
                 }}
               >
-                {l.toUpperCase()}
+                {l}
               </div>
               <span className="text-[9px] font-black leading-none sm:text-[10px]" style={{ color }}>
                 {l === 'f' || l === 'g' ? '👆 kiri' : '👆 kanan'}
@@ -686,7 +686,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
         <div className="flex flex-col items-center">
           <FuelOrb target={target} taps={taps} wobbleKey={wobbleKey} popping={popping} />
           <p className="mt-2 max-w-[12rem] text-center text-[10px] font-bold text-white/50 sm:text-xs">
-            {blasting ? 'roket meluncur! 🚀🌈' : `tekan ${target.toUpperCase()} dua kali!`}
+            {blasting ? 'roket meluncur! 🚀🌈' : `tekan ${target.toLowerCase()} dua kali!`}
           </p>
         </div>
 
@@ -740,12 +740,12 @@ export default function PengisiBahanBakarGame({ onExit }) {
             </span>
           ) : (
             <span className="text-sm font-bold text-cyan-200 sm:text-base">
-              tekan tombol <span className="font-black text-white">{target.toUpperCase()} {target.toUpperCase()}</span> di keyboard
+              tekan tombol <span className="font-black text-white">{target.toLowerCase()} {target.toLowerCase()}</span> di keyboard
             </span>
           )}
         </div>
         <p className="mt-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
-          F & G → telunjuk kiri (cyan) · H & J → telunjuk kanan (kuning)
+          f & g → telunjuk kiri (cyan) · h & j → telunjuk kanan (kuning)
         </p>
         <KeyGuide target={blasting ? null : target} taps={taps} />
       </div>
