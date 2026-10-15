@@ -705,14 +705,14 @@ function DashboardView({ onExit }) {
                             setDragOverCat(null)
                           }
                         }}
-                        className={`flex-1 min-w-[12rem] rounded-xl border-2 border-dashed p-2 transition ${
+                        className={`flex-1 min-w-[12rem] rounded-xl border-2 border-dashed p-2 transition sm:min-w-[16rem] lg:min-w-[18rem] ${
                           isOver
                             ? 'border-sky-500 bg-sky-50 shadow-lg'
                             : `${cat.color}/30 ${cat.color}/10`
                         } ${draggedQuizId ? 'cursor-pointer hover:border-sky-500' : ''}`}
                       >
                         <h3 className={`font-bold text-[11px] ${cat.color}/80 mb-1.5 flex items-center gap-1.5`}>
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color.replace('bg-', '') }} />
+                          <span className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${cat.color}`} />
                           {cat.label} ({quizzesInCat.length})
                           {draggedQuizId && <span className="font-semibold text-sky-600">— drop here</span>}
                         </h3>
@@ -733,7 +733,7 @@ function DashboardView({ onExit }) {
                                   setDraggedQuizId(null)
                                   setDragOverCat(null)
                                 }}
-                                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm transition hover:scale-102 ${
+                                className={`flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-bold shadow-sm transition sm:text-xs ${
                                   isDragging ? 'opacity-50 ring-2 ring-sky-400' : ''
                                 } ${
                                   cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
@@ -748,7 +748,7 @@ function DashboardView({ onExit }) {
                                     e.stopPropagation()
                                     setDraggedQuizId(isDragging ? null : quiz.id)
                                   }}
-                                  className="cursor-grab select-none text-slate-400 active:cursor-grabbing"
+                                  className="shrink-0 cursor-grab select-none text-slate-400 active:cursor-grabbing"
                                   aria-hidden="true"
                                 >
                                   ⋮⋮
@@ -757,7 +757,7 @@ function DashboardView({ onExit }) {
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
                                   disabled={locksLoading}
-                                  className={`flex items-center justify-center w-3 h-3 rounded-full text-[6px] font-extrabold shadow-sm transition hover:scale-110 ${
+                                  className={`flex h-3 w-3 shrink-0 items-center justify-center rounded-full text-[6px] font-extrabold shadow-sm transition hover:scale-110 ${
                                     locked
                                       ? 'bg-rose-100 text-rose-700 hover:bg-rose-200'
                                       : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
@@ -766,12 +766,12 @@ function DashboardView({ onExit }) {
                                 >
                                   {locked ? '🔒' : '🔓'}
                                 </button>
-                                <span className="flex-1 truncate">{quiz.title}</span>
-                                <span className={`w-1 h-1 rounded-full ${cat.id === 'quizzes' ? 'bg-sky-500' : cat.id === 'preschool' ? 'bg-pink-500' : cat.id === 'primary' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                <span className="min-w-0 flex-1 whitespace-normal break-words leading-tight">{quiz.title}</span>
+                                <span className={`h-1 w-1 shrink-0 rounded-full ${cat.id === 'quizzes' ? 'bg-sky-500' : cat.id === 'preschool' ? 'bg-pink-500' : cat.id === 'primary' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                                 <button
                                   type="button"
                                   onClick={() => setEditingQuiz(quiz)}
-                                  className="flex items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:bg-slate-200 hover:text-sky-600 transition"
+                                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 hover:text-sky-600"
                                   title="Edit"
                                 >
                                   ✏️
