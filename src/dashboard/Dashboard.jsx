@@ -733,7 +733,7 @@ function DashboardView({ onExit }) {
                                   setDraggedQuizId(null)
                                   setDragOverCat(null)
                                 }}
-                                className={`flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-bold shadow-sm transition sm:text-xs ${
+                                className={`flex items-center gap-1 rounded-md px-1.5 py-[3px] text-xs font-bold leading-tight shadow-sm transition ${
                                   isDragging ? 'opacity-50 ring-2 ring-sky-400' : ''
                                 } ${
                                   cat.id === 'quizzes' ? 'bg-sky-100 text-sky-700' :
@@ -757,7 +757,7 @@ function DashboardView({ onExit }) {
                                   type="button"
                                   onClick={() => toggleLock(quiz.id)}
                                   disabled={locksLoading}
-                                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-sm transition hover:scale-110 ${
+                                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-xs transition hover:scale-110 ${
                                     locked
                                       ? 'text-rose-600 hover:bg-rose-100'
                                       : 'text-emerald-600 hover:bg-emerald-100'
@@ -771,7 +771,7 @@ function DashboardView({ onExit }) {
                                 <button
                                   type="button"
                                   onClick={() => setEditingQuiz(quiz)}
-                                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-200 hover:text-sky-600"
+                                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-xs text-slate-400 transition hover:bg-slate-200 hover:text-sky-600"
                                   title="Edit"
                                 >
                                   ✏️
