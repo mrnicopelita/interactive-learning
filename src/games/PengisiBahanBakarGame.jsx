@@ -5,6 +5,8 @@ const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-s
 const CYAN = '#22d3ee'
 const YELLOW = '#facc15'
 const PROMPTS_COUNT = 10
+const BADGE_LETTERS = ['k', 'o', 'm', 'p', 'u', 't', 'e', 'r']
+const BADGE_COUNT = BADGE_LETTERS.length
 
 const KEY_COLORS = {
   f: CYAN,
@@ -76,6 +78,14 @@ function playSoft() {
 function playLevelUp() {
   tone(659.25, 0.14, 0.11, 'triangle')
   tone(880, 0.2, 0.11, 'triangle', 0.12)
+}
+/* golden badge reward: bright ascending arpeggio */
+function playBadge() {
+  tone(659.25, 0.14, 0.12, 'triangle')
+  tone(783.99, 0.14, 0.12, 'triangle', 0.1)
+  tone(987.77, 0.14, 0.12, 'triangle', 0.2)
+  tone(1318.5, 0.3, 0.13, 'triangle', 0.3)
+  tone(1760, 0.35, 0.08, 'sine', 0.38)
 }
 /* rocket engine ignition: deep rumble lifting off */
 function playIgnition() {
@@ -278,6 +288,11 @@ function Shell({ children, onExit, right }) {
         .pbb-trail { position: absolute; border-radius: 9999px; animation: pbb-trail-fall 1.1s ease-out forwards; }
         @keyframes pbb-trail-fall { from { transform: translate(0,0) scale(1); opacity: 1;} to { transform: translate(var(--tx), 120px) scale(.2); opacity: 0;} }
         .pbb-key-target { box-shadow: 0 0 0 3px #fff, 0 0 22px rgba(255,255,255,.9); transform: scale(1.12); }
+        .pbb-badge-shine { position: relative; overflow: hidden; }
+        .pbb-badge-shine::after { content: ''; position: absolute; top: -30%; left: -70%; width: 55%; height: 160%; transform: rotate(20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75), transparent); animation: pbb-shine 2.4s ease-in-out infinite; }
+        @keyframes pbb-shine { 0% { left: -70%; } 55%,100% { left: 130%; } }
+        .pbb-badge-pop { animation: pbb-badge-pop .6s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes pbb-badge-pop { 0% { transform: scale(0) rotate(-30deg); opacity: 0;} 60% { transform: scale(1.2) rotate(8deg); opacity: 1;} 100% { transform: scale(1) rotate(0); opacity: 1;} }
       `}</style>
       <SpaceBackdrop />
       <div className="z-10 flex w-full shrink-0 items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
@@ -295,6 +310,46 @@ function Shell({ children, onExit, right }) {
   )
 }
 
+/* golden badge with engraved letter — earned = shiny gold, locked = grey */
+function GoldenBadge({ letter, earned, size = '2.2rem', animate = false }) {
+  const display = (letter ?? '?').toUpperCase()
+  return (
+    <div
+      className={`${animate ? 'pbb-badge-pop' : ''} flex items-center justify-center rounded-full border-4 font-black ${
+        earned ? 'pbb-badge-shine' : ''
+      }`}
+      style={{
+        width: size,
+        height: size,
+        fontSize: `calc(${size} * 0.44)`,
+        color: earned ? '#713f12' : 'rgba(255,255,255,0.45)',
+        borderColor: earned ? '#b45309' : 'rgba(255,255,255,0.25)',
+        background: earned
+          ? 'radial-gradient(circle at 35% 28%, #fefce8 0%, #fde68a 22%, #facc15 48%, #d97706 78%, #92400e 100%)'
+          : 'rgba(255,255,255,0.08)',
+        boxShadow: earned
+          ? '0 0 14px rgba(250,204,21,0.85), 0 0 34px rgba(250,204,21,0.35), inset 0 2px 4px rgba(255,255,255,0.7), inset 0 -3px 6px rgba(120,53,15,0.55)'
+          : 'inset 0 1px 3px rgba(255,255,255,0.08)',
+        textShadow: earned ? '0 1px 0 rgba(255,255,255,0.6), 0 -1px 1px rgba(120,53,15,0.5)' : 'none',
+      }}
+      aria-label={earned ? `lencana ${display}` : 'lencana terkunci'}
+    >
+      {earned ? display : '·'}
+    </div>
+  )
+}
+
+function BadgeTray({ earnedCount, compact = false }) {
+  const size = compact ? '1.35rem' : '2rem'
+  return (
+    <div className="flex items-center justify-center gap-1 sm:gap-1.5" aria-label={`lencana ${earnedCount} dari ${BADGE_COUNT}`}>
+      {BADGE_LETTERS.map((l, i) => (
+        <GoldenBadge key={`${l}-${i}`} letter={l} earned={i < earnedCount} size={size} />
+      ))}
+    </div>
+  )
+}
+
 function StartScreen({ onStart, onExit }) {
   useEnter(onStart)
   return (
@@ -306,7 +361,10 @@ function StartScreen({ onStart, onExit }) {
             p13 <span className="text-cyan-600">pengisi bahan bakar roket</span>
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
-            ketuk tombolnya DUA KALI untuk mengisi tangki! 10 orb = tangki penuh!
+            ketuk tombolnya DUA KALI untuk mengisi tangki! 10 orb = 1 lencana emas!
+          </p>
+          <p className="mt-1 text-xs font-extrabold tracking-wide text-amber-600 sm:text-sm">
+            kumpulkan 8 lencana: k · o · m · p · u · t · e · r 🏅
           </p>
           <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
             f & g → telunjuk kiri (cyan) · h & j → telunjuk kanan (kuning)
@@ -327,6 +385,14 @@ function StartScreen({ onStart, onExit }) {
             <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">f</span> lalu{' '}
             <span className="rounded-md bg-slate-800 px-1.5 py-0.5 font-black text-white">f</span> lagi!
           </div>
+          <div className="mt-3 rounded-2xl bg-amber-50 p-3">
+            <p className="mb-2 text-xs font-extrabold tracking-wide text-amber-700">
+              8 LENCANA EMAS MENUNGGUMU!
+            </p>
+            <div className="flex justify-center">
+              <BadgeTray earnedCount={BADGE_COUNT} />
+            </div>
+          </div>
           <button
             type="button"
             onClick={onStart}
@@ -343,19 +409,58 @@ function StartScreen({ onStart, onExit }) {
   )
 }
 
+function BadgeScreen({ badgeLetter, earnedCount, onNext, onExit }) {
+  useEnter(onNext)
+  const display = badgeLetter.toUpperCase()
+  return (
+    <Shell onExit={onExit}>
+      <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
+        <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
+          <span className="text-5xl sm:text-6xl" aria-hidden="true">🏅</span>
+          <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
+            lencana {display} didapat!
+          </h1>
+          <p className="text-base font-bold text-amber-600 sm:text-lg">
+            tangki penuh! roket meluncur! 🚀 ({earnedCount}/{BADGE_COUNT})
+          </p>
+          <div className="mx-auto mt-4 w-fit">
+            <GoldenBadge letter={badgeLetter} earned size="6.5rem" animate />
+          </div>
+          <div className="mt-4 flex justify-center">
+            <BadgeTray earnedCount={earnedCount} />
+          </div>
+          <button
+            type="button"
+            onClick={onNext}
+            className="mt-5 w-full rounded-full bg-emerald-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl"
+          >
+            tangki berikutnya! ⛽
+          </button>
+          <p className="mt-2 text-xs font-extrabold text-slate-400">
+            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk lanjut
+          </p>
+        </div>
+      </main>
+    </Shell>
+  )
+}
+
 function CompleteScreen({ onReplay, onExit }) {
   useEnter(onReplay)
   return (
     <Shell onExit={onExit}>
       <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
-          <span className="text-5xl sm:text-6xl" aria-hidden="true">🚀🌈</span>
+          <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
           <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
-            tangki penuh! roket meluncur!
+            semua 8 lencana terkumpul!
           </h1>
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
-            10 orb bahan bakar terisi — 100%! Kerja hebat, insinyur cilik! ⛽✨
+            k · o · m · p · u · t · e · r — kamu master komputer! 💻✨
           </p>
+          <div className="mt-4 flex justify-center">
+            <BadgeTray earnedCount={BADGE_COUNT} />
+          </div>
           <div className="mx-auto mt-3 h-24 w-16">
             <div className="pbb-blast h-full w-full">
               <RocketArt blasting />
@@ -535,6 +640,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
   const [step, setStep] = useState(0)
   const [taps, setTaps] = useState(0)
   const [fuel, setFuel] = useState(0)
+  const [badgeRound, setBadgeRound] = useState(0)
   const [wobbleKey, setWobbleKey] = useState(0)
   const [popping, setPopping] = useState(false)
   const [blasting, setBlasting] = useState(false)
@@ -544,6 +650,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
 
   const target = prompts[step] ?? 'f'
   const filled = Math.min(PROMPTS_COUNT, step + (blasting ? 1 : 0))
+  const currentBadge = BADGE_LETTERS[badgeRound] ?? 'k'
 
   const later = (fn, ms) => {
     const id = setTimeout(() => {
@@ -564,7 +671,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
   }, [])
 
   const stateRef = useRef({})
-  stateRef.current = { step, taps, blasting, target, screen, prompts }
+  stateRef.current = { step, taps, blasting, target, screen, prompts, badgeRound }
 
   function spawnRainbowTrails() {
     const colors = ['#f43f5e', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#a78bfa', '#f472b6']
@@ -586,19 +693,49 @@ export default function PengisiBahanBakarGame({ onExit }) {
     }, 90)
   }
 
-  function completeGame() {
+  function completeTank() {
+    const round = stateRef.current.badgeRound
+    const isLast = round + 1 >= BADGE_COUNT
     setBlasting(true)
     playIgnition()
     spawnRainbowTrails()
-    later(() => {
-      playFanfare()
-      launchConfetti()
-    }, 1300)
-    later(() => {
-      if (trailTimer.current) clearInterval(trailTimer.current)
-      setTrails([])
-      setScreen('complete')
-    }, 2400)
+    if (isLast) {
+      later(() => {
+        playFanfare()
+        launchConfetti()
+      }, 1300)
+      later(() => {
+        if (trailTimer.current) clearInterval(trailTimer.current)
+        setTrails([])
+        setScreen('complete')
+      }, 2400)
+    } else {
+      later(() => {
+        if (trailTimer.current) clearInterval(trailTimer.current)
+        setTrails([])
+        setBlasting(false)
+        playBadge()
+        launchConfetti()
+        setScreen('badge')
+      }, 1500)
+    }
+  }
+
+  function nextTank() {
+    for (const id of timers.current) clearTimeout(id)
+    timers.current.clear()
+    if (trailTimer.current) clearInterval(trailTimer.current)
+    setBadgeRound((r) => Math.min(BADGE_COUNT - 1, r + 1))
+    setPrompts(randomPrompts())
+    setStep(0)
+    setTaps(0)
+    setFuel(0)
+    setWobbleKey(0)
+    setPopping(false)
+    setBlasting(false)
+    setTrails([])
+    setScreen('playing')
+    playLevelUp()
   }
 
   useEffect(() => {
@@ -625,7 +762,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
           later(() => {
             setPopping(false)
             if (s.step + 1 >= PROMPTS_COUNT) {
-              completeGame()
+              completeTank()
             } else {
               setStep(s.step + 1)
               setTaps(0)
@@ -650,6 +787,7 @@ export default function PengisiBahanBakarGame({ onExit }) {
     setStep(0)
     setTaps(0)
     setFuel(0)
+    setBadgeRound(0)
     setWobbleKey(0)
     setPopping(false)
     setBlasting(false)
@@ -659,22 +797,31 @@ export default function PengisiBahanBakarGame({ onExit }) {
   }
 
   if (screen === 'entry') return <StartScreen onStart={startGame} onExit={onExit} />
+  if (screen === 'badge')
+    return (
+      <BadgeScreen
+        badgeLetter={BADGE_LETTERS[badgeRound] ?? 'k'}
+        earnedCount={badgeRound + 1}
+        onNext={nextTank}
+        onExit={onExit}
+      />
+    )
   if (screen === 'complete') return <CompleteScreen onReplay={startGame} onExit={onExit} />
 
   return (
     <Shell
       onExit={onExit}
       right={
-        <div className="text-right">
-          <p className="text-[10px] font-extrabold tracking-wide text-cyan-400 sm:text-xs">
-            tangki {fuel}%
-          </p>
-          <p className="text-xs font-bold text-white/60">
-            orb {Math.min(step + 1, PROMPTS_COUNT)} / {PROMPTS_COUNT}
-          </p>
-          <p className="text-[10px] font-bold text-amber-400/80 sm:text-xs">
-            ⛽ {filled * 10}%
-          </p>
+        <div className="flex flex-col items-end gap-1">
+          <BadgeTray earnedCount={badgeRound} compact />
+          <div className="text-right">
+            <p className="text-[10px] font-extrabold tracking-wide text-amber-300 sm:text-xs">
+              lencana {badgeRound}/{BADGE_COUNT} · target: {currentBadge.toUpperCase()} 🏅
+            </p>
+            <p className="text-xs font-bold text-white/60">
+              orb {Math.min(step + 1, PROMPTS_COUNT)} / {PROMPTS_COUNT} · tangki {fuel}%
+            </p>
+          </div>
         </div>
       }
     >
