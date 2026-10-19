@@ -32,6 +32,7 @@ export const QUIZ_REGISTRY = [
   { id: 'exam-3', title: 'Quiz Grade 3', tagline: 'Fun questions for grade 3 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-3', category: 'quizzes' },
   { id: 'exam-4', title: 'Quiz Grade 4', tagline: 'Tough questions for grade 4 learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional-4', category: 'quizzes' },
   { id: 'exam-5', title: 'Quiz Grade 5', tagline: 'Tough questions for grade 5 learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional-5', category: 'quizzes' },
+  { id: 'exam-5-english', title: 'Grade 5 English', tagline: 'Units 1–6: Plants, Houses, Birds, Money, Matter & Viruses!', images: ['/images/quiz.svg', '/images/laptop.svg'], examKey: 'kuis-english-kelas-5', category: 'quizzes' },
   { id: 'exam-6', title: 'Quiz Grade 6', tagline: 'Tough questions for grade 6 learners!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-berpikir-komputasional-6', category: 'quizzes' },
   { id: 'exam-7', title: 'Quiz Grade 7', tagline: 'CT questions for Grade 7 learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-informatika-kelas-7', category: 'quizzes' },
   { id: 'exam-smp', title: 'Quiz SMP', tagline: 'Advanced questions for junior high learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional-smp', category: 'quizzes' },

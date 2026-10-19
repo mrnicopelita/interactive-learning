@@ -26,6 +26,7 @@ import { EXAM } from './exams/examData.js'
 import { EXAM_2 } from './exams/exam2Data.js'
 import { EXAM_4 } from './exams/exam4Data.js'
 import { EXAM_5 } from './exams/exam5Data.js'
+import { EXAM_5_ENGLISH } from './exams/exam5EnglishData.js'
 import { EXAM_6 } from './exams/exam6Data.js'
 import { EXAM_3 } from './exams/exam3Data.js'
 import { EXAM_SMP } from './exams/examSmpData.js'
@@ -41,6 +42,7 @@ const EXAM_COMPONENTS = {
   'exam-3': EXAM_3,
   'exam-4': EXAM_4,
   'exam-5': EXAM_5,
+  'exam-5-english': EXAM_5_ENGLISH,
   'exam-6': EXAM_6,
   'exam-smp': EXAM_SMP,
   'exam-smp-aug3': EXAM_SMP_AUG3,
