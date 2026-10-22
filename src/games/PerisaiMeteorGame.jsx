@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti'
 
 /* ============================== config ============================== */
 const TOTAL = 12
-const LETTERS = ['F', 'G', 'H', 'J']
+const LETTERS = ['f', 'g', 'h', 'j']
 const FALL_SPEED = 46 // px per second — VERY SLOW for ages 4-5
 // next meteor spawns ~1s after a hit (LASER_MS + BOOM_MS + 250ms beat)
 const LASER_MS = 280
@@ -139,16 +139,16 @@ function RocketArt({ zoom }) {
 
 /* ============================ key guide =============================== */
 const GUIDE = [
-  { l: 'F', hand: 'left', color: 'cyan' },
-  { l: 'G', hand: 'left', color: 'cyan' },
-  { l: 'H', hand: 'right', color: 'yellow' },
-  { l: 'J', hand: 'right', color: 'yellow' },
+  { l: 'f', hand: 'left', color: 'cyan' },
+  { l: 'g', hand: 'left', color: 'cyan' },
+  { l: 'h', hand: 'right', color: 'yellow' },
+  { l: 'j', hand: 'right', color: 'yellow' },
 ]
 function KeyGuide({ target, onTap }) {
   return (
     <div className="pointer-events-auto w-full select-none rounded-2xl border border-cyan-300/20 bg-slate-950/65 px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.09),0_-8px_24px_rgba(0,0,0,0.45)]">
       <p className="mb-2 text-center text-[11px] font-extrabold tracking-widest text-white/50 uppercase sm:text-xs">
-        👈 jari telunjuk kiri <span className="text-cyan-300">F G</span> · <span className="text-yellow-300">H J</span> jari telunjuk kanan 👉
+        👈 jari telunjuk kiri <span className="text-cyan-300">f g</span> · <span className="text-yellow-300">h j</span> jari telunjuk kanan 👉
       </p>
       <div className="flex justify-center gap-2 sm:gap-3">
         {GUIDE.map((k) => {
@@ -247,7 +247,7 @@ function StartScreen({ onStart, onExit }) {
             ))}
           </div>
           <p className="mt-2 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
-            F G = telunjuk kiri 👈 · H J = telunjuk kanan 👉
+            f g = telunjuk kiri 👈 · h j = telunjuk kanan 👉
           </p>
           <button type="button" onClick={onStart}
             className="mt-4 w-full rounded-full bg-rose-500 px-8 py-3 text-xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-2xl">
@@ -390,8 +390,8 @@ export default function PerisaiMeteorGame({ onExit }) {
   const handlePress = useCallback((raw) => {
     const s = stateRef.current
     if (s.screen !== 'playing' || s.busy) return
-    const key = String(raw || '').toUpperCase()
-    if (!LETTERS.includes(key)) return // strictly F,G,H,J only
+    const key = String(raw || '').toLowerCase()
+    if (!LETTERS.includes(key)) return // strictly f,g,h,j only
     const meteor = world.current.meteor
     if (!meteor) return
     if (key === meteor.letter) {
@@ -429,7 +429,7 @@ export default function PerisaiMeteorGame({ onExit }) {
     const h = (e) => {
       if (e.repeat) return
       if (e.key.length !== 1) return
-      if (!/^[fghj]$/i.test(e.key)) return
+      if (!/^[fghj]$/.test(e.key)) return
       e.preventDefault()
       handlePress(e.key)
     }
@@ -647,7 +647,7 @@ export default function PerisaiMeteorGame({ onExit }) {
         {world.current.meteor?.docked && (
           <div className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2">
             <p className="animate-pop-in rounded-2xl bg-emerald-500/90 px-4 py-1.5 text-center text-sm font-extrabold whitespace-nowrap text-white shadow-md sm:text-base">
-              meteor menunggu… tekan {target}! 💚
+              meteor menunggu… tekan {target.toLowerCase()}! 💚
             </p>
           </div>
         )}
@@ -689,7 +689,7 @@ export default function PerisaiMeteorGame({ onExit }) {
               </span>
             ) : (
               <span className="text-sm font-bold text-cyan-200 sm:text-base">
-                tekan tombol <span className="font-black text-white">{target}</span> di keyboard ⌨️
+                tekan tombol <span className="font-black text-white">{target.toLowerCase()}</span> di keyboard ⌨️
               </span>
             )}
           </p>
