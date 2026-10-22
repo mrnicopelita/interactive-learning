@@ -262,6 +262,47 @@ function StartScreen({ onStart, onExit }) {
   )
 }
 
+/* =========================== victory screen =========================== */
+function VictoryScreen({ onReplay, onExit }) {
+  useEnter(onReplay)
+
+  return (
+    <Shell onExit={onExit}>
+      <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
+        <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
+          <div className="mx-auto h-32 w-auto sm:h-40" style={{ aspectRatio: '140/220' }}>
+            <RocketArt zoom />
+          </div>
+          <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
+          <h1 className="mt-1 text-[clamp(1.5rem,5vw,2.3rem)] font-extrabold leading-tight text-slate-700">
+            roket selamat! 🎉
+          </h1>
+          <p className="text-base font-bold text-emerald-600 sm:text-lg">
+            kamu menghancurkan {TOTAL} meteor! astronaut bangga padamu! 🚀
+          </p>
+          <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">
+            {Array.from({ length: TOTAL }, (_, i) => (
+              <span key={i} className="mrb-slot-pop text-lg sm:text-xl">⭐</span>
+            ))}
+          </div>
+
+          {/* keyboard-only on purpose: the mouse is disabled here so the
+              student keeps both hands on the keyboard */}
+          <div
+            aria-hidden="true"
+            className="animate-pov-replay mt-5 w-full cursor-not-allowed rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg select-none sm:text-3xl"
+          >
+            MAIN LAGI
+          </div>
+          <p className="mt-2 text-xs font-extrabold text-slate-400">
+            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk main lagi
+          </p>
+        </div>
+      </main>
+    </Shell>
+  )
+}
+
 /* ============================== the game ============================== */
 export default function PerisaiMeteorGame({ onExit }) {
   const [screen, setScreen] = useState('entry')
@@ -348,6 +389,15 @@ export default function PerisaiMeteorGame({ onExit }) {
     // wait for layout to settle before spawning
     later(() => spawnMeteor(0), 500)
   }, [later, spawnMeteor, seq])
+
+  /* ---------- victory: back to the start screen (ENTER only) ---------- */
+  const replay = useCallback(() => {
+    setScreen('entry')
+    setDestroyed(0)
+    setTarget(null)
+    setDocked(false)
+    setFeedback(null)
+  }, [])
 
   /* ---------- correct-key strike ---------- */
   const strike = useCallback(() => {
@@ -599,33 +649,7 @@ export default function PerisaiMeteorGame({ onExit }) {
   if (screen === 'entry') return <StartScreen onStart={startGame} onExit={onExit} />
 
   if (screen === 'complete') {
-    return (
-      <Shell onExit={onExit}>
-        <main className="z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-4">
-          <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
-            <div className="mx-auto h-32 w-auto sm:h-40" style={{ aspectRatio: '140/220' }}>
-              <RocketArt zoom />
-            </div>
-            <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
-            <h1 className="mt-1 text-[clamp(1.5rem,5vw,2.3rem)] font-extrabold leading-tight text-slate-700">
-              roket selamat! 🎉
-            </h1>
-            <p className="text-base font-bold text-emerald-600 sm:text-lg">
-              kamu menghancurkan {TOTAL} meteor! astronaut bangga padamu! 🚀
-            </p>
-            <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">
-              {Array.from({ length: TOTAL }, (_, i) => (
-                <span key={i} className="mrb-slot-pop text-lg sm:text-xl">⭐</span>
-              ))}
-            </div>
-            <button type="button" onClick={() => { setScreen('entry'); setDestroyed(0); setTarget(null) }}
-              className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl">
-              MAIN LAGI
-            </button>
-          </div>
-        </main>
-      </Shell>
-    )
+    return <VictoryScreen onReplay={replay} onExit={onExit} />
   }
 
   /* ------------------------------ playing ----------------------------- */
