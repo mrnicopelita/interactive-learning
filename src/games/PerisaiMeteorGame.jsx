@@ -270,6 +270,7 @@ export default function PerisaiMeteorGame({ onExit }) {
   const [target, setTarget] = useState(null)
   const [feedback, setFeedback] = useState(null) // 'benar' | 'coba' | null
   const [shakeKey, setShakeKey] = useState(0)
+  const [docked, setDocked] = useState(false) // meteor resting on the shield
 
   const areaRef = useRef(null)
   const canvasRef = useRef(null)
@@ -336,15 +337,17 @@ export default function PerisaiMeteorGame({ onExit }) {
     world.current.particles = []
     stateRef.current.busy = false
     setTarget(letter)
+    setDocked(false)
     setFeedback(null)
   }, [seq])
 
   const startGame = useCallback(() => {
     setDestroyed(0)
+    setTarget(seq[0]) // set immediately so the hint never renders null
     setScreen('playing')
     // wait for layout to settle before spawning
     later(() => spawnMeteor(0), 500)
-  }, [later, spawnMeteor])
+  }, [later, spawnMeteor, seq])
 
   /* ---------- correct-key strike ---------- */
   const strike = useCallback(() => {
@@ -383,6 +386,7 @@ export default function PerisaiMeteorGame({ onExit }) {
     w.particles = parts
     w.meteor = null // meteor gone — beam + sparkles remain on canvas
     w.flash = performance.now()
+    setDocked(false)
     playLaserBoom()
     setFeedback('benar')
     stateRef.current.busy = true
@@ -431,7 +435,7 @@ export default function PerisaiMeteorGame({ onExit }) {
     const h = (e) => {
       if (e.repeat) return
       if (e.key.length !== 1) return
-      if (!/^[fghj]$/.test(e.key)) return
+      if (!/^[fghj]$/i.test(e.key)) return
       e.preventDefault()
       handlePress(e.key)
     }
@@ -464,6 +468,7 @@ export default function PerisaiMeteorGame({ onExit }) {
             m.y = shieldY()
             m.docked = true
             m.dockT = now
+            setDocked(true) // re-render so the "meteor menunggu" hint shows
             tone(220, 0.18, 0.05, 'sine', 0, 330) // soft boing
           }
         } else {
@@ -646,10 +651,10 @@ export default function PerisaiMeteorGame({ onExit }) {
         </div>
 
         {/* docked hint */}
-        {world.current.meteor?.docked && (
+        {docked && (
           <div className="pointer-events-none absolute top-[34%] left-1/2 -translate-x-1/2">
             <p className="animate-pop-in rounded-2xl bg-emerald-500/90 px-4 py-1.5 text-center text-sm font-extrabold whitespace-nowrap text-white shadow-md sm:text-base">
-              meteor menunggu… tekan {target.toLowerCase()}! 💚
+              meteor menunggu… tekan {target ? target.toLowerCase() : '…'}! 💚
             </p>
           </div>
         )}
@@ -691,7 +696,7 @@ export default function PerisaiMeteorGame({ onExit }) {
               </span>
             ) : (
               <span className="text-sm font-bold text-cyan-200 sm:text-base">
-                tekan tombol <span className="font-black text-white">{target.toLowerCase()}</span> di keyboard ⌨️
+                tekan tombol <span className="font-black text-white">{target ? target.toLowerCase() : '…'}</span> di keyboard ⌨️
               </span>
             )}
           </p>

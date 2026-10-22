@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Component, useState } from 'react'
 import CpuMonitorGame from './games/CpuMonitorGame.jsx'
 import BerKomGame from './games/BerKomGame.jsx'
 import SignalLabGame from './games/SignalLabGame.jsx'
@@ -144,6 +144,41 @@ function Catalog({ onPlay }) {
   )
 }
 
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex h-dvh w-full flex-col items-center justify-center gap-4 bg-gradient-to-b from-sky-200 via-cyan-50 to-emerald-200 px-4 text-center">
+          <span className="text-5xl" aria-hidden="true">😵</span>
+          <h1 className="text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold text-slate-700">
+            Ups, ada yang error
+          </h1>
+          <p className="max-w-md text-sm font-bold text-slate-500">
+            {this.state.error?.message || 'Terjadi kesalahan tak terduga.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-full bg-emerald-500 px-8 py-3 text-lg font-extrabold text-white shadow-lg transition hover:scale-105"
+          >
+            Muat ulang
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function App() {
   const [activeView, setActiveView] = useState(
     () => window.location.hash.replace('#', '') || null,
@@ -162,4 +197,10 @@ function App() {
   return <Catalog onPlay={(gameId) => setActiveView(gameId)} />
 }
 
-export default App
+export default function Root() {
+  return (
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  )
+}
