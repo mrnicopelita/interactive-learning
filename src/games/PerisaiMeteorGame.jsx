@@ -302,6 +302,7 @@ export default function PerisaiMeteorGame({ onExit }) {
     const canvas = canvasRef.current
     if (!area || !canvas) return null
     const r = area.getBoundingClientRect()
+    if (r.width <= 1 || r.height <= 1) return null // layout not ready
     const dpr = Math.min(2, window.devicePixelRatio || 1)
     if (canvas.width !== Math.round(r.width * dpr) || canvas.height !== Math.round(r.height * dpr)) {
       canvas.width = Math.round(r.width * dpr)
@@ -341,7 +342,8 @@ export default function PerisaiMeteorGame({ onExit }) {
   const startGame = useCallback(() => {
     setDestroyed(0)
     setScreen('playing')
-    later(() => spawnMeteor(0), 350)
+    // wait for layout to settle before spawning
+    later(() => spawnMeteor(0), 500)
   }, [later, spawnMeteor])
 
   /* ---------- correct-key strike ---------- */
