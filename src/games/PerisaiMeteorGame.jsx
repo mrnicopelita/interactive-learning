@@ -635,8 +635,8 @@ export default function PerisaiMeteorGame({ onExit }) {
         </div>
       }
     >
-      <main ref={areaRef} className="relative z-10 min-h-0 flex-1">
-        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <main ref={areaRef} className="relative z-10 min-h-0 flex-1 bg-gradient-to-b from-indigo-950 via-slate-900 to-indigo-950">
+        <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" style={{ background: 'transparent' }} />
 
         {/* progress stars */}
         <div className="pointer-events-none absolute top-1 left-1/2 flex max-w-full -translate-x-1/2 flex-wrap items-center justify-center gap-0.5 px-2" aria-hidden="true">
