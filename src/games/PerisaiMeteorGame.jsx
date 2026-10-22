@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import confetti from 'canvas-confetti'
 
 /* ============================== config ============================== */
-const TOTAL = 12
+const TOTAL = 30
 const LETTERS = ['f', 'g', 'h', 'j']
 const FALL_SPEED = 46 // px per second — VERY SLOW for ages 4-5
 // next meteor spawns ~1s after a hit (LASER_MS + BOOM_MS + 250ms beat)
@@ -280,7 +280,7 @@ function VictoryScreen({ onReplay, onExit }) {
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
             kamu menghancurkan {TOTAL} meteor! astronaut bangga padamu! 🚀
           </p>
-          <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-1" aria-hidden="true">
             {Array.from({ length: TOTAL }, (_, i) => (
               <span key={i} className="mrb-slot-pop text-lg sm:text-xl">⭐</span>
             ))}
