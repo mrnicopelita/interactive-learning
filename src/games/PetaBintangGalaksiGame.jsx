@@ -15,8 +15,10 @@ const NEON = ['#22d3ee', '#f472b6', '#facc15', '#4ade80', '#a78bfa', '#fef9c3']
 const SPARK_CHARS = ['✦', '✧', '★', '✦', '·', '★']
 const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-serif"
 
-const LETTERS = ['f', 'g', 'h', 'j']
-const TOTAL = 15
+const LETTERS_LANDING = ['f', 'g', 'h', 'j']
+const LETTERS_CONST = ['f', 'g', 'h', 'j']
+const TOTAL_LANDING = 12
+const TOTAL_CONST = 15
 
 /* Rocket outline nodes (0-100 coordinate space) */
 const NODES = [
@@ -75,14 +77,13 @@ function playFanfare() {
 }
 
 /* ------------------------- helpers ------------------------ */
-function makeSequence() {
+function makeSequence(letters, total) {
   const seq = []
-  for (let i = 0; i < TOTAL; i++) {
-    const pool = LETTERS.filter((l) => l !== seq[i - 1])
+  for (let i = 0; i < total; i++) {
+    const pool = letters.filter((l) => l !== seq[i - 1])
     seq.push(pool[Math.floor(Math.random() * pool.length)])
   }
-  // ensure all four used
-  LETTERS.forEach((l) => {
+  letters.forEach((l) => {
     if (seq.includes(l)) return
     for (let k = 0; k < seq.length; k++) {
       if (seq[k] === l) continue
@@ -255,17 +256,18 @@ function StartScreen({ onStart, onExit }) {
         <div className="animate-pop-in w-full max-w-2xl rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <div className="mx-auto mb-1 text-5xl sm:text-6xl" aria-hidden="true">🚀</div>
           <h1 className="text-[clamp(1.6rem,5.5vw,2.8rem)] font-extrabold leading-none text-slate-700">
-            PETA BINTANG <span className="text-cyan-600">GALAKSI</span>
+            P15 PETA BINTANG <span className="text-cyan-600">GALAKSI</span>
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
             Oktober Space Mission · Grand Finale
           </p>
           <p className="mt-3 text-base font-bold text-slate-600 sm:text-lg">
-            Bantu astronot cilik menyambung <b className="text-amber-600">15 bintang</b> menjadi konstelasi roket, dan menangkan{' '}
+            <b className="text-emerald-600">Level 1:</b> Bantu roket mendarat dengan aman pakai f, g, h, j.{' '}
+            <b className="text-amber-600">Level 2:</b> Sambung <b className="text-amber-600">15 bintang</b> jadi konstelasi roket & menangkan{' '}
             <b className="text-rose-600">LENCANA ASTRONAUT CILIK EMAS!</b>
           </p>
           <div className="mt-4 flex justify-center gap-2">
-            {LETTERS.map((l) => (
+            {LETTERS_CONST.map((l) => (
               <span
                 key={l}
                 className="flex h-12 w-12 items-center justify-center rounded-xl border-2 text-2xl font-black shadow sm:h-14 sm:w-14 sm:text-3xl"
@@ -296,17 +298,18 @@ function StartScreen({ onStart, onExit }) {
   )
 }
 
-function WinScreen({ onReplay, onExit }) {
+function WinScreen({ onReplay, onNext, hasNext, level, onExit }) {
   useEffect(() => {
     const handler = (e) => {
       if (e.code === 'Enter' && !e.repeat) {
         e.preventDefault()
-        onReplay()
+        if (hasNext) onNext()
+        else onReplay()
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [onReplay])
+  }, [onReplay, onNext, hasNext])
 
   useEffect(() => {
     // confetti bursts
@@ -374,20 +377,39 @@ function WinScreen({ onReplay, onExit }) {
             </svg>
           </div>
           <h2 className="text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold bg-gradient-to-b from-[#fffbe6] to-[#f59e0b] bg-clip-text text-transparent drop-shadow-[0_2px_6px_rgba(0,0,0,0.55)]">
-            ASTRONAUT CILIK EMAS
+            {level === 1 ? 'LEVEL 1 SELESAI!' : 'ASTRONAUT CILIK EMAS'}
           </h2>
-          <p className="mt-2 text-base font-bold text-slate-300 sm:text-lg">Konstelasi roket menyala sempurna — 15 bintang tersambung!</p>
-          <div className="mt-2 text-xl sm:text-2xl">⭐ ⭐ ⭐ ⭐ ⭐</div>
-          <button
-            type="button"
-            onClick={onReplay}
-            className="mt-5 w-full rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 px-8 py-4 text-2xl font-extrabold text-amber-900 shadow-lg transition hover:scale-105 sm:text-3xl"
-          >
-            MAIN LAGI
-          </button>
-          <p className="mt-2 text-xs font-extrabold text-slate-400">
-            tekan <span className="rounded-md bg-slate-700 px-1.5 py-0.5 text-slate-300">enter</span> untuk main lagi
+          <p className="mt-2 text-base font-bold text-slate-300 sm:text-lg">
+            {level === 1 ? 'Roket berhasil mendarat dengan aman! Lanjut ke Level 2!' : 'Konstelasi roket menyala sempurna — 15 bintang tersambung!'}
           </p>
+          <div className="mt-2 text-xl sm:text-2xl">⭐ ⭐ ⭐ ⭐ ⭐</div>
+          {hasNext ? (
+            <>
+              <button
+                type="button"
+                onClick={onNext}
+                className="mt-5 w-full rounded-full bg-gradient-to-b from-emerald-300 to-emerald-500 px-8 py-4 text-2xl font-extrabold text-emerald-900 shadow-lg transition hover:scale-105 sm:text-3xl"
+              >
+                LANJUT LEVEL 2
+              </button>
+              <p className="mt-2 text-xs font-extrabold text-slate-400">
+                tekan <span className="rounded-md bg-slate-700 px-1.5 py-0.5 text-slate-300">enter</span> untuk lanjut
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onReplay}
+                className="mt-5 w-full rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 px-8 py-4 text-2xl font-extrabold text-amber-900 shadow-lg transition hover:scale-105 sm:text-3xl"
+              >
+                MAIN LAGI
+              </button>
+              <p className="mt-2 text-xs font-extrabold text-slate-400">
+                tekan <span className="rounded-md bg-slate-700 px-1.5 py-0.5 text-slate-300">enter</span> untuk main lagi
+              </p>
+            </>
+          )}
         </div>
       </main>
     </Shell>
@@ -397,13 +419,15 @@ function WinScreen({ onReplay, onExit }) {
 /* ------------------------- main game ------------------------ */
 export default function PetaBintangGalaksiGame({ onExit }) {
   const [screen, setScreen] = useState('start')
+  const [level, setLevel] = useState(1)
   const [seq, setSeq] = useState([])
   const [step, setStep] = useState(0)
   const [feedback, setFeedback] = useState(null)
   const [wobble, setWobble] = useState(0)
+  const [crashed, setCrashed] = useState(false)
+  const [landing, setLanding] = useState(false)
   const [time, setTime] = useState(0)
 
-  const canvasRef = useRef(null)
   const reqRef = useRef(null)
 
   useEffect(() => {
@@ -418,10 +442,12 @@ export default function PetaBintangGalaksiGame({ onExit }) {
 
   useEffect(() => {
     if (screen !== 'play') return
+    const letters = level === 1 ? LETTERS_LANDING : LETTERS_CONST
+    const total = level === 1 ? TOTAL_LANDING : TOTAL_CONST
     function handleKey(e) {
       if (e.repeat) return
       const k = (e.key || '').toLowerCase()
-      if (LETTERS.indexOf(k) < 0) return
+      if (letters.indexOf(k) < 0) return
       e.preventDefault()
       if (k === seq[step]) {
         playChime(k)
@@ -430,42 +456,71 @@ export default function PetaBintangGalaksiGame({ onExit }) {
           setFeedback(null)
           const next = step + 1
           setStep(next)
-          if (next >= TOTAL) {
-            setTimeout(() => {
+          if (next >= total) {
+            if (level === 1) {
+              setLanding(true)
               playWhoosh()
-              setTimeout(() => playFanfare(), 640)
-              setTimeout(() => setScreen('win'), 1080)
-            }, 200)
+              setTimeout(() => setScreen('win'), 1200)
+            } else {
+              setTimeout(() => {
+                playWhoosh()
+                setTimeout(() => playFanfare(), 640)
+                setTimeout(() => setScreen('win'), 1080)
+              }, 200)
+            }
           }
-        }, 400)
+        }, level === 1 ? 300 : 400)
       } else {
         playSoft()
         setFeedback('wrong')
         setWobble((w) => w + 1)
-        setTimeout(() => setFeedback(null), 600)
+        if (level === 1) {
+          setCrashed(true)
+          setTimeout(() => setCrashed(false), 700)
+        }
+        setTimeout(() => setFeedback(null), level === 1 ? 500 : 600)
       }
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [screen, seq, step])
+  }, [screen, seq, step, level])
 
   const startGame = () => {
-    setSeq(makeSequence())
+    setLevel(1)
+    setSeq(makeSequence(LETTERS_LANDING, TOTAL_LANDING))
     setStep(0)
     setFeedback(null)
+    setWobble(0)
+    setCrashed(false)
+    setLanding(false)
+    setScreen('play')
+  }
+
+  const nextLevel = () => {
+    setLevel(2)
+    setSeq(makeSequence(LETTERS_CONST, TOTAL_CONST))
+    setStep(0)
+    setFeedback(null)
+    setWobble(0)
     setScreen('play')
   }
 
   const replay = () => {
-    setSeq(makeSequence())
+    setLevel(1)
+    setSeq(makeSequence(LETTERS_LANDING, TOTAL_LANDING))
     setStep(0)
     setFeedback(null)
+    setWobble(0)
+    setCrashed(false)
+    setLanding(false)
     setScreen('play')
   }
 
   if (screen === 'start') return <StartScreen onStart={startGame} onExit={onExit} />
-  if (screen === 'win') return <WinScreen onReplay={replay} onExit={onExit} />
+  if (screen === 'win') return <WinScreen level={level} hasNext={level === 1} onNext={nextLevel} onReplay={replay} onExit={onExit} />
 
+  const letters = level === 1 ? LETTERS_LANDING : LETTERS_CONST
+  const total = level === 1 ? TOTAL_LANDING : TOTAL_CONST
   const target = seq[step]
 
   return (
@@ -473,72 +528,121 @@ export default function PetaBintangGalaksiGame({ onExit }) {
       <div className="relative z-10 flex-1 flex flex-col min-h-0">
         <header className="flex items-start justify-between px-4 pt-2 sm:px-6">
           <div>
-            <h1 className="text-lg font-extrabold text-cyan-200 sm:text-xl">PETA BINTANG GALAKSI</h1>
+            <h1 className="text-lg font-extrabold text-cyan-200 sm:text-xl">P15 PETA BINTANG GALAKSI</h1>
             <div className="text-xs font-extrabold text-yellow-400 sm:text-sm">OKTOBER SPACE MISSION · GRAND FINALE</div>
           </div>
           <div className="rounded-full bg-amber-400/20 border-2 border-amber-400/60 px-3 py-1 text-sm font-black text-yellow-300 sm:text-base">
-            ⭐ {step} / {TOTAL}
+            {level === 1 ? `Pendaratan ${step} / ${total}` : `⭐ ${step} / ${total}`}
           </div>
         </header>
 
         <div className="flex-1 relative">
-          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-            {/* Draw completed segments */}
-            {Array.from({ length: step }).map((_, i) => {
-              if (i === 0) return null
-              const a = NODES[i - 1]
-              const b = NODES[i]
-              const color = { f: '#22d3ee', g: '#67e8f9', h: '#facc15', j: '#fde047' }[seq[i - 1]] || '#22d3ee'
-              return (
-                <line
-                  key={`seg-${i}`}
-                  x1={a[0]}
-                  y1={a[1]}
-                  x2={b[0]}
-                  y2={b[1]}
-                  stroke={color}
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  style={{ filter: 'drop-shadow(0 0 4px currentColor)' }}
-                />
-              )
-            })}
-            {/* Draw nodes */}
-            {NODES.map((n, i) => {
-              const lit = i < step
-              const active = i === step
-              const color = lit || active ? { f: '#22d3ee', g: '#67e8f9', h: '#facc15', j: '#fde047' }[seq[i]] || '#22d3ee' : '#475569'
-              return (
-                <g key={`node-${i}`}>
-                  <circle
-                    cx={n[0]}
-                    cy={n[1]}
-                    r={lit ? 2.2 : active ? 2.0 : 1.8}
-                    fill={lit ? color : active ? 'rgba(15,23,42,0.9)' : 'rgba(15,23,42,0.7)'}
-                    stroke={active ? color : lit ? color : 'rgba(148,163,184,0.5)'}
-                    strokeWidth="0.6"
-                    style={lit ? { filter: `drop-shadow(0 0 6px ${color})` } : {}}
+          {level === 2 ? (
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
+              {Array.from({ length: step }).map((_, i) => {
+                if (i === 0) return null
+                const a = NODES[i - 1]
+                const b = NODES[i]
+                const color = { f: '#22d3ee', g: '#67e8f9', h: '#facc15', j: '#fde047' }[seq[i - 1]] || '#22d3ee'
+                return (
+                  <line
+                    key={`seg-${i}`}
+                    x1={a[0]}
+                    y1={a[1]}
+                    x2={b[0]}
+                    y2={b[1]}
+                    stroke={color}
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    style={{ filter: 'drop-shadow(0 0 4px currentColor)' }}
                   />
-                  {lit && <circle cx={n[0]} cy={n[1]} r="0.8" fill="white" opacity="0.9" />}
-                </g>
-              )
-            })}
-          </svg>
+                )
+              })}
+              {NODES.map((n, i) => {
+                const lit = i < step
+                const active = i === step
+                const color = lit || active ? { f: '#22d3ee', g: '#67e8f9', h: '#facc15', j: '#fde047' }[seq[i]] || '#22d3ee' : '#475569'
+                return (
+                  <g key={`node-${i}`}>
+                    <circle
+                      cx={n[0]}
+                      cy={n[1]}
+                      r={lit ? 2.2 : active ? 2.0 : 1.8}
+                      fill={lit ? color : active ? 'rgba(15,23,42,0.9)' : 'rgba(15,23,42,0.7)'}
+                      stroke={active ? color : lit ? color : 'rgba(148,163,184,0.5)'}
+                      strokeWidth="0.6"
+                      style={lit ? { filter: `drop-shadow(0 0 6px ${color})` } : {}}
+                    />
+                    {lit && <circle cx={n[0]} cy={n[1]} r="0.8" fill="white" opacity="0.9" />}
+                  </g>
+                )
+              })}
+            </svg>
+          ) : null}
 
           {/* Target star */}
           {screen === 'play' && target && (
-            <div className="absolute left-1/2 top-[20%] -translate-x-1/2" key={wobble}>
-              <div className={`relative ${feedback === 'wrong' ? 'animate-wobble' : ''}`}>
-                <svg viewBox="0 0 220 220" className="w-[clamp(7rem,26vh,12rem)] h-[clamp(7rem,26vh,12rem)] animate-float" style={{ filter: 'drop-shadow(0 0 30px rgba(250,204,21,0.8))' }}>
-                  <polygon points={STAR_SHAPE} fill={GOLD} stroke={GOLD_D} strokeWidth="7" strokeLinejoin="round" />
-                  <polygon points={starPoints(110, 110, 78, 38)} fill={GOLD_L} opacity="0.55" />
-                  <text x="110" y="110" textAnchor="middle" dominantBaseline="central" fontFamily={COMIC} fontSize="64" fontWeight="900" fill="#713f12">
+            <div className="absolute left-1/2" style={{ top: level === 1 ? '22%' : '20%', transform: 'translateX(-50%)' }} key={wobble}>
+              <div className={`relative ${feedback === 'wrong' ? (level === 1 ? 'animate-shake' : 'animate-wobble') : ''}`}>
+                <svg viewBox="0 0 220 220" className="w-[clamp(7rem,26vh,12rem)] h-[clamp(7rem,26vh,12rem)] animate-float" style={{ filter: `drop-shadow(0 0 30px ${level === 1 ? 'rgba(34,211,238,0.8)' : 'rgba(250,204,21,0.8)'})` }}>
+                  <polygon points={STAR_SHAPE} fill={level === 1 ? '#67e8f9' : GOLD} stroke={level === 1 ? '#0e7490' : GOLD_D} strokeWidth="7" strokeLinejoin="round" />
+                  <polygon points={starPoints(110, 110, 78, 38)} fill={level === 1 ? '#a5f3fc' : GOLD_L} opacity="0.55" />
+                  <text x="110" y="110" textAnchor="middle" dominantBaseline="central" fontFamily={COMIC} fontSize="64" fontWeight="900" fill={level === 1 ? '#164e63' : '#713f12'}>
                     {target}
                   </text>
                 </svg>
               </div>
             </div>
           )}
+
+          {/* Rocket */}
+          <div
+            className="absolute left-1/2 z-10"
+            style={{
+              bottom: level === 1 ? (landing ? '42%' : '8%') : '5%',
+              height: 'clamp(6rem, 22vh, 10rem)',
+              width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
+              transform: 'translateX(-50%)',
+              transition: level === 1 && landing ? 'bottom 1.1s ease-in' : undefined,
+            }}
+          >
+            <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`}>
+              <svg viewBox="0 0 120 212" className="h-full w-full overflow-visible">
+                <defs>
+                  <linearGradient id="pg-flame" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="45%" stopColor="#fb923c" />
+                    <stop offset="100%" stopColor="#f43f5e" />
+                  </linearGradient>
+                  <linearGradient id="pg-hull" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#94a3b8" />
+                    <stop offset="42%" stopColor="#ffffff" />
+                    <stop offset="100%" stopColor="#94a3b8" />
+                  </linearGradient>
+                </defs>
+                {!landing && (
+                  <g className="mrb-flame">
+                    <path d="M45 166 C45 186 52 196 60 208 C68 196 75 186 75 166 Z" fill="url(#pg-flame)" opacity="0.95" />
+                    <path d="M52 166 C52 180 55 187 60 196 C65 187 68 180 68 166 Z" fill="#fffbeb" />
+                  </g>
+                )}
+                <path d="M34 104 C20 118 14 134 14 152 L36 141 Z" fill="#fb7185" stroke="#be123c" strokeWidth="3.5" strokeLinejoin="round" />
+                <path d="M86 104 C100 118 106 134 106 152 L84 141 Z" fill="#fb7185" stroke="#be123c" strokeWidth="3.5" strokeLinejoin="round" />
+                <path d="M60 10 C80 36 88 66 88 82 L88 150 C88 164 76 170 60 170 C44 170 32 164 32 150 L32 82 C32 66 40 36 60 10 Z" fill="url(#pg-hull)" stroke="#94a3b8" strokeWidth="3.5" strokeLinejoin="round" />
+                <path d="M60 10 C80 36 87 64 88 82 L32 82 C33 64 40 36 60 10 Z" fill="#f43f5e" stroke="#be123c" strokeWidth="3.5" strokeLinejoin="round" />
+                <path d="M32.5 82 L87.5 82 L87.7 96 L32.3 96 Z" fill={GOLD} stroke={GOLD_D} strokeWidth="2.5" />
+                <circle cx="60" cy="120" r="21" fill={CYAN} stroke={CYAN_D} strokeWidth="4" />
+                <ellipse cx="51" cy="112" rx="7" ry="5" fill="#ffffff" opacity="0.7" transform="rotate(-28 51 112)" />
+                <circle cx="41" cy="150" r="5" fill="#fda4af" opacity="0.9" />
+                <circle cx="79" cy="150" r="5" fill="#fda4af" opacity="0.9" />
+                <circle cx="50" cy="146" r="4.6" fill={INK} />
+                <circle cx="70" cy="146" r="4.6" fill={INK} />
+                <circle cx="51.6" cy="144.4" r="1.7" fill="#ffffff" />
+                <circle cx="71.6" cy="144.4" r="1.7" fill="#ffffff" />
+                <path d="M51 156 Q60 164 69 156" fill="none" stroke={INK} strokeWidth="3.4" strokeLinecap="round" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         <div className="shrink-0 pb-3 sm:pb-4">
@@ -546,21 +650,26 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             <p className="text-center" role="status" aria-live="polite">
               {feedback === 'correct' ? (
                 <span className="animate-pop-in rounded-2xl bg-emerald-500/90 px-5 py-1.5 text-base font-extrabold text-white shadow-md sm:text-xl">
-                  hebat! bintang menyala ✨
+                  {level === 1 ? 'benar! roket mendekat ✨' : 'hebat! bintang menyala ✨'}
                 </span>
               ) : feedback === 'wrong' ? (
                 <span className="animate-pop-in rounded-2xl bg-amber-400/90 px-5 py-1.5 text-base font-extrabold text-slate-900 shadow-md sm:text-xl">
-                  hampir! coba lagi 💫
+                  {level === 1 ? 'salah! roket bisa jatuh!' : 'hampir! coba lagi 💫'}
+                </span>
+              ) : landing ? (
+                <span className="text-sm font-extrabold text-emerald-300 sm:text-base">
+                  Roket berhasil mendarat dengan aman! 🎉
                 </span>
               ) : (
                 <span className="text-sm font-bold text-cyan-300 sm:text-base">
-                  tekan tombol <span className="font-black text-white">{target}</span> di keyboard
+                  {level === 1 ? 'Ketik bersamaan roket mendarat: ' : 'tekan tombol '}
+                  <span className="font-black text-white">{target}</span>
                 </span>
               )}
             </p>
           </div>
           <div className="px-4">
-            <HomeRowGuide target={feedback === null ? target : null} active={LETTERS} />
+            <HomeRowGuide target={landing ? null : target} active={letters} />
           </div>
         </div>
       </div>
