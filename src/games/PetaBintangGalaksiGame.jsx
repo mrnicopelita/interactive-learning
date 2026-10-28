@@ -19,7 +19,7 @@ const LETTERS_LANDING = ['f', 'g', 'h', 'j']
 const LETTERS_CONST = ['f', 'g', 'h', 'j']
 const TOTAL_LANDING = 12
 const TOTAL_CONST = 15
-const LANDING_PAD_Y = 48
+const LANDING_PAD_Y = 58
 
 /* Rocket outline nodes (0-100 coordinate space) */
 const NODES = [
@@ -627,11 +627,11 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             id="pg-rocket"
             className="absolute left-1/2 z-10"
             style={{
-              bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${12 + (step * 3)}%`) : '5%',
+              bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${70 - step * 4.2}%`) : '5%',
               height: 'clamp(6rem, 22vh, 10rem)',
               width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
               transform: 'translateX(-50%)',
-              transition: level === 1 ? 'bottom 400ms ease-out' : undefined,
+              transition: level === 1 ? 'bottom 380ms ease-out' : undefined,
             }}
           >
             <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`}>
