@@ -19,6 +19,7 @@ const LETTERS_LANDING = ['f', 'g', 'h', 'j']
 const LETTERS_CONST = ['f', 'g', 'h', 'j']
 const TOTAL_LANDING = 12
 const TOTAL_CONST = 15
+const LANDING_PAD_Y = 48
 
 /* Rocket outline nodes (0-100 coordinate space) */
 const NODES = [
@@ -554,6 +555,15 @@ export default function PetaBintangGalaksiGame({ onExit }) {
         </header>
 
         <div className="flex-1 relative">
+          {level === 1 && (
+            <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
+              <rect x="38" y={LANDING_PAD_Y} width="24" height="2" rx="1" fill="#22d3ee" opacity="0.9" />
+              <rect x="39" y={LANDING_PAD_Y + 2} width="22" height="1.2" rx="0.6" fill="#0e7490" opacity="0.6" />
+              <g opacity="0.8">
+                <line x1="50" y1={LANDING_PAD_Y - 6} x2="50" y2={LANDING_PAD_Y} stroke="#facc15" strokeWidth="0.8" strokeDasharray="1 1" />
+              </g>
+            </svg>
+          )}
           {level === 2 ? (
             <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
               {Array.from({ length: step }).map((_, i) => {
@@ -599,7 +609,7 @@ export default function PetaBintangGalaksiGame({ onExit }) {
 
           {/* Target star */}
           {screen === 'play' && target && (
-            <div className="absolute left-1/2" style={{ top: level === 1 ? '22%' : '20%', transform: 'translateX(-50%)' }} key={wobble}>
+            <div className="absolute left-1/2" style={{ top: level === 1 ? '18%' : '20%', transform: 'translateX(-50%)' }} key={wobble}>
               <div className={`relative ${feedback === 'wrong' ? (level === 1 ? 'animate-shake' : 'animate-wobble') : ''}`}>
                 <svg viewBox="0 0 220 220" className="w-[clamp(7rem,26vh,12rem)] h-[clamp(7rem,26vh,12rem)] animate-float" style={{ filter: `drop-shadow(0 0 30px ${level === 1 ? 'rgba(34,211,238,0.8)' : 'rgba(250,204,21,0.8)'})` }}>
                   <polygon points={STAR_SHAPE} fill={level === 1 ? '#67e8f9' : GOLD} stroke={level === 1 ? '#0e7490' : GOLD_D} strokeWidth="7" strokeLinejoin="round" />
@@ -617,14 +627,14 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             id="pg-rocket"
             className="absolute left-1/2 z-10"
             style={{
-              bottom: level === 1 ? (landing ? '42%' : '12%') : '5%',
+              bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${12 + (step * 3)}%`) : '5%',
               height: 'clamp(6rem, 22vh, 10rem)',
               width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
               transform: 'translateX(-50%)',
-              transition: level === 1 ? 'bottom 900ms ease-in' : undefined,
+              transition: level === 1 ? 'bottom 400ms ease-out' : undefined,
             }}
           >
-            <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`} style={{ transition: level === 1 && landing ? 'transform 800ms ease' : undefined, transform: level === 1 && landing ? 'rotate(0deg)' : 'rotate(0deg)' }}>
+            <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`}>
               <svg viewBox="0 0 120 212" className="h-full w-full overflow-visible">
                 <defs>
                   <linearGradient id="pg-flame" x1="0" y1="0" x2="0" y2="1">
