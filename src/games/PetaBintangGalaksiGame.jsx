@@ -460,7 +460,10 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             if (level === 1) {
               setLanding(true)
               playWhoosh()
-              setTimeout(() => setScreen('win'), 1200)
+              setTimeout(() => {
+                // simulate landing done, then check - if any wrong happened in this level conceptually just proceed
+                setScreen('win')
+              }, 1400)
             } else {
               setTimeout(() => {
                 playWhoosh()
@@ -469,16 +472,30 @@ export default function PetaBintangGalaksiGame({ onExit }) {
               }, 200)
             }
           }
-        }, level === 1 ? 300 : 400)
+        }, level === 1 ? 280 : 400)
       } else {
         playSoft()
         setFeedback('wrong')
         setWobble((w) => w + 1)
         if (level === 1) {
           setCrashed(true)
-          setTimeout(() => setCrashed(false), 700)
+          // if already landed or during landing, make it fall
+          setLanding((prev) => {
+            if (prev) {
+              setTimeout(() => {
+                // trigger a "fall after landing" effect by moving further down
+                const rocketEl = document.getElementById('pg-rocket')
+                if (rocketEl) {
+                  rocketEl.style.transition = 'bottom 900ms ease-in'
+                  rocketEl.style.bottom = '-15%'
+                }
+              }, 50)
+            }
+            return prev
+          })
+          setTimeout(() => setCrashed(false), 900)
         }
-        setTimeout(() => setFeedback(null), level === 1 ? 500 : 600)
+        setTimeout(() => setFeedback(null), level === 1 ? 650 : 600)
       }
     }
     window.addEventListener('keydown', handleKey)
@@ -597,16 +614,17 @@ export default function PetaBintangGalaksiGame({ onExit }) {
 
           {/* Rocket */}
           <div
+            id="pg-rocket"
             className="absolute left-1/2 z-10"
             style={{
-              bottom: level === 1 ? (landing ? '42%' : '8%') : '5%',
+              bottom: level === 1 ? (landing ? '42%' : '12%') : '5%',
               height: 'clamp(6rem, 22vh, 10rem)',
               width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
               transform: 'translateX(-50%)',
-              transition: level === 1 && landing ? 'bottom 1.1s ease-in' : undefined,
+              transition: level === 1 ? 'bottom 900ms ease-in' : undefined,
             }}
           >
-            <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`}>
+            <div className={`h-full w-full ${crashed && level === 1 ? 'animate-shake' : ''}`} style={{ transition: level === 1 && landing ? 'transform 800ms ease' : undefined, transform: level === 1 && landing ? 'rotate(0deg)' : 'rotate(0deg)' }}>
               <svg viewBox="0 0 120 212" className="h-full w-full overflow-visible">
                 <defs>
                   <linearGradient id="pg-flame" x1="0" y1="0" x2="0" y2="1">
@@ -650,7 +668,7 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             <p className="text-center" role="status" aria-live="polite">
               {feedback === 'correct' ? (
                 <span className="animate-pop-in rounded-2xl bg-emerald-500/90 px-5 py-1.5 text-base font-extrabold text-white shadow-md sm:text-xl">
-                  {level === 1 ? 'benar! roket mendekat ✨' : 'hebat! bintang menyala ✨'}
+                  {level === 1 ? 'benar! arahkan roket ke landasan ✨' : 'hebat! bintang menyala ✨'}
                 </span>
               ) : feedback === 'wrong' ? (
                 <span className="animate-pop-in rounded-2xl bg-amber-400/90 px-5 py-1.5 text-base font-extrabold text-slate-900 shadow-md sm:text-xl">
@@ -658,11 +676,11 @@ export default function PetaBintangGalaksiGame({ onExit }) {
                 </span>
               ) : landing ? (
                 <span className="text-sm font-extrabold text-emerald-300 sm:text-base">
-                  Roket berhasil mendarat dengan aman! 🎉
+                  Roket mendarat di landasan dengan aman! 🎉
                 </span>
               ) : (
                 <span className="text-sm font-bold text-cyan-300 sm:text-base">
-                  {level === 1 ? 'Ketik bersamaan roket mendarat: ' : 'tekan tombol '}
+                  {level === 1 ? 'Pandulah roket mendarat dengan menekan: ' : 'tekan tombol '}
                   <span className="font-black text-white">{target}</span>
                 </span>
               )}
