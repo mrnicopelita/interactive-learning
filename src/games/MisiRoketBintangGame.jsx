@@ -17,24 +17,35 @@ const SPARK_CHARS = ['✦', '✧', '★', '✦', '·', '★']
 const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-serif"
 
 /* ----------------------------- game data ------------------------------ */
-const SEQ_LEN = 30
+const SEQ_LEN_LEVEL1 = 12
+const SEQ_LEN_LEVEL2 = 30
 const ANCHOR_Y = '38%'
 const FLIGHT_MS = 640
 
-function buildSeq(letters) {
+function buildSeq(letters, len) {
   const seq = []
-  while (seq.length < SEQ_LEN) seq.push(...letters)
-  return seq.slice(0, SEQ_LEN)
+  while (seq.length < len) seq.push(...letters)
+  return seq.slice(0, len)
 }
 
-const ROUNDS = [
+const LEVELS = [
   {
-    name: 'misi jangkar',
-    icon: '🪐',
+    id: 1,
+    name: 'level 1 - persiapan pendaratan',
+    icon: '🛬',
     letters: ['f', 'j'],
-    desc: 'bintang f dan j adalah jangkar jarimu!',
+    desc: 'Roket sedang mendarat! Ketik huruf f dan j bersamaan dengan pendaratannya!',
+    seqLen: SEQ_LEN_LEVEL1,
   },
-].map((r) => ({ ...r, seq: buildSeq(r.letters) }))
+  {
+    id: 2,
+    name: 'level 2 - misi bintang',
+    icon: '🚀',
+    letters: ['f', 'j'],
+    desc: 'Kumpulkan bintang untuk meluncurkan roket!',
+    seqLen: SEQ_LEN_LEVEL2,
+  },
+].map((r) => ({ ...r, seq: buildSeq(r.letters, r.seqLen) }))
 
 /* ------------------------- audio (Web Audio API) ----------------------- */
 let audioCtx = null
@@ -488,7 +499,7 @@ function StartScreen({ onStart, onExit }) {
             misi <span className="text-rose-500">roket</span> bintang
           </h1>
           <p className="mt-2 text-sm font-bold text-slate-500 sm:text-base">
-            kumpulkan {SEQ_LEN} bintang untuk meluncurkan roketmu! ⭐
+            Level 1: Roket persiapan mendarat → Level 2: Kumpulkan bintang & luncur! 🚀
           </p>
           <p className="mt-1 text-xs font-extrabold tracking-wide text-cyan-600 sm:text-sm">
             tekan f dan j di keyboard
@@ -496,10 +507,10 @@ function StartScreen({ onStart, onExit }) {
 
           <div className="mt-4 rounded-2xl bg-indigo-50 p-3 text-left">
             <p className="mb-2 text-center text-xs font-extrabold tracking-wide text-indigo-700">
-              1 misi · bintang jangkar
+              2 level · f & j
             </p>
             <div className="flex items-center justify-center gap-2">
-              {ROUNDS[0].letters.map((l) => (
+              {['f', 'j'].map((l) => (
                 <span
                   key={l}
                   className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-cyan-300 bg-cyan-400 text-2xl font-black text-slate-900 shadow sm:h-14 sm:w-14 sm:text-3xl"
@@ -527,7 +538,7 @@ function StartScreen({ onStart, onExit }) {
 }
 
 function MissionIntro({ round, onNext, onExit }) {
-  const r = ROUNDS[round]
+  const r = LEVELS[round]
   useEnter(onNext)
 
   return (
@@ -547,7 +558,7 @@ function MissionIntro({ round, onNext, onExit }) {
               </span>
             ))}
           </div>
-          <p className="mt-3 text-sm font-bold text-slate-400">kumpulkan {SEQ_LEN} bintang!</p>
+          <p className="mt-3 text-sm font-bold text-slate-400">jumlah: {r.seqLen} huruf!</p>
           <button
             type="button"
             onClick={onNext}
@@ -564,8 +575,8 @@ function MissionIntro({ round, onNext, onExit }) {
   )
 }
 
-function MissionComplete({ total, onReplay, onExit }) {
-  useEnter(onReplay)
+function MissionComplete({ level, total, onNextLevel, onReplay, onExit, hasNext }) {
+  useEnter(hasNext ? onNextLevel : onReplay)
 
   return (
     <Shell onExit={onExit}>
@@ -573,28 +584,45 @@ function MissionComplete({ total, onReplay, onExit }) {
         <div className="animate-pop-in w-full max-w-lg rounded-3xl bg-white/95 p-6 text-center shadow-lg sm:p-9">
           <span className="text-5xl sm:text-6xl" aria-hidden="true">🏆</span>
           <h1 className="mt-2 text-[clamp(1.4rem,5vw,2.2rem)] font-extrabold leading-tight text-slate-700">
-            misi selesai!
+            {level === 1 ? 'level 1 selesai!' : 'misi selesai!'}
           </h1>
           <p className="text-base font-bold text-emerald-600 sm:text-lg">
-            roket berhasil meluncur! kamu hebat, pilot! 🚀
+            {level === 1 ? 'Roket berhasil mendarat dengan aman! Lanjut ke Level 2!' : 'Roket berhasil meluncur! kamu hebat, pilot! 🚀'}
           </p>
           <p className="mt-1 text-sm font-bold text-slate-400">
-            total bintang: <span className="text-amber-500">{total}</span> / {SEQ_LEN}
+            total benar: <span className="text-amber-500">{total}</span>
           </p>
           <div className="mt-2">
-            <StarMeter collected={SEQ_LEN} total={SEQ_LEN} />
+            <StarMeter collected={total} total={total} />
           </div>
 
-          <button
-            type="button"
-            onClick={onReplay}
-            className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
-          >
-            main lagi
-          </button>
-          <p className="mt-2 text-xs font-extrabold text-slate-400">
-            tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk main lagi
-          </p>
+          {hasNext ? (
+            <>
+              <button
+                type="button"
+                onClick={onNextLevel}
+                className="animate-pov-replay mt-5 w-full rounded-full bg-emerald-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
+              >
+                LANJUT LEVEL 2
+              </button>
+              <p className="mt-2 text-xs font-extrabold text-slate-400">
+                tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk lanjut
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onReplay}
+                className="animate-pov-replay mt-5 w-full rounded-full bg-rose-500 px-8 py-4 text-2xl font-extrabold text-white shadow-lg transition hover:scale-105 sm:text-3xl"
+              >
+                main lagi
+              </button>
+              <p className="mt-2 text-xs font-extrabold text-slate-400">
+                tekan <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-slate-500">enter</span> untuk main lagi
+              </p>
+            </>
+          )}
         </div>
       </main>
     </Shell>
@@ -604,12 +632,13 @@ function MissionComplete({ total, onReplay, onExit }) {
 /* ------------------------------ the game ------------------------------ */
 export default function MisiRoketBintangGame({ onExit }) {
   const [screen, setScreen] = useState('entry')
-  const [round, setRound] = useState(0)
+  const [level, setLevel] = useState(0)
   const [step, setStep] = useState(0)
-  const [total, setTotal] = useState(0)
+  const [totalCorrect, setTotalCorrect] = useState(0)
   const [feedback, setFeedback] = useState(null)
   const [flying, setFlying] = useState(false)
-  const [launching, setLaunching] = useState(false)
+  const [landing, setLanding] = useState(false)
+  const [crashed, setCrashed] = useState(false)
   const [flight, setFlight] = useState({ dx: 0, dy: 0 })
   const [trail, setTrail] = useState([])
   const [wobbleKey, setWobbleKey] = useState(0)
@@ -619,9 +648,10 @@ export default function MisiRoketBintangGame({ onExit }) {
   const timers = useRef(new Set())
   const flightId = useRef(0)
 
-  const roundData = ROUNDS[round]
-  const target = roundData.seq[step]
-  const unlocked = useMemo(() => new Set(roundData.letters), [roundData])
+  const levelData = LEVELS[level]
+  const target = levelData.seq[step]
+  const unlocked = useMemo(() => new Set(levelData.letters), [levelData])
+  const seqLen = levelData.seqLen
 
   const later = (fn, ms) => {
     const id = setTimeout(() => {
@@ -641,7 +671,7 @@ export default function MisiRoketBintangGame({ onExit }) {
   }, [])
 
   const stateRef = useRef({})
-  stateRef.current = { step, feedback, flying, target }
+  stateRef.current = { step, feedback, flying, target, level }
 
   function measureFlight() {
     const from = starRef.current?.getBoundingClientRect()
@@ -656,76 +686,121 @@ export default function MisiRoketBintangGame({ onExit }) {
   useEffect(() => {
     if (screen !== 'playing') return
 
-    function finishMission() {
-      setLaunching(true)
-      playWhoosh()
-      later(() => {
-        spaceConfetti()
-        playFanfare()
-      }, 320)
-      later(() => setScreen('complete'), 1500)
+    function finishLevel() {
+      if (stateRef.current.level === 0) {
+        setLanding(true)
+        playWhoosh()
+        later(() => setScreen('complete'), 1200)
+      } else {
+        setCrashed(false)
+        playWhoosh()
+        later(() => {
+          spaceConfetti()
+          playFanfare()
+        }, 320)
+        later(() => setScreen('complete'), 1500)
+      }
     }
 
     const handleKey = (e) => {
       if (e.repeat || e.key.length !== 1 || !/^[a-z]$/i.test(e.key)) return
       e.preventDefault()
       const s = stateRef.current
-      if (s.feedback || s.flying) return
+      if (s.feedback || s.flying || crashed) return
 
       if (e.key.toLowerCase() === s.target) {
         setFeedback('correct')
-        setFlight(measureFlight())
-        setTrail(makeTrail(flightId.current++))
-        setFlying(true)
-        setTotal((t) => t + 1)
-        playLaser()
-        later(() => {
-          setFlying(false)
-          setFeedback(null)
-          setTrail([])
-          if (s.step + 1 >= SEQ_LEN) finishMission()
-          else setStep(s.step + 1)
-        }, FLIGHT_MS)
+        setTotalCorrect((t) => t + 1)
+        if (s.level === 1) {
+          setFlight(measureFlight())
+          setTrail(makeTrail(flightId.current++))
+          setFlying(true)
+          playLaser()
+          later(() => {
+            setFlying(false)
+            setFeedback(null)
+            setTrail([])
+            if (s.step + 1 >= seqLen) finishLevel()
+            else setStep(s.step + 1)
+          }, FLIGHT_MS)
+        } else {
+          setFeedback('correct')
+          playLaser()
+          later(() => {
+            setFeedback(null)
+            if (s.step + 1 >= seqLen) finishLevel()
+            else setStep(s.step + 1)
+          }, 400)
+        }
       } else {
         setFeedback('wrong')
         setWobbleKey((k) => k + 1)
         playSoft()
+        if (s.level === 0) {
+          setCrashed(true)
+          setTimeout(() => setCrashed(false), 800)
+        }
         later(() => setFeedback(null), 520)
       }
     }
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [screen])
+  }, [screen, crashed])
 
-  function startRound(idx) {
-    setRound(idx)
+  function startGame() {
+    setLevel(0)
     setStep(0)
+    setTotalCorrect(0)
     setFeedback(null)
     setFlying(false)
+    setLanding(false)
+    setCrashed(false)
     setTrail([])
-    setLaunching(false)
     setScreen('mission-intro')
   }
 
-  function replay() {
-    setRound(0)
+  function nextLevel() {
+    setLevel(1)
     setStep(0)
-    setTotal(0)
+    setTotalCorrect(0)
     setFeedback(null)
     setFlying(false)
+    setLanding(false)
+    setCrashed(false)
     setTrail([])
-    setLaunching(false)
+    setScreen('mission-intro')
+    playLevelUp()
+  }
+
+  function replay() {
+    setLevel(0)
+    setStep(0)
+    setTotalCorrect(0)
+    setFeedback(null)
+    setFlying(false)
+    setLanding(false)
+    setCrashed(false)
+    setTrail([])
     setScreen('playing')
     playLevelUp()
   }
 
   if (screen === 'entry') {
-    return <StartScreen onStart={() => startRound(0)} onExit={onExit} />
+    return <StartScreen onStart={startGame} onExit={onExit} />
   }
-  if (screen === 'mission-intro') return <MissionIntro round={round} onNext={() => setScreen('playing')} onExit={onExit} />
+  if (screen === 'mission-intro') return <MissionIntro round={level} onNext={() => setScreen('playing')} onExit={onExit} />
   if (screen === 'complete') {
-    return <MissionComplete total={total} onReplay={replay} onExit={onExit} />
+    return (
+      <MissionComplete
+        level={level}
+        total={totalCorrect}
+        hasNext={level === 0}
+        onNextLevel={nextLevel}
+        onReplay={replay}
+        onExit={onExit}
+      />
+    )
   }
 
   return (
@@ -734,13 +809,13 @@ export default function MisiRoketBintangGame({ onExit }) {
       right={
         <div className="text-right">
           <p className="text-[10px] font-extrabold tracking-wide text-cyan-400 sm:text-xs">
-            {roundData.name}
+            {levelData.name}
           </p>
           <p className="text-xs font-bold text-white/60">
-            bintang {step + 1} / {SEQ_LEN}
+            {level === 0 ? 'pendaratan' : 'bintang'} {step + 1} / {seqLen}
           </p>
           <p className="text-[10px] font-bold text-amber-400/80 sm:text-xs">
-            total ⭐ {total}
+            benar ⭐ {totalCorrect}
           </p>
         </div>
       }
@@ -749,7 +824,7 @@ export default function MisiRoketBintangGame({ onExit }) {
         {/* target star */}
         <div
           className="absolute left-1/2 z-20"
-          style={{ top: ANCHOR_Y, height: 'clamp(8rem, 28vh, 14rem)' }}
+          style={{ top: level === 0 ? '25%' : ANCHOR_Y, height: 'clamp(8rem, 28vh, 14rem)' }}
         >
           <div
             ref={starRef}
@@ -760,19 +835,19 @@ export default function MisiRoketBintangGame({ onExit }) {
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <div key={wobbleKey} className="mrb-wobble h-full w-full">
+            <div key={wobbleKey} className={`mrb-wobble h-full w-full ${crashed ? 'animate-shake' : ''}`}>
               <svg
                 viewBox="0 0 220 220"
                 className="mrb-star-float mrb-star-glow h-full w-full"
               >
                 <polygon
                   points={STAR_SHAPE}
-                  fill={GOLD}
-                  stroke={GOLD_D}
+                  fill={level === 0 ? CYAN : GOLD}
+                  stroke={level === 0 ? CYAN_D : GOLD_D}
                   strokeWidth="7"
                   strokeLinejoin="round"
                 />
-                <polygon points={starPoints(110, 110, 78, 38)} fill={GOLD_L} opacity="0.55" />
+                <polygon points={starPoints(110, 110, 78, 38)} fill={level === 0 ? '#a5f3fc' : GOLD_L} opacity="0.55" />
                 <text
                   x="110"
                   y="110"
@@ -781,7 +856,7 @@ export default function MisiRoketBintangGame({ onExit }) {
                   fontFamily={COMIC}
                   fontSize="64"
                   fontWeight="900"
-                  fill="#713f12"
+                  fill={level === 0 ? '#164e63' : '#713f12'}
                 >
                   {target}
                 </text>
@@ -790,19 +865,20 @@ export default function MisiRoketBintangGame({ onExit }) {
           </div>
         </div>
 
-        <StarTrail trail={trail} flight={flight} />
+        {level === 1 && <StarTrail trail={trail} flight={flight} />}
 
         {/* rocket */}
         <div
           className="absolute left-1/2 z-10"
           style={{
-            bottom: '3%',
+            bottom: level === 0 ? (landing ? '45%' : '10%') : '3%',
             height: 'clamp(6rem, 22vh, 10rem)',
             width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
             transform: 'translateX(-50%)',
+            transition: landing ? 'bottom 1.2s ease-in' : undefined,
           }}
         >
-          <div ref={rocketRef} className={`h-full w-full ${launching ? 'mrb-launch' : 'mrb-bob'}`}>
+          <div ref={rocketRef} className={`h-full w-full ${level === 1 && landing ? 'mrb-launch' : level === 0 && landing ? '' : 'mrb-bob'}`}>
             <RocketArt />
           </div>
         </div>
@@ -813,32 +889,34 @@ export default function MisiRoketBintangGame({ onExit }) {
           <p className="text-center" role="status" aria-live="polite">
             {feedback === 'correct' ? (
               <span className="animate-pop-in rounded-2xl bg-emerald-500/90 px-5 py-1.5 text-base font-extrabold text-white shadow-md sm:text-xl">
-                tepat! bintang masuk roket ✨
+                {level === 0 ? 'benar! roket mendekat ✨' : 'tepat! bintang masuk roket ✨'}
               </span>
             ) : feedback === 'wrong' ? (
               <span className="animate-pop-in rounded-2xl bg-amber-400/90 px-5 py-1.5 text-base font-extrabold text-slate-900 shadow-md sm:text-xl">
-                coba lagi ya! 💫
+                {level === 0 ? 'salah! roket bisa jatuh!' : 'coba lagi ya! 💫'}
               </span>
-            ) : launching ? (
-              <span className="text-sm font-extrabold text-rose-300 sm:text-base">
-                3… 2… 1… luncur! 🚀
+            ) : landing ? (
+              <span className="text-sm font-extrabold text-emerald-300 sm:text-base">
+                {level === 0 ? 'Roket mendarat dengan aman! 🎉' : '3… 2… 1… luncur! 🚀'}
               </span>
             ) : (
               <span className="text-sm font-bold text-cyan-300 sm:text-base">
-                tekan tombol{' '}
-                <span className="font-black text-white">{target}</span> di keyboard
+                {level === 0 ? 'Ketik bersamaan roket mendarat: ' : 'tekan tombol '}
+                <span className="font-black text-white">{target}</span>
               </span>
             )}
           </p>
         </div>
-        <div className="px-4">
-          <StarMeter collected={step + (flying ? 1 : 0)} total={SEQ_LEN} />
-        </div>
+        {level === 1 && (
+          <div className="px-4">
+            <StarMeter collected={step + (flying ? 1 : 0)} total={seqLen} />
+          </div>
+        )}
         <p className="mt-1 text-center text-[10px] font-bold text-white/40 sm:text-xs">
-          barisan home row — tekan di keyboard asli ⌨️
+          {level === 0 ? 'Level 1: persiapan pendaratan (f, j)' : 'Level 2: misi bintang (f, j)'}
         </p>
         <div className="px-4">
-          <HomeRowGuide target={flying ? null : target} unlocked={unlocked} />
+          <HomeRowGuide target={flying || landing ? null : target} unlocked={unlocked} />
         </div>
       </div>
     </Shell>
