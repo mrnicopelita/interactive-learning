@@ -609,7 +609,7 @@ export default function PetaBintangGalaksiGame({ onExit }) {
 
           {/* Target star */}
           {screen === 'play' && target && (
-            <div className="absolute left-1/2" style={{ top: level === 1 ? '18%' : '20%', transform: 'translateX(-50%)' }} key={wobble}>
+            <div className="absolute left-1/2 z-10" style={{ top: level === 1 ? '16%' : '20%', transform: 'translateX(-50%)' }} key={wobble}>
               <div className={`relative ${feedback === 'wrong' ? (level === 1 ? 'animate-shake' : 'animate-wobble') : ''}`}>
                 <svg viewBox="0 0 220 220" className="w-[clamp(7rem,26vh,12rem)] h-[clamp(7rem,26vh,12rem)] animate-float" style={{ filter: `drop-shadow(0 0 30px ${level === 1 ? 'rgba(34,211,238,0.8)' : 'rgba(250,204,21,0.8)'})` }}>
                   <polygon points={STAR_SHAPE} fill={level === 1 ? '#67e8f9' : GOLD} stroke={level === 1 ? '#0e7490' : GOLD_D} strokeWidth="7" strokeLinejoin="round" />
@@ -625,7 +625,7 @@ export default function PetaBintangGalaksiGame({ onExit }) {
           {/* Rocket */}
           <div
             id="pg-rocket"
-            className="absolute left-1/2 z-10"
+            className="absolute left-1/2 z-20"
             style={{
               bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${82 - step * 0.8}%`) : '5%',
               height: 'clamp(6rem, 22vh, 10rem)',
