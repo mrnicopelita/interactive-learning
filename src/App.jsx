@@ -20,6 +20,7 @@ import MisiRoketBintangGame from './games/MisiRoketBintangGame.jsx'
 import JembatanBintangGame from './games/JembatanBintangGame.jsx'
 import PengisiBahanBakarGame from './games/PengisiBahanBakarGame.jsx'
 import PerisaiMeteorGame from './games/PerisaiMeteorGame.jsx'
+import PetaBintangGalaksiGame from './games/PetaBintangGalaksiGame.jsx'
 import ExamRunner from './games/ExamRunner.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import { EXAM } from './exams/examData.js'
@@ -74,6 +75,7 @@ const GAME_COMPONENTS = {
   'jembatan-bintang': JembatanBintangGame,
   'pengisi-bahan-bakar': PengisiBahanBakarGame,
   'perisai-meteor': PerisaiMeteorGame,
+  'peta-bintang-galaksi': PetaBintangGalaksiGame,
 }
 
 const GAMES = QUIZ_REGISTRY.map((entry) => ({
