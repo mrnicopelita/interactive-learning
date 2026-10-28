@@ -17,7 +17,7 @@ const COMIC = "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', system-ui, sans-s
 
 const LETTERS_LANDING = ['f', 'g', 'h', 'j']
 const LETTERS_CONST = ['f', 'g', 'h', 'j']
-const TOTAL_LANDING = 24
+const TOTAL_LANDING = 40
 const TOTAL_CONST = 15
 const LANDING_PAD_Y = 58
 
@@ -627,7 +627,7 @@ export default function PetaBintangGalaksiGame({ onExit }) {
             id="pg-rocket"
             className="absolute left-1/2 z-10"
             style={{
-              bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${78 - step * 1.9}%`) : '5%',
+              bottom: level === 1 ? (landing ? `${LANDING_PAD_Y - 8}%` : `${78 - step * 1.15}%`) : '5%',
               height: 'clamp(6rem, 22vh, 10rem)',
               width: 'clamp(3.4rem, 12.4vh, 5.7rem)',
               transform: 'translateX(-50%)',
