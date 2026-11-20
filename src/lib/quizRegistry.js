@@ -38,6 +38,7 @@ export const QUIZ_REGISTRY = [
   { id: 'exam-7', title: 'Quiz Grade 7', tagline: 'CT questions for Grade 7 learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-informatika-kelas-7', category: 'quizzes' },
   { id: 'exam-smp', title: 'Quiz SMP', tagline: 'Advanced questions for junior high learners!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-berpikir-komputasional-smp', category: 'quizzes' },
   { id: 'exam-smp-aug3', title: 'Quiz SMP Grade 9', tagline: 'CT & Flowchart — August Week 3!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'kuis-ct-smp-agustus-minggu-3', category: 'quizzes' },
+  { id: 'pas-informatika-g9', title: 'PAS Informatika Kelas 9', tagline: 'SDLC & Blueprint-First — PAS Ganjil!', images: ['/images/quiz.svg', '/images/monitor.svg'], examKey: 'pas-informatika-kelas-9', category: 'quizzes' },
   { id: 'exam-smp-g8', title: 'Quiz SMP Grade 8', tagline: 'CT & Flowchart for Grade 8!', images: ['/images/quiz.svg', '/images/cpu.svg'], examKey: 'kuis-ct-smp-grade-8', category: 'quizzes' },
   { id: 'kuis-umum', title: 'Kuis Umum', tagline: 'Kuis Pengetahuan Umum Dunia IT untuk kelas 7 SMP!', images: ['/images/quiz.svg', '/images/laptop.svg'], examKey: 'kuis-umum-smp', category: 'junior-high' },
 ]

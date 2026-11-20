@@ -35,6 +35,7 @@ import { EXAM_SMP_AUG3 } from './exams/examSmpAugW3.js'
 import { EXAM_SMP_G8 } from './exams/examSmpGrade8.js'
 import { EXAM_KUIS_UMUM } from './exams/kuisUmumData.js'
 import { EXAM_7 } from './exams/exam7Data.js'
+import { EXAM_PAS_INFORMATIKA_G9 } from './exams/examPasInformatikaG9Data.js'
 import { useQuizLocks } from './lib/useQuizLocks.js'
 import { QUIZ_REGISTRY } from './lib/quizRegistry.js'
 
@@ -51,6 +52,7 @@ const EXAM_COMPONENTS = {
   'exam-smp-g8': EXAM_SMP_G8,
   'kuis-umum': EXAM_KUIS_UMUM,
   'exam-7': EXAM_7,
+  'pas-informatika-g9': EXAM_PAS_INFORMATIKA_G9,
 }
 
 const GAME_COMPONENTS = {
